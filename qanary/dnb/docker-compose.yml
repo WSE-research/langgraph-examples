@@ -1,0 +1,26 @@
+version: '3'
+services:
+  qanary-component-qb-dnb: # for building from source
+    build:
+      context: ./Qanary-Component-QueryBuilder-DNB
+      dockerfile: Dockerfile
+    env_file:
+      - ./Qanary-Component-QueryBuilder-DNB/.env
+    container_name: "QB-DNB"
+    network_mode: host # usage of ports also possible
+  qanary-component-nel-viaf: # for building from source
+    build:
+      context: ./Qanary-Component-NEL-VIAF
+      dockerfile: Dockerfile
+    env_file:
+      - ./Qanary-Component-NEL-VIAF/.env
+    container_name: "NEL-VIAF"
+    network_mode: host # usage of ports also possible
+  qanary-component-qe-sparqlexecuter: # this component was already created by someone and pushed to dockerhub
+    build:
+      context: ./Qanary-Сomponent-QE-SparqlExecuter
+      dockerfile: Dockerfile
+    network_mode: host # or use ports
+    container_name: "QE-SparqlExecuter"
+    env_file: 
+     - ./Qanary-Сomponent-QE-SparqlExecuter/.env
