@@ -1,0 +1,30 @@
+:toc:
+:toclevels: 5
+:toc-placement!:
+:source-highlighter: highlight.js
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+endif::[]
+
+# Simple Question Answering System for Deutsche Nationalbibliothek (DNB)
+
+This is a simple example of a Qanary Question Answering system for the Deutsche Nationalbibliothek (DNB).
+It is capable of answering questions about the works of authors.
+
+## Supported Questions
+
+The system supports the following questions:
+
+- "Show me works created by <author>."
+
+## Components
+
+The system consists of the following components:
+
+1. Named Entity Recognizer and Disambiguator (NED) using a LLM prompt and the DBpedia knowledge graph. The component will store an qa:AnnotationOfEntity in the Qanary triplestore
+2. DNB Query Builder will generate a SPARQL query while using an instance of qa:AnnotationOfEntity and store the computed query in the Qanary triplestore as qa:AnnotationOfAnswerSPARQL.
+3. DNB Query Executor will execute the SPARQL query on the provided endpoint (need to configure a DNB SPARQL endpoint) and store the result in the Qanary triplestore as qa:AnnotationOfAnswerJson. 
