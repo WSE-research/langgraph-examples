@@ -6,6 +6,8 @@ from langchain_core.messages import (
     FunctionMessage,
 )
 from enum import Enum
+import requests
+from typing import Dict, List, Any, Optional
 
 
 class ChatbotState(TypedDict):
@@ -36,10 +38,12 @@ class CheckerNode:
     This node checks whether user input is valid
     """
     
-    def __init__(self, keywords: list = ["order", "pizza"]):
+    def __init__(self, keywords=None):
+        if keywords is None:
+            keywords = ["order", "pizza"]
         self.keywords = keywords
 
-    def invoke(self, state: ChatbotState) -> str:
+    def invoke(self, state: ChatbotState) -> dict[str, list | dict | bool]:
         """
         Checks whether the input is a valid request for pizza order
         """
@@ -88,7 +92,7 @@ class OrderNode:
     def __init__(self):
         pass
 
-    def invoke(self, state: ChatbotState) -> str:
+    def invoke(self, state: ChatbotState) -> dict[str, list | dict | bool] | None:
         """
         Returns fallback message
         """
@@ -114,7 +118,7 @@ class OrderNode:
                 "slots": state["slots"],
                 "ended": state["ended"]
             }
-        
+
         elif next_slot == OrderSlots.CUSTOMER_ADDRESS.value:
             state['messages'].append(AIMessage("What is your delivery address?"))
             state["messages"].append(FunctionMessage(content=OrderSlots.CUSTOMER_ADDRESS, name=OrderSlots.CUSTOMER_ADDRESS.value))
@@ -123,6 +127,7 @@ class OrderNode:
                 "slots": state["slots"],
                 "ended": state["ended"]
             }
+        return None
     
 class RetrievalNode:
     """
@@ -132,7 +137,7 @@ class RetrievalNode:
     def __init__(self):
         pass
 
-    def invoke(self, state: ChatbotState) -> str:
+    def invoke(self, state: ChatbotState) -> dict[str, list | dict | bool] | None:
         """
         Extracts the information from user input
         """
@@ -148,6 +153,20 @@ class RetrievalNode:
         _input = state['input'].lower()
 
         if last_message.content == OrderSlots.PIZZA_NAME.value:
+            # available_pizzas = api_client.list_pizzas()
+            # pizza_names = [pizza['name'].lower() for pizza in available_pizzas]
+            #
+            # print("input: " + _input)
+            # print("is in pizza_names: " + str(_input in pizza_names))
+            #
+            # if _input not in pizza_names:
+            #     state['messages'].append(AIMessage(content="Sorry, that pizza is not available. Please choose from our menu."))
+            #     return {
+            #         "messages": state["messages"],
+            #         "slots": state["slots"],
+            #         "ended": state["ended"]
+            #     }
+
             state['slots'][OrderSlots.PIZZA_NAME.value] = _input
             return {
                 "messages": state["messages"],
@@ -161,13 +180,78 @@ class RetrievalNode:
                 "slots": state["slots"],
                 "ended": state["ended"]
             }
-        
+        return None
+
+class PizzaAPIClient:
+    # Communicates with https://demos.swe.htwk-leipzig.de/pizza-api/docs
+    def __init__(self, base_url: str = "https://demos.swe.htwk-leipzig.de/pizza-api"):
+        self.base_url = base_url.rstrip('/')
+        self.session = requests.Session()
+        self.session.headers.update({
+            'accept': 'application/json',
+            'Content-Type': 'application/json'
+        })
+
+    #   GET /pizza - List available pizzas
+    def list_pizzas(self) -> List[Dict[str, Any]]:
+        try:
+            response = self.session.get(f"{self.base_url}/pizza")
+            response.raise_for_status()
+            print(response.json())
+            return response.json()
+        except requests.RequestException as e:
+            print(f"Error fetching pizzas: {e}")
+            return []
+
+    #     POST /address/validate - Validate delivery address
+    def validate_address(self, address: str) -> Dict[str, Any]:
+        try:
+            response = self.session.post(
+                f"{self.base_url}/address/validate",
+                json = {"address": address}
+            )
+            response.raise_for_status()
+            print(response.json())
+            return response.json()
+        except requests.RequestException as e:
+            print(f"Error validating address: {e}")
+            return {"valid": False, "error": str(e)}
+
+    #     POST /order - Create a new pizza order
+    def create_order(self, pizza_name: str, address: str) -> Dict[str, Any]:
+        try:
+            response = self.session.post(
+                f"{self.base_url}/order",
+                json = {
+                    "pizza_name": pizza_name,
+                    "delivery_address": address
+                }
+            )
+            response.raise_for_status()
+            print(response.json())
+            return response.json()
+        except requests.RequestException as e:
+            print(f"Error creating order: {e}")
+            return {"success": False, "error": str(e)}
+
+    #     GET /order/{order_id} - Get order status
+    def get_order_status(self, order_id: str) -> Dict[str, Any]:
+        try:
+            response = self.session.get(f"{self.base_url}/order/{order_id}")
+            response.raise_for_status()
+            print(response.json())
+            return response.json()
+        except requests.RequestException as e:
+            print(f"Error fetching order status: {e}")
+            return {"status": "unknown", "error": str(e)}
+
 
 if __name__ == "__main__":
     # Initialize nodes
     order_node = OrderNode()
     checker_node = CheckerNode()
     retrieval_node = RetrievalNode()
+    api_client = PizzaAPIClient()
 
     workflow = StateGraph(ChatbotState)
     workflow.add_node(Nodes.CHECKER.value, checker_node.invoke)
