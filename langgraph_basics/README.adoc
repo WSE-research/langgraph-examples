@@ -1,0 +1,72 @@
+= LangGraph Basics Examples
+
+This directory contains a Jupyter notebook demonstrating basic LangGraph concepts through progressively complex examples.
+
+== Overview
+
+The notebook `langgraph_basics.ipynb` implements several examples that showcase how to build stateful agent workflows using LangGraph. Each example builds upon the previous one, introducing new concepts and patterns.
+
+== Examples
+
+=== 1. Minimal Hello World
+
+The first example demonstrates the most basic LangGraph workflow:
+
+* **State Schema**: Defines an `AgentState` TypedDict with:
+  - `user_name`: The user's name
+  - `output`: A list of output messages
+* **Node**: A single `greeting_node` that greets the user
+* **Graph Structure**: Simple linear flow: START → greeting → END
+* **Usage**: Takes a pre-provided user name and generates a greeting
+
+=== 2. Extended Flow with User Input
+
+This example extends the basic flow by adding user interaction:
+
+* **New Node**: `ask_user_name` node that prompts the user for their name via console input
+* **Graph Structure**: START → ask_user_name → greeting → END
+* **Usage**: The application now asks for the user's name before greeting them
+
+=== 3. Conditional Logic: Ask for Name Only If Unknown
+
+Introduces conditional routing based on state:
+
+* **Conditional Edge**: A `should_ask_user_name` function that determines the next node based on whether the user name is already known
+* **Graph Structure**: 
+  - START conditionally routes to either `ask_user_name` or `greeting`
+  - If name is unknown → ask_user_name → greeting → END
+  - If name is known → greeting → END
+* **Usage**: The application intelligently skips asking for the name if it's already provided in the initial state
+
+=== 4. Looping: Greet Multiple Persons
+
+Demonstrates how to create loops in the graph:
+
+* **New Conditional Node**: `ask_for_more_users` that prompts whether to add another user
+* **Graph Structure**: 
+  - START conditionally routes based on whether name is known
+  - After greeting, conditionally loops back to ask for another user or ends
+  - Creates a cycle: greeting → ask_for_more_users → (loop back to ask_user_name or END)
+* **Usage**: Allows greeting multiple users in sequence, with the option to continue or stop after each greeting
+
+== Key Concepts Demonstrated
+
+* **State Management**: Using TypedDict to define the agent's state schema
+* **Node Definition**: Creating functions that modify state
+* **Graph Construction**: Building graphs with `StateGraph`
+* **Conditional Edges**: Routing based on state conditions
+* **Loops**: Creating cycles in the graph for iterative workflows
+* **Visualization**: Using Mermaid diagrams to visualize graph structure
+
+== Dependencies
+
+The notebook requires:
+
+* `langgraph` - For building stateful agent workflows
+* `IPython` - For displaying graph visualizations
+* Python standard library modules: `typing`, `pprint`, `logging`
+
+== Usage
+
+Open the Jupyter notebook `langgraph_basics.ipynb` and run the cells sequentially. Each example section can be run independently, though later examples build upon earlier concepts.
+
