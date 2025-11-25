@@ -1,13 +1,16 @@
 from openai import OpenAI
 from os import environ
 from dotenv import load_dotenv
+from pprint import pprint
 
+load_dotenv()  # create .env file locally
 
-load_dotenv() # create .env file locally
-
-openai_api_key = environ.get('OPENAI_API_KEY') # Set up with the API key provided by your professor
-openai_api_base = environ.get('OPENAI_API_BASE') # Set up with the URL provided by your professor
-model_name = environ.get("MODEL_NAME") # Set up with the currently deployed model (check via HTTP GET to BASE_URL + "/v1/models")
+# Set up with the API key provided by your professor
+openai_api_key = environ.get('OPENAI_API_KEY')
+# Set up with the URL provided by your professor
+openai_api_base = environ.get('OPENAI_API_BASE')
+# Set up with the currently deployed model (check via HTTP GET to BASE_URL + "/v1/models")
+model_name = environ.get("MODEL_NAME")
 
 client = OpenAI(
     api_key=openai_api_key,
@@ -24,4 +27,4 @@ Below is a text for you to analyze."""},
     ]
 )
 
-print(chat_response.choices[0].message.content)
+pprint(chat_response)
