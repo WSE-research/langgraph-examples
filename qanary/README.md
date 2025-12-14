@@ -4,7 +4,7 @@
 
 ## What is Qanary?
 
-[Qanary](https://github.com/WDAqua/Qanary) is a framework for Question Answering over Linked Data. It enables a modular architecture that allows to combine different NLP tools via Linked Data technologies in a flexible way. 
+[Qanary](https://github.com/WDAqua/Qanary) is a framework for Question Answering over Linked Data. It enables a modular architecture that allows combining different NLP tools via Linked Data technologies in a flexible way. 
 
 The framework is based on the idea of a sequence of microservices that are connected via a message bus. Each microservice is responsible for a specific task, such as named entity recognition, relation extraction, or query formulation. 
 
@@ -16,7 +16,7 @@ The [Qanary pipeline](https://github.com/WDAqua/Qanary) is an orchestration engi
 
 ### Qanary Components
 
-[Qanary components](https://github.com/WDAqua/Qanary-question-answering-components) are the individual microservices that are connected in the Qanary pipeline. Each component is responsible for a specific task, such as named entity recognition, relation extraction, or query formulation, etc. The components can be implemented in any programming language (Java and Python are preferred) and can be combined in different ways to create a question answering pipeline.
+[Qanary components](https://github.com/WDAqua/Qanary-question-answering-components) are the individual microservices that are connected in the Qanary pipeline. Each component is responsible for a specific task, such as named entity recognition, relation extraction, or query formulation etc. The components can be implemented in any programming language (Java and Python are preferred) and can be combined in different ways to create a question answering pipeline.
 
 ## How to run this example?
 
@@ -25,7 +25,7 @@ The [Qanary pipeline](https://github.com/WDAqua/Qanary) is an orchestration engi
 To run the Qanary pipeline, you need to **expose the different components to the internet**. We will use [ngrok](https://ngrok.com/) for this purpose.
 
 1. Download and install [ngrok](https://ngrok.com/download)
-2. Edit the file `ngrok.yml` as follows (`nano ~/.config/ngrok/ngrok.yml`):
+2. Edit the file `ngrok.yml` as follows (`nano ~/.config/ngrok/ngrok.yml`) and add your authtoken (get it from https://dashboard.ngrok.com/get-started/your-authtoken):
 
 ```yaml
 version: "3"
