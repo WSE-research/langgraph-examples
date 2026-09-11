@@ -1,0 +1,13 @@
+# Dependencies of the Pizza API service (main.py) -- this is what the Docker
+# image installs. The example scripts next to it (llm.py, spacy_example.py) are
+# not part of the service; their dependencies live in requirements.txt.
+#
+# Pinned on purpose. The image was unpinned until 2026-09-11, which meant that
+# a rebuild months after the last one resolved different versions than the
+# running container had -- and eventually stopped resolving at all. A teaching
+# service that a course depends on has to rebuild to the same thing tomorrow.
+# To upgrade: raise the pins deliberately, rebuild, and run verify-pizza-api.sh
+# against the new container before deploying it.
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+pydantic==2.13.5

@@ -1,29 +1,24 @@
-# Use official Python runtime as a base image
-FROM python:3.9-slim
+# Image of the Pizza API (main.py), deployed at https://wse-research.org/pizza-api
+#
+# Python 3.12: the previous base image was python:3.9-slim, on which the build
+# stopped working -- the unpinned spacy in requirements.txt resolves to a
+# version whose thinc dependency requires Python >= 3.10, so pip could not
+# satisfy it and every rebuild failed. The service itself only needs FastAPI
+# and uvicorn, so it installs requirements-service.txt and leaves the
+# dependencies of the example scripts out of the image entirely. That also
+# removes the need for a compiler in the image.
+FROM python:3.12-slim
 
-# Set working directory in the container
 WORKDIR /app
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        gcc \
-        python3-dev \
-    && rm -rf /var/lib/apt/lists/*
+COPY requirements-service.txt .
+RUN pip install --no-cache-dir -r requirements-service.txt
 
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the application code to the container
 COPY . .
 
-# Expose the port the app runs on
 EXPOSE 8000
 
-# Command to run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

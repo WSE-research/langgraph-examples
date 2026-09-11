@@ -1,3 +1,6 @@
+# Dependencies of the example scripts in this folder (llm.py, spacy_example.py).
+# The deployed Pizza API does not use them -- its image installs
+# requirements-service.txt instead. spacy needs Python 3.10 or newer.
 dotenv
 fastapi
 uvicorn
