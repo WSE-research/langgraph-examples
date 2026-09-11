@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
+import unicodedata
 import uuid
 from enum import Enum
 
@@ -35,14 +36,43 @@ pizzas = [
     {"id": 1, "name": "Margherita"},
     {"id": 2, "name": "Pepperoni"},
     {"id": 3, "name": "Hawaiian"},
-    {"id": 4, "name": "Quattro Formaggi"}
+    {"id": 4, "name": "Quattro Formaggi"},
+    # Ids 1-4 are stable: existing course material and student code refer to
+    # them. New items are appended, never inserted.
+    {"id": 5, "name": "Funghi"},
+    {"id": 6, "name": "Salami"},
+    {"id": 7, "name": "Prosciutto"},
+    {"id": 8, "name": "Diavola"},
+    {"id": 9, "name": "Vegetariana"},
+    {"id": 10, "name": "Calzone"}
 ]
 
 # Store orders in memory (in a real application, use a proper database)
 orders = {}
 
-# Valid cities for delivery
-VALID_CITIES = ["Leipzig", "Halle", "Dresden"]
+# Valid cities for delivery. Leipzig, Halle and Dresden serve the HTWK course;
+# the French cities serve the guest lecture at Universite Jean Monnet
+# Saint-Etienne, whose running example delivers to 5 Rue Michelet.
+VALID_CITIES = [
+    "Leipzig", "Halle", "Dresden",
+    "Saint-\u00c9tienne", "Saint-Priest-en-Jarez", "Lyon"
+]
+
+
+def normalize_city(city: str) -> str:
+    """Fold a city name for comparison: no accents, no case, no stray spaces.
+
+    Students type "saint-etienne", "Saint-Etienne" and "Saint-\u00c9tienne" for the
+    same place, and a delivery service that refuses two of the three teaches
+    nothing about addresses. The stored order keeps the spelling the caller
+    sent; only the comparison is folded.
+    """
+    stripped = unicodedata.normalize("NFKD", city or "")
+    stripped = "".join(ch for ch in stripped if not unicodedata.combining(ch))
+    return " ".join(stripped.replace("-", " ").split()).casefold()
+
+
+VALID_CITIES_NORMALIZED = {normalize_city(city): city for city in VALID_CITIES}
 
 @app.get("/pizza")
 async def list_pizzas():
@@ -52,8 +82,8 @@ async def list_pizzas():
 @app.post("/address/validate")
 async def validate_address(address: Address):
     """Validate delivery address"""
-    # Check if city is serviceable
-    if address.city not in VALID_CITIES:
+    # Check if city is serviceable (accent- and case-insensitive)
+    if normalize_city(address.city) not in VALID_CITIES_NORMALIZED:
         raise HTTPException(
             status_code=400,
             detail=f"We don't deliver to {address.city}. Available cities: {', '.join(VALID_CITIES)}"
