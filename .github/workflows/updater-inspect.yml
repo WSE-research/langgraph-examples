@@ -23,8 +23,8 @@ jobs:
           import json
           ids = json.load(open('services.json'))
           print('services registered:', len(ids))
-          hits = [i for i in ids if any(w in i.lower() for w in ('pizza', 'langgraph', 'example'))]
-          print('candidates:', hits or '(none)')
+          for i in ids:
+              print(' ', i)
           PY
       - name: State of the candidate ids
         env:
