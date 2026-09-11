@@ -17,6 +17,10 @@ In other words, a dialogue is modeled wtih:
 
 ### [Python examples](https://github.com/WSE-research/langgraph-examples/tree/main/python_examples)
 
+### [Course material](https://github.com/WSE-research/langgraph-examples/tree/main/course6)
+
+`course6/` holds the practical sessions of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs* (Université Jean Monnet Saint-Étienne, WS 2026/2027).
+
 ### JavaScript examples (To be done...)
 
 

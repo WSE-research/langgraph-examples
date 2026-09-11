@@ -1,0 +1,17 @@
+# Exercise 1 -- everything the static bot needs. Nothing here talks to an LLM;
+# `openai` is installed only so that Task 8 can check the endpoint for later.
+#
+#   python3 -m venv .venv
+#   source .venv/bin/activate        # Windows: .venv\Scripts\activate
+#   pip install -r requirements.txt
+#
+# Versions are pinned so that every machine in the room behaves the same way.
+# Verified together on 2026-09-11 with Python 3.11.
+
+langgraph==1.2.11          # the process framework: state, nodes, edges, compile
+langchain-core==1.6.2      # message types (AIMessage) used in the state
+requests==2.34.2           # the Pizza API client
+python-dotenv==1.2.3       # read .env, so no key ever lands in the repository
+openai==3.13.0             # Task 8: the OpenAI-compatible ILaaS endpoint
+grandalf==0.8              # optional: ASCII rendering of the graph, works offline
+pytest==9.1.1              # the component tests of Task 6
