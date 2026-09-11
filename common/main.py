@@ -1,11 +1,39 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.openapi.docs import get_swagger_ui_html
 from pydantic import BaseModel
 from typing import List, Optional
 import unicodedata
 import uuid
 from enum import Enum
 
-app = FastAPI(root_path='/pizza-api')
+app = FastAPI(
+    root_path='/pizza-api',
+    title='Pizza API',
+    description=(
+        'A small ordering API for the *Question Answering & Chatbots* courses: '
+        'read the menu, validate a delivery address, place an order, follow it up. '
+        'Every endpoint is listed below and can be tried out directly from this page.'
+    ),
+    version='1.1.0',
+)
+
+
+@app.get('/', include_in_schema=False)
+async def api_documentation():
+    """Serve the interactive documentation at the API's own URL.
+
+    Opening https://wse-research.org/pizza-api answered 404 before, which is a
+    poor welcome for a service whose first user is a student. The same Swagger
+    UI as /docs is served here, so the URL that names the API also explains it.
+
+    The schema is referenced relatively ("openapi.json", resolved against this
+    page), so the page works behind the /pizza-api proxy prefix *and* when the
+    container is called directly on its port.
+    """
+    return get_swagger_ui_html(
+        openapi_url='openapi.json',
+        title='Pizza API - interactive documentation',
+    )
 
 # Enums and Models
 class OrderStatus(str, Enum):
