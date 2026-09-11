@@ -1,0 +1,37 @@
+name: Inspect the updater registration
+
+# Read-only: asks the microservice-updater which service ids it knows and what
+# state the Pizza API registration is in. Temporary -- used once to find the id
+# the Pizza API is registered under, before a deployment workflow is added.
+# Prints ids only (they are derived from public repository names); no payloads,
+# no configuration, no keys.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List the ids that could be the Pizza API
+        env:
+          UPDATER_HOST: ${{ secrets.UPDATER_HOST }}
+        run: |
+          set -euo pipefail
+          curl -sk -m 30 "$UPDATER_HOST/service" -o services.json
+          python3 - <<'PY'
+          import json
+          ids = json.load(open('services.json'))
+          print('services registered:', len(ids))
+          hits = [i for i in ids if any(w in i.lower() for w in ('pizza', 'langgraph', 'example'))]
+          print('candidates:', hits or '(none)')
+          PY
+      - name: State of the candidate ids
+        env:
+          UPDATER_HOST: ${{ secrets.UPDATER_HOST }}
+        run: |
+          for id in wse-research-langgraph-examples pizza-api wseresearch-pizza-api; do
+            printf '%-40s ' "$id"
+            curl -sk -m 30 -o body.txt -w '%{http_code} ' "$UPDATER_HOST/service/$id"
+            head -c 200 body.txt; echo
+          done

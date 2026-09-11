@@ -1,0 +1,36 @@
+name: Deploy the Pizza API
+
+# The service behind https://wse-research.org/pizza-api is built from common/.
+# Until now every change to it needed a manual call to the microservice-updater
+# from inside the university network, which is why the deployed version was
+# months behind the code. This workflow makes that call, and then proves from
+# outside that the new version is really the one answering.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'common/**'
+      - 'service_config/**'
+      - '.github/workflows/deploy_service.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update the service
+        uses: WSE-research/docker-service-updater@v0.2.1
+        with:
+          updater_host: ${{ secrets.UPDATER_HOST }}
+          api_key: ${{ secrets.API_KEY }}
+          config_file: service_config/service_config.json
+          setup_path: service_config
+
+      - name: Wait for the rollout
+        run: sleep 60
+
+      - name: Verify the deployment from outside
+        run: bash common/verify-pizza-api.sh
