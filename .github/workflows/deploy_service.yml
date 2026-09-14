@@ -21,10 +21,6 @@ on:
   workflow_dispatch:
 
 env:
-  # The container's own port on the demo host, as registered in
-  # service_config/service_config.json. Verified directly, because the public
-  # URL only reaches it once the reverse proxy points here.
-  DIRECT_BASE: http://demos.swe.htwk-leipzig.de:40216
   # The id the updater action derives from the clone URL.
   SERVICE_ID: wse-research-langgraph-examples
 
@@ -55,29 +51,39 @@ jobs:
           setup_path: service_config
 
       # The updater answers immediately and builds in the background, so the
-      # rollout is waited out by asking the container, not by sleeping a fixed
-      # number of seconds: a cold build pulls a base image and installs pip
-      # dependencies, a warm one is up in seconds.
-      - name: Wait for the container to answer
+      # rollout is waited out rather than slept through: a cold build pulls a
+      # base image and installs pip dependencies, a warm one is up in seconds.
+      #
+      # It is waited out by asking the *updater*, not the container. The
+      # container's own port (40216) is not reachable from outside the
+      # university network -- the host firewall exposes only some ports, and
+      # the reverse proxy is what makes a service public. Ten other proxied
+      # services sit on filtered ports and answer perfectly through the proxy,
+      # so this is normal here and not a symptom.
+      - name: Wait for the rollout to finish
+        env:
+          UPDATER_HOST: ${{ secrets.UPDATER_HOST }}
         run: |
           for attempt in $(seq 1 60); do
-            if curl -sS -m 5 "$DIRECT_BASE/pizza" >/dev/null 2>&1; then
-              echo "answering after $attempt attempt(s)"
-              exit 0
-            fi
+            state=$(curl -sk -m 10 "$UPDATER_HOST/service/$SERVICE_ID" || echo '{}')
+            echo "attempt $attempt: $state"
+            case "$state" in
+              *'"state":"RUNNING"'*) echo "rollout finished"; exit 0 ;;
+              *'"state":"FAILED"'*)  echo "the updater reports FAILED"; exit 1 ;;
+            esac
             sleep 10
           done
-          echo "no answer from $DIRECT_BASE within 10 minutes"
+          echo "the service did not reach RUNNING within 10 minutes"
           exit 1
 
-      - name: Verify the deployed version on its own port
-        run: bash common/verify-pizza-api.sh "$DIRECT_BASE"
-
-      # Informational while the cut-over is pending: until
-      # WSE-research/reverse-proxy-htwk-demos routes /pizza-api to the port
-      # above, this still reaches the old container and reports the old version.
+      # The public URL is the only address that can be checked from here, and
+      # it is the address the course material actually uses -- so it is what
+      # this job is allowed to call a success. It reaches the extended version
+      # only once configs/pizza-api.conf in WSE-research/reverse-proxy-htwk-demos
+      # routes /pizza-api to port 40216; until that lands, this step fails and
+      # says so, which is the truth: the deployed code is not yet the code the
+      # students reach.
       - name: Verify the public URL
-        continue-on-error: true
         run: bash common/verify-pizza-api.sh
 
       # What the updater itself thinks went wrong -- the build happens on the

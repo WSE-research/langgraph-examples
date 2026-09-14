@@ -8,7 +8,9 @@
 
     curl -sk "$UPDATER_HOST/service/wse-research-langgraph-examples"
 
-**Port 40216.** The extended version deliberately does *not* take 40161. That port is held by a container that predates this configuration and is not registered with the updater, so a registration binding it would fail. 40216 was free when this was written (40162 and 40163 are in use by other, unproxied containers). Once the reverse proxy points at 40216 and the extended version is confirmed live, the old container on 40161 can be removed by hand on the host.
+**Port 40216 is not reachable from outside the university network, and that is normal.** The host firewall exposes only some ports; the reverse proxy is what makes a service public. Ten other proxied services (`solid-rsync`, `wse-thesis-expose-checker`, `RoboRoyale`, …) sit on filtered ports and answer perfectly through `https://wse-research.org/...`. So a deployment is verified through the public URL, never by calling the container's port from outside; `wse-research-langgraph-examples` reporting `"state":"RUNNING"` at the updater is what says the rollout itself finished.
+
+**Why 40216.** The extended version deliberately does *not* take 40161. That port is held by a container that predates this configuration and is not registered with the updater, so a registration binding it would fail. 40216 was free when this was written (40162 and 40163 are in use by other, unproxied containers). Once the reverse proxy points at 40216 and the extended version is confirmed live, the old container on 40161 can be removed by hand on the host.
 
 The public URL `https://wse-research.org/pizza-api` is the reverse proxy in `WSE-research/reverse-proxy-htwk-demos`, `configs/pizza-api.conf`; that file decides which port the outside world reaches.
 
