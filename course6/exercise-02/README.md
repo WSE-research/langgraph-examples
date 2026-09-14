@@ -192,29 +192,42 @@ The second idea is the one people get wrong. A method whose answer is **exact** 
 
 **2a — run the example and read its two tests (4 min).** `example/simple_bot.py` is Iteration 2 in three files: a rule-based node that finds a menu name, an LLM-backed node that extracts an address, and nothing else. The key is the one handed out in the lecture hall; it goes into `.env` as `OPENAI_API_KEY` (never into a file you commit).
 
-**First, type into it yourself.** Before you read a line of the example or change anything, prove that your machine really talks to the model. Start the bot in interactive mode and type two sentences that the test file also uses — you will meet both of them again in a minute, as cases in `example/example_tests.py`:
+**First, order a pizza yourself.** Before you read a line of the example or change anything, prove that your machine really talks to the model. Start the bot and type the orders in by hand:
 
 ```bash
 python example/simple_bot.py --interactive
 ```
 
+Type each line exactly as it stands, press Enter, and read the two lines that come back. An empty line, `quit`, or Ctrl-D ends the session and prints the usage line: latency, token counts, how many answers came back fenced.
+
+**Two that must work** — a complete order, recognised by both nodes:
+
 | type this | what has to come back |
 | --- | --- |
-| `do you have Quattro Formaggi?` | `pizza : Quattro Formaggi` and `address : <nothing recognised>` — the **rule** answered; there is no address in that sentence, and the LLM node correctly extracts nothing |
-| `deliver it to 42000 Saint-Étienne` | `address : {'postcode': '42000', 'city': 'Saint-Étienne'}` and `pizza : <nothing recognised>` — the **model** answered; no menu name was said |
+| `I would like a Margherita, delivered to 42000 Saint-Étienne` | `pizza : Margherita`<br>`address : {'postcode': '42000', 'city': 'Saint-Étienne'}` |
+| `one Diavola to Lyon, 69001` | `pizza : Diavola`<br>`address : {'postcode': '69001', 'city': 'Lyon'}` |
 
-Type them exactly, one per line, and press Enter after each. An empty line, `quit`, or Ctrl-D ends the session and prints the usage line: latency, token counts, how many answers came back fenced.
+The pizza comes from the **rule** (the name is on the menu, spelled as the menu spells it) and the address from the **model** — two implementations of two components, in one sentence.
 
-**If either line does not look like the table, stop here and fix it before going on.** Everything in the rest of this iteration assumes these two work. The three things that go wrong, in the order they happen: no key in `.env` (the bot says so and exits — go back to Task 1a), the endpoint unreachable (`python check_llm.py` says which), or a missing package (`python check_setup.py` names it). A `pizza` line that is right while the `address` line is empty for *both* sentences means the rule works and the model does not — that is the key or the endpoint, never the code.
+**Two that must *not* work** — and this is the more interesting half:
 
-Only now run it the way the file itself chose, and run the tests:
+| type this | what has to come back | why |
+| --- | --- | --- |
+| `one Margaritha please` | `pizza : <nothing recognised>` | the rule does a literal lookup, and `Margaritha` is not on the menu. A human reads it as a typo; a literal rule cannot. **Task 2c is where you fix this**, and this is the sentence you will fix it with |
+| `deliver to Saint-Étienne` | `address : <nothing recognised>` | the city is there, the postcode is not. The component's guarantee is **complete or nothing** — a half address is never written into the slot, because a half address is worse than no address: the process would carry it forward as if it were an answer |
+
+Type these two as well. A bot that answers "nothing" to them is a bot that is working: refusing is a contract-conforming outcome, not a failure. If either of them *does* return a value, you have found something worth reporting — say so at the closing round.
+
+**If any of the four lines does not look like the table, stop here and fix it before going on.** Everything in the rest of this iteration assumes they behave like this. The three things that go wrong, in the order they happen: no key in `.env` (the bot says so and exits — go back to Task 1a), the endpoint unreachable (`python check_llm.py` says which), or a missing package (`python check_setup.py` names it). If the two `pizza` lines are right while *every* `address` line is empty, the rule works and the model does not — that is the key or the endpoint, never the code.
+
+Now run it without `--interactive`, and run the tests:
 
 ```bash
 python example/simple_bot.py                        # four sentences through both nodes
 python -m pytest example/example_tests.py -v        # 6 passed: five for the rule, one for the model
 ```
 
-You should see the pizza found by the rule, the address found by the model, and a usage line with latency and token counts. Two of the four sentences are deliberately *not* answered fully — `"one Margaritha please"` (a typo, which Task 2c makes work) and `"deliver to Saint-Étienne"` (no postcode, so complete-or-nothing returns `{}`). That is the example working, not failing.
+Those four sentences are the four you just typed. That is not a coincidence — the file runs exactly the cases the sheet asked you for, and the point of typing them first was to see them answered *to you* before reading them in somebody else's code. Compare the two outputs: they must agree, sentence for sentence. If your typed run and the scripted run disagree, the difference is the model, not the code, and that is the first thing this iteration is about.
 
 Now read `example/example_tests.py`, top to bottom. Five cases for the rule and five for the model, in two lists; the rule asserted case by case with `@pytest.mark.parametrize`, so a failure names the sentence that broke; the model asserted once, over all five, against `ADDRESS_THRESHOLD`.
 
