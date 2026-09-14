@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+# docs/*.png is NOT ignored on purpose: the exported process model is a
+# deliverable of this exercise and belongs in the repository.

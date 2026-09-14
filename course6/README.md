@@ -9,6 +9,7 @@ Six lectures, each followed by a 90-minute practical session. The students build
 | folder | iteration | what the students build |
 | --- | --- | --- |
 | [`exercise-01/`](exercise-01/) | 1 — from a goal to a process a team can build | a console pizza bot: contract-bound components, wired as a LangGraph process, exported as a diagram, covered by component tests — deliberately with no AI in it |
+| [`exercise-02/`](exercise-02/) | 2 — an LLM inside the process, behind unchanged contracts | two of those components get a second, LLM-backed implementation: a schema check, a domain check and a fallback to the Iteration 1 rule. One process model, two configurations (`static`, `llm`), the same test suite green in both, and a measured comparison of the two |
 
 The later iterations are added here as the course progresses.
 

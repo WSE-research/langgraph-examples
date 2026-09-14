@@ -1,0 +1,15 @@
+# prompts/example_pizza_v1.txt -- the third stage of the warm-up example's
+# pizza recognition (Task 2d). Given, so that the cascade is five minutes of
+# wiring and not five minutes of prompt writing.
+# The menu is put INTO the prompt by the component: the model chooses from a
+# list, it does not invent. The membership check afterwards stays anyway.
+# Lines starting with # are not sent to the model.
+Role: you read pizza orders for a delivery service.
+Task: which item of the menu does the customer mean?
+Menu: <MENU>
+Output: a JSON object with exactly the key pizza_name.
+Constraint: the value must be one of the menu items above, spelled exactly as
+the menu spells it. Never answer with anything that is not on the menu.
+If no menu item fits: answer {} -- the process will ask the customer.
+Example: "the four-cheese one please" -> {"pizza_name": "Quattro Formaggi"}
+Example: "I want sushi" -> {}
