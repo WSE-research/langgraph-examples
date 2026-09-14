@@ -5,6 +5,11 @@ name: Deploy the Pizza API
 # from inside the university network, which is why the deployed version was
 # months behind the code. This workflow makes that call, and then proves from
 # outside that the new version is really the one answering.
+#
+# The updater action is idempotent: it asks the updater whether the service id
+# already exists and registers it when it does not, updates it when it does.
+# So there is no separate registration workflow -- the first successful run of
+# this one is the registration.
 
 on:
   push:
@@ -15,13 +20,33 @@ on:
       - '.github/workflows/deploy_service.yml'
   workflow_dispatch:
 
+env:
+  # The container's own port on the demo host, as registered in
+  # service_config/service_config.json. Verified directly, because the public
+  # URL only reaches it once the reverse proxy points here.
+  DIRECT_BASE: http://demos.swe.htwk-leipzig.de:40216
+  # The id the updater action derives from the clone URL.
+  SERVICE_ID: wse-research-langgraph-examples
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Update the service
+      # A missing secret otherwise surfaces as an opaque failure inside the
+      # updater action. This reports presence only -- never a value.
+      - name: Check that the deployment secrets are set
+        env:
+          UPDATER_HOST: ${{ secrets.UPDATER_HOST }}
+          API_KEY: ${{ secrets.API_KEY }}
+        run: |
+          fail=0
+          if [ -n "$UPDATER_HOST" ]; then echo "UPDATER_HOST: set"; else echo "UPDATER_HOST: MISSING"; fail=1; fi
+          if [ -n "$API_KEY" ];      then echo "API_KEY: set";      else echo "API_KEY: MISSING";      fail=1; fi
+          exit $fail
+
+      - name: Register or update the service
         uses: WSE-research/docker-service-updater@v0.2.1
         with:
           updater_host: ${{ secrets.UPDATER_HOST }}
@@ -29,8 +54,36 @@ jobs:
           config_file: service_config/service_config.json
           setup_path: service_config
 
-      - name: Wait for the rollout
-        run: sleep 60
+      # The updater answers immediately and builds in the background, so the
+      # rollout is waited out by asking the container, not by sleeping a fixed
+      # number of seconds: a cold build pulls a base image and installs pip
+      # dependencies, a warm one is up in seconds.
+      - name: Wait for the container to answer
+        run: |
+          for attempt in $(seq 1 60); do
+            if curl -sS -m 5 "$DIRECT_BASE/pizza" >/dev/null 2>&1; then
+              echo "answering after $attempt attempt(s)"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "no answer from $DIRECT_BASE within 10 minutes"
+          exit 1
 
-      - name: Verify the deployment from outside
+      - name: Verify the deployed version on its own port
+        run: bash common/verify-pizza-api.sh "$DIRECT_BASE"
+
+      # Informational while the cut-over is pending: until
+      # WSE-research/reverse-proxy-htwk-demos routes /pizza-api to the port
+      # above, this still reaches the old container and reports the old version.
+      - name: Verify the public URL
+        continue-on-error: true
         run: bash common/verify-pizza-api.sh
+
+      # What the updater itself thinks went wrong -- the build happens on the
+      # host, so its errors are not in this log unless they are asked for.
+      - name: Registration state reported by the updater
+        if: failure()
+        env:
+          UPDATER_HOST: ${{ secrets.UPDATER_HOST }}
+        run: curl -sk -m 30 "$UPDATER_HOST/service/$SERVICE_ID" || true

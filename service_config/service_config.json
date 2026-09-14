@@ -1,0 +1,10 @@
+{
+  "services": [
+    {
+      "mode": "docker",
+      "url": "https://github.com/WSE-research/langgraph-examples.git",
+      "docker_root": "common",
+      "port": "40216:8000"
+    }
+  ]
+}
