@@ -49,7 +49,7 @@ d = json.load(sys.stdin)
 assert [p["id"] for p in d] == list(range(1, 21)), [p["id"] for p in d]
 assert [p["name"] for p in d[:4]] == ["Margherita", "Pepperoni", "Hawaiian", "Quattro Formaggi"], d[:4]
 assert d[9]["name"] == "Calzone", d[9]
-assert d[19]["name"] == "Prosciutto e Funghi", d[19]
+assert d[19]["name"] == "Boscaiola", d[19]
 ' 2>/dev/null; then
   ok "the menu has twenty pizzas, ids 1-20, the first ten unchanged"
 else

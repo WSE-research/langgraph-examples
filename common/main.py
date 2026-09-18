@@ -80,14 +80,20 @@ pizzas = [
     # pizzas from GET /pizza, so ten names are not enough to pick from.
     {"id": 11, "name": "Capricciosa"},
     {"id": 12, "name": "Marinara"},
-    {"id": 13, "name": "Napoli"},
+    # Not "Napoli": "One Pizza Napoli please" is the standing example of a name
+    # that is NOT on the menu in the Iteration 2 material, and a menu that
+    # contradicts the course material is worse than a shorter menu.
+    {"id": 13, "name": "Siciliana"},
     {"id": 14, "name": "Tonno"},
     {"id": 15, "name": "Frutti di Mare"},
     {"id": 16, "name": "Quattro Stagioni"},
     {"id": 17, "name": "Bufala"},
     {"id": 18, "name": "Tartufo"},
     {"id": 19, "name": "Rucola"},
-    {"id": 20, "name": "Prosciutto e Funghi"}
+    # Not "Prosciutto e Funghi": the static recognizer of Iteration 1 matches menu
+    # names by substring in menu order, so it would answer "Prosciutto" (id 7)
+    # to every order of it -- a trap in the data, not a lesson.
+    {"id": 20, "name": "Boscaiola"}
 ]
 
 # Store orders in memory (in a real application, use a proper database)
