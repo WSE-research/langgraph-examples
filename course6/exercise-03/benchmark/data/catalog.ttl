@@ -1,0 +1,153 @@
+# The benchmark catalog: the things a generated sentence can talk about.
+#
+# Every individual is typed with the SLOT CLASS it serves ( :PIZZA, :ADDRESS,
+# :STREET, :STREETNUMBER, :CITY ), carries the canonical value the bot has to
+# produce ( :name, :pizzaId ) and every wording a user might write for it
+# ( rdfs:label ). Nothing here is a test case -- these are the building blocks
+# a pattern draws from.
+#
+# Extending this file is the point: one more rdfs:label, one more individual.
+
+@prefix :     <http://example.org/pizza/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tg:   <http://example.org/testgen/> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+########################################################################
+# The menu -- the ten pizzas of GET /pizza, with the ids the API uses.
+# tests/test_dataset.py checks these against the known menu.
+#
+# :onMenu says whether the service sells this pizza. A pizza with :onMenu false
+# carries NO :pizzaId -- it is a thing customers ask for and we do not have, and
+# the correct outcome of such a sentence is "nothing recognised". Both kinds
+# belong in a benchmark; only the first kind can ever fill a slot.
+########################################################################
+
+:Margherita a :PIZZA ; :pizzaId 1 ; :name "Margherita" ; :onMenu true ;
+    rdfs:label "Margherita", "margherita", "Margarita", "margarita", "Marguerita" .
+
+:Pepperoni a :PIZZA ; :pizzaId 2 ; :name "Pepperoni" ; :onMenu true ;
+    rdfs:label "Pepperoni", "pepperoni", "Peperoni", "pepperoni pizza" .
+
+:Hawaiian a :PIZZA ; :pizzaId 3 ; :name "Hawaiian" ; :onMenu true ;
+    rdfs:label "Hawaiian", "hawaiian", "Hawaii", "Hawaïenne" .
+
+:QuattroFormaggi a :PIZZA ; :pizzaId 4 ; :name "Quattro Formaggi" ; :onMenu true ;
+    rdfs:label "Quattro Formaggi", "quattro formaggi", "4 formaggi", "Four Cheese", "4 fromages" .
+
+:Funghi a :PIZZA ; :pizzaId 5 ; :name "Funghi" ; :onMenu true ;
+    rdfs:label "Funghi", "funghi", "Fungi", "mushroom pizza" .
+
+:Salami a :PIZZA ; :pizzaId 6 ; :name "Salami" ; :onMenu true ;
+    rdfs:label "Salami", "salami", "Salame" .
+
+:Prosciutto a :PIZZA ; :pizzaId 7 ; :name "Prosciutto" ; :onMenu true ;
+    rdfs:label "Prosciutto", "prosciutto", "Proscuitto", "ham pizza" .
+
+:Diavola a :PIZZA ; :pizzaId 8 ; :name "Diavola" ; :onMenu true ;
+    rdfs:label "Diavola", "diavola", "Diabola", "Diavolo" .
+
+:Vegetariana a :PIZZA ; :pizzaId 9 ; :name "Vegetariana" ; :onMenu true ;
+    rdfs:label "Vegetariana", "vegetariana", "Vegetarian", "végétarienne" .
+
+:Calzone a :PIZZA ; :pizzaId 10 ; :name "Calzone" ; :onMenu true ;
+    rdfs:label "Calzone", "calzone", "Calzonne" .
+
+########################################################################
+# Addresses. An address is STRUCTURED: :a1 owns its street, its number and
+# its city, so a sentence generated from {ADDRESS:STREET}, {ADDRESS:CITY}
+# can never mix a street of one town with the name of another.
+########################################################################
+
+:a1 a :ADDRESS ; :hasStreet :st1 ; :hasStreetNumber :sn1 ; :hasCity :saintEtienne .
+:st1 a :STREET       ; :name "Rue Michelet" ;
+    rdfs:label "Rue Michelet", "rue michelet", "R. Michelet", "Rue Michelet " .
+:sn1 a :STREETNUMBER ; :name "5" ;
+    rdfs:label "5", "no 5", "Nr. 5" .
+
+:a2 a :ADDRESS ; :hasStreet :st2 ; :hasStreetNumber :sn2 ; :hasCity :saintEtienne .
+:st2 a :STREET       ; :name "Avenue de la Libération" ;
+    rdfs:label "Avenue de la Libération", "Avenue de la Liberation", "Av. de la Libération" .
+:sn2 a :STREETNUMBER ; :name "12b" ;
+    rdfs:label "12b", "12 b", "12B" .
+
+:a3 a :ADDRESS ; :hasStreet :st3 ; :hasStreetNumber :sn3 ; :hasCity :saintPriest .
+:st3 a :STREET       ; :name "Rue Ferdinand" ;
+    rdfs:label "Rue Ferdinand", "rue ferdinand" .
+:sn3 a :STREETNUMBER ; :name "34" ;
+    rdfs:label "34", "n° 34" .
+
+:a4 a :ADDRESS ; :hasStreet :st4 ; :hasStreetNumber :sn4 ; :hasCity :lyon .
+:st4 a :STREET       ; :name "Place Bellecour" ;
+    rdfs:label "Place Bellecour", "place bellecour", "Pl. Bellecour" .
+:sn4 a :STREETNUMBER ; :name "7" ;
+    rdfs:label "7", "no 7" .
+
+:a5 a :ADDRESS ; :hasStreet :st5 ; :hasStreetNumber :sn5 ; :hasCity :leipzig .
+:st5 a :STREET       ; :name "Karl-Liebknecht-Straße" ;
+    rdfs:label "Karl-Liebknecht-Straße", "Karl-Liebknecht-Strasse", "Karl Liebknecht Str." .
+:sn5 a :STREETNUMBER ; :name "132" ;
+    rdfs:label "132", "Nr. 132" .
+
+:a6 a :ADDRESS ; :hasStreet :st6 ; :hasStreetNumber :sn6 ; :hasCity :halle .
+:st6 a :STREET       ; :name "Gustav-Freytag-Straße" ;
+    rdfs:label "Gustav-Freytag-Straße", "Gustav-Freytag-Strasse" .
+:sn6 a :STREETNUMBER ; :name "42" ;
+    rdfs:label "42", "Nr. 42" .
+
+# Paris used to be the "we do not deliver there" example. Since the service
+# learned every commune of France (2026-09-18) it is an ordinary delivery city,
+# and the refusal case had to move abroad -- see :a8 below.
+:a7 a :ADDRESS ; :hasStreet :st7 ; :hasStreetNumber :sn7 ; :hasCity :paris .
+:st7 a :STREET       ; :name "Rue de Rivoli" ;
+    rdfs:label "Rue de Rivoli", "rue de rivoli" .
+:sn7 a :STREETNUMBER ; :name "99" ;
+    rdfs:label "99" .
+
+# Outside the delivery area on purpose: the expected outcome of an order to this
+# address is a refusal, which is what makes it useful in a benchmark. It has to
+# be outside FRANCE now, not merely outside a list of six cities.
+:a8 a :ADDRESS ; :hasStreet :st8 ; :hasStreetNumber :sn8 ; :hasCity :barcelona .
+:st8 a :STREET       ; :name "Carrer de Mallorca" ;
+    rdfs:label "Carrer de Mallorca", "carrer de mallorca", "C. de Mallorca" .
+:sn8 a :STREETNUMBER ; :name "401" ;
+    rdfs:label "401", "no 401" .
+
+########################################################################
+# Cities. `:deliverable` mirrors the delivery area of the Pizza API, which
+# since 2026-09-18 is every commune of France plus Leipzig, Halle and Dresden
+# -- about 32 700 names. So this file does not list the area; it holds the
+# handful of cities the course examples use, and `tests/test_dataset.py` checks
+# every one of them against `GET /city`.
+#
+# The cities below were written by hand for the running example. The ones YOU
+# add come from the service instead: `python -m benchmark.fetch cities ...`
+# writes them into picked.ttl with the spelling the service uses and a
+# `tg:source` line saying where they came from.
+########################################################################
+
+:saintEtienne a :CITY ; :name "Saint-Étienne" ; :deliverable true ;
+    rdfs:label "Saint-Étienne", "Saint Etienne", "saint-etienne", "St-Étienne", "St. Etienne", "St Etienne" .
+
+:saintPriest a :CITY ; :name "Saint-Priest-en-Jarez" ; :deliverable true ;
+    rdfs:label "Saint-Priest-en-Jarez", "Saint Priest en Jarez", "St-Priest-en-Jarez" .
+
+:lyon a :CITY ; :name "Lyon" ; :deliverable true ;
+    rdfs:label "Lyon", "lyon", "LYON" .
+
+:leipzig a :CITY ; :name "Leipzig" ; :deliverable true ;
+    rdfs:label "Leipzig", "leipzig" .
+
+:halle a :CITY ; :name "Halle" ; :deliverable true ;
+    rdfs:label "Halle", "halle", "Halle (Saale)" .
+
+:dresden a :CITY ; :name "Dresden" ; :deliverable true ;
+    rdfs:label "Dresden", "dresden" .
+
+:paris a :CITY ; :name "Paris" ; :deliverable true ;
+    rdfs:label "Paris", "paris", "PARIS" .
+
+# The refusal case: not a commune of France, so the service says no to it, so a
+# sentence that orders a pizza there must end in "nothing recognised".
+:barcelona a :CITY ; :name "Barcelona" ; :deliverable false ;
+    rdfs:label "Barcelona", "barcelona", "BARCELONA" .

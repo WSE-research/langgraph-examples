@@ -1,0 +1,100 @@
+# The meta model: how a slot of a pattern is resolved against the catalog, and
+# what a drawn individual means for the expected output of a component.
+#
+# This file is vocabulary, not data. It changes when a new KIND of thing enters
+# the benchmark -- not when another pizza or another address is added.
+
+@prefix :    <http://example.org/pizza/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tg:   <http://example.org/testgen/> .
+
+########################################################################
+# Which classes fill a field of the bot's state, and with what value.
+#   tg:fills  -- the state field this class is responsible for
+#   tg:value  -- the property holding the canonical value (scalar classes)
+#   tg:field  -- the key this class contributes to a structured record
+########################################################################
+
+:PIZZA   tg:fills "pizza_id" ; tg:value :pizzaId ; tg:available :onMenu .
+:ADDRESS tg:fills "address" .
+:CITY    tg:available :deliverable .
+
+:STREET       tg:field "street" .
+:STREETNUMBER tg:field "house_number" .   # the key the state's Address type uses
+:CITY         tg:field "city" .
+
+########################################################################
+# Which flag says that the service can actually serve an individual.
+#   tg:available -- the property carrying the boolean
+#
+# This is what turns a catalog entry into a REFUSAL case: a pizza that is not
+# on the menu of GET /pizza, or an address in a city the service does not
+# deliver to, is a perfectly good sentence whose correct outcome is "nothing
+# recognised". The generator reads the flag through `catalog.servable()` and
+# writes the expected outcome accordingly -- an address inherits the flag of
+# its city, because that is the part the service refuses.
+########################################################################
+
+########################################################################
+# Patterns. A slot is {CLASS}; a qualified slot {CLASS:PART} draws ONE
+# individual of CLASS and renders the part of it that is typed PART.
+# A trailing ? makes a slot optional.
+#
+# tg:benchmark -- the dataset this pattern produces cases for
+# tg:exercises -- which components a case of this pattern measures
+#
+# Four shapes for one address on purpose. Two of them are the word orders the
+# Iteration 1 rule was written for (number first / number last, comma before the
+# city); the other two are what people actually type. A benchmark made only of
+# the first kind measures the rule against itself; one made only of the second
+# kind reports 0.00 and tells you nothing about where the line runs. The
+# difference between the two is the number this session is about.
+########################################################################
+
+:address_only a tg:Pattern ;
+    tg:benchmark "address_v2" ;
+    tg:exercises "address_recognition" ;
+    tg:template  "{DELIVER} {ADDRESS:STREET}, {ADDRESS:STREETNUMBER}, {ADDRESS:CITY}" .
+
+:address_spoken a tg:Pattern ;
+    tg:benchmark "address_v2" ;
+    tg:exercises "address_recognition" ;
+    tg:template  "{DELIVER} {ADDRESS:STREETNUMBER} {ADDRESS:STREET} in {ADDRESS:CITY}" .
+
+:address_classic a tg:Pattern ;
+    tg:benchmark "address_v2" ;
+    tg:exercises "address_recognition" ;
+    tg:template  "{DELIVER} {ADDRESS:STREETNUMBER} {ADDRESS:STREET}, {ADDRESS:CITY}" .
+
+:address_number_last a tg:Pattern ;
+    tg:benchmark "address_v2" ;
+    tg:exercises "address_recognition" ;
+    tg:template  "{DELIVER} {ADDRESS:STREET} {ADDRESS:STREETNUMBER}, {ADDRESS:CITY}" .
+
+:pizza_only a tg:Pattern ;
+    tg:benchmark "pizza_v2" ;
+    tg:exercises "pizza_recognition" ;
+    tg:template  "{ORDER} {ARTICLE?} {PIZZA}" .
+
+:pizza_polite a tg:Pattern ;
+    tg:benchmark "pizza_v2" ;
+    tg:exercises "pizza_recognition" ;
+    tg:template  "{ORDER} {ARTICLE?} {PIZZA}, please" .
+
+:full_order_classic a tg:Pattern ;
+    tg:benchmark "order_v2" ;
+    tg:exercises "pizza_recognition", "address_recognition" ;
+    tg:template  "{ORDER} {ARTICLE?} {PIZZA} to {ADDRESS:STREETNUMBER} {ADDRESS:STREET}, {ADDRESS:CITY}" .
+
+:full_order a tg:Pattern ;
+    tg:benchmark "order_v2" ;
+    tg:exercises "pizza_recognition", "address_recognition" ;
+    tg:template  "{ORDER} {ARTICLE?} {PIZZA} to {ADDRESS:STREET}, {ADDRESS:STREETNUMBER}, {ADDRESS:CITY}" .
+
+########################################################################
+# Wording-only slots: they vary the sentence and fill nothing.
+########################################################################
+
+:order1   a :ORDER   ; rdfs:label "Order", "I would like to order", "I would like to buy", "Can I get" .
+:deliver1 a :DELIVER ; rdfs:label "Deliver to", "Bring it to", "Please deliver to" .
+:article1 a :ARTICLE ; rdfs:label "a", "one" .

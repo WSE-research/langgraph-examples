@@ -1,0 +1,8 @@
+# {ADDRESS:STREET}: the part of the drawn individual that is typed :STREET.
+# Which property links the two does not matter -- the class identifies the
+# part, so renaming :hasStreet breaks nothing.
+SELECT ?part
+WHERE {
+  ?instance ?property ?part .
+  ?part a ?class .
+}

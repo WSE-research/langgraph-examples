@@ -1,0 +1,25 @@
+# Exercise 3 -- the Iteration 2 stack plus the knowledge graph.
+#
+#   python3 -m venv .venv
+#   source .venv/bin/activate        # Windows: .venv\Scripts\activate
+#   pip install -r requirements.txt
+#   python check_setup.py
+#
+# Versions are pinned so that every machine in the room behaves the same way,
+# and because a measurement that cannot be reproduced is not a measurement.
+# Verified together on 2026-09-18 with Python 3.10: `pytest -q` green, the
+# generator and the evaluator run end to end against the local Pizza API stub.
+#
+# Exactly one dependency is new since Iteration 2: rdflib. The benchmark server
+# uses the standard library (http.server), so there is no web framework here,
+# and nothing in this folder needs a triplestore.
+
+langgraph==1.2.11          # the process framework: state, nodes, edges, compile
+langchain-core==1.6.2      # message types (AIMessage) used in the state
+requests==2.34.2           # the Pizza API client
+python-dotenv==1.2.3       # read .env, so no key ever lands in the repository
+openai==3.13.0             # the OpenAI-compatible ILaaS endpoint
+pydantic==2.13.5           # the schema check at the contract boundary
+grandalf==0.8              # optional: ASCII rendering of the graph, works offline
+pytest==9.1.1              # the test suite, and the two task gates
+rdflib==6.2.0              # NEW: the knowledge graph -- parse Turtle, answer SPARQL, in-process
