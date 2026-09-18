@@ -1,8 +1,8 @@
 # Pizza API
 
-A small ordering API used by the *Question Answering & Chatbots* course (HTWK Leipzig) and the guest course in Saint-Étienne ([`course6/`](../course6/)): read the menu, validate a delivery address, place an order, follow it up. `main.py` is the whole service; `llm.py` and `spacy_example.py` are separate example scripts that happen to live in the same folder and are *not* part of the deployed image.
+A small ordering API used by the *Question Answering & Chatbots* course (HTWK Leipzig) and the guest course in Saint-Étienne ([`course6/`](../course6/)): read the menu, browse the delivery area, validate a delivery address, place an order, follow it up. `main.py` is the whole service; `llm.py` and `spacy_example.py` are separate example scripts that happen to live in the same folder and are *not* part of the deployed image.
 
-The service is live at <https://wse-research.org/pizza-api>, which serves its own Swagger UI, so the URL that names the API also explains it. It runs on `demos.swe.htwk-leipzig.de` (port 40161) behind [`WSE-research/reverse-proxy-htwk-demos`](https://github.com/WSE-research/reverse-proxy-htwk-demos) (`configs/pizza-api.conf`). The path `https://demos.swe.htwk-leipzig.de/pizza-api` is *not* usable: on that virtual host the demo platform's single-page app shadows it. Same server, same service, only the `wse-research.org` route works.
+The service is live at <https://wse-research.org/pizza-api>, which serves its own Swagger UI, so the URL that names the API also explains it. It runs on `demos.swe.htwk-leipzig.de` (port 40216, registered with the updater as `wse-research-langgraph-examples`) behind [`WSE-research/reverse-proxy-htwk-demos`](https://github.com/WSE-research/reverse-proxy-htwk-demos) (`configs/pizza-api.conf`). The path `https://demos.swe.htwk-leipzig.de/pizza-api` is *not* usable: on that virtual host the demo platform's single-page app shadows it. Same server, same service, only the `wse-research.org` route works.
 
 ## Run it locally
 
@@ -21,7 +21,18 @@ bash verify-pizza-api.sh                        # the live service
 bash verify-pizza-api.sh http://127.0.0.1:8000  # a container you just built
 ```
 
-Thirteen checks: the Swagger UI at the base URL, the schema, the ten pizzas with stable ids 1–4, every city of the delivery area including the spellings students actually type (`saint etienne`, `SAINT-ETIENNE`), a refusal outside it, a real order and reading it back, and an unknown order id. Exit code 0 means the deployed version is the current one. Run it after every deployment: a course starts on time or not at all.
+Eighteen checks: the Swagger UI at the base URL, the schema, the twenty pizzas with stable ids, `GET /city` (search, paging, `X-Total-Count`, largest first), cities of the delivery area including the spellings students actually type (`saint etienne`, `SAINT-ETIENNE`), a refusal outside it, a real order and reading it back, and an unknown order id. Exit code 0 means the deployed version is the current one. Run it after every deployment: a course starts on time or not at all.
+
+## The data
+
+| what | where | how many |
+| --- | --- | --- |
+| the menu | `main.py`, the `pizzas` list | 20, ids 1–20. Ids are stable: new pizzas are appended, never inserted, because student code and course material refer to them. 11–20 were appended on 2026-09-18. |
+| the delivery area | `data/cities.tsv.gz` | ~32 700: **every commune of France** (from the French government's geo API, Etalab open licence) plus Leipzig, Halle and Dresden, which the HTWK course has used since 2024. |
+
+`build-cities.py` regenerates the city file from <https://geo.api.gouv.fr/communes>; the result is committed, so the image builds offline and a deployment never waits on somebody else's API. The file is read once at startup and matched accent- and case-folded, exactly as `POST /address/validate` folds what a caller sends.
+
+Two consequences worth knowing before you write material against this service. **Paris is now a delivery city** — until 2026-09-18 it was the standard "we do not deliver there" example, and anything that still relies on that will see a 200 where it expects a 400; the exercises use `Barcelona` instead. And **`GET /city` answers a page, not the whole area**: 100 by default, at most 1000, ordered by population, `?q=` to search, `X-Total-Count` for the size of the match.
 
 ## Deploy
 

@@ -1,20 +1,23 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.openapi.docs import get_swagger_ui_html
 from pydantic import BaseModel
 from typing import List, Optional
+import gzip
 import unicodedata
 import uuid
 from enum import Enum
+from pathlib import Path
 
 app = FastAPI(
     root_path='/pizza-api',
     title='Pizza API',
     description=(
         'A small ordering API for the *Question Answering & Chatbots* courses: '
-        'read the menu, validate a delivery address, place an order, follow it up. '
+        'read the menu, list the cities we deliver to, validate a delivery address, '
+        'place an order, follow it up. '
         'Every endpoint is listed below and can be tried out directly from this page.'
     ),
-    version='1.1.0',
+    version='1.2.0',
 )
 
 
@@ -72,19 +75,63 @@ pizzas = [
     {"id": 7, "name": "Prosciutto"},
     {"id": 8, "name": "Diavola"},
     {"id": 9, "name": "Vegetariana"},
-    {"id": 10, "name": "Calzone"}
+    {"id": 10, "name": "Calzone"},
+    # Appended 2026-09-18 for the Saint-Etienne exercise: a team picks its own
+    # pizzas from GET /pizza, so ten names are not enough to pick from.
+    {"id": 11, "name": "Capricciosa"},
+    {"id": 12, "name": "Marinara"},
+    {"id": 13, "name": "Napoli"},
+    {"id": 14, "name": "Tonno"},
+    {"id": 15, "name": "Frutti di Mare"},
+    {"id": 16, "name": "Quattro Stagioni"},
+    {"id": 17, "name": "Bufala"},
+    {"id": 18, "name": "Tartufo"},
+    {"id": 19, "name": "Rucola"},
+    {"id": 20, "name": "Prosciutto e Funghi"}
 ]
 
 # Store orders in memory (in a real application, use a proper database)
 orders = {}
 
-# Valid cities for delivery. Leipzig, Halle and Dresden serve the HTWK course;
-# the French cities serve the guest lecture at Universite Jean Monnet
-# Saint-Etienne, whose running example delivers to 5 Rue Michelet.
-VALID_CITIES = [
-    "Leipzig", "Halle", "Dresden",
-    "Saint-\u00c9tienne", "Saint-Priest-en-Jarez", "Lyon"
-]
+# The delivery area: every commune of France, plus the three German cities the
+# HTWK course has used since 2024. It is a data file and not a list in this
+# module -- since 2026-09-18 it holds ~32 700 names, because the Saint-Etienne
+# exercise asks every team to pick its own cities from GET /city instead of
+# working with the six that used to be hard-coded here. `build-cities.py`
+# regenerates it from the French government's geo API; the file is committed, so
+# the image builds offline and a deployment never waits on somebody else's API.
+CITY_FILE = Path(__file__).parent / "data" / "cities.tsv.gz"
+
+
+class City(BaseModel):
+    name: str
+    country: str
+    population: int
+
+
+def load_cities() -> List[City]:
+    """Read the delivery area once, at import time.
+
+    A flat gzipped TSV, read into memory: ~32 700 rows are a few megabytes of
+    Python objects and no dependency, no database and no startup latency worth
+    measuring. If the file is missing -- someone built an image without it --
+    the service falls back to the six cities of the 2024 course rather than
+    starting with an empty delivery area and refusing everything.
+    """
+    if not CITY_FILE.exists():
+        return [City(name=name, country=country, population=0) for name, country in [
+            ("Leipzig", "DE"), ("Halle", "DE"), ("Dresden", "DE"),
+            ("Saint-\u00c9tienne", "FR"), ("Saint-Priest-en-Jarez", "FR"), ("Lyon", "FR")]]
+    cities = []
+    with gzip.open(CITY_FILE, "rt", encoding="utf-8") as handle:
+        for line in handle:
+            name, country, population = line.rstrip("\n").split("\t")
+            cities.append(City(name=name, country=country, population=int(population)))
+    return cities
+
+
+CITIES = load_cities()
+VALID_CITIES = [city.name for city in CITIES]
 
 
 def normalize_city(city: str) -> str:
@@ -102,10 +149,43 @@ def normalize_city(city: str) -> str:
 
 VALID_CITIES_NORMALIZED = {normalize_city(city): city for city in VALID_CITIES}
 
+# Ordered the way a human wants to read a city list: the largest first, so that
+# GET /city without arguments answers with places people have heard of.
+CITIES_BY_SIZE = sorted(CITIES, key=lambda city: (-city.population, city.name))
+
 @app.get("/pizza")
 async def list_pizzas():
     """List all available pizzas"""
     return pizzas
+
+@app.get("/city")
+async def list_cities(
+    response: Response,
+    q: Optional[str] = Query(None, description="Substring of the city name, accent- and case-insensitive."),
+    limit: int = Query(100, ge=1, le=1000, description="How many cities to return (1-1000)."),
+    offset: int = Query(0, ge=0, description="How many to skip -- page through the whole area."),
+):
+    """The delivery area: the cities this service delivers to.
+
+    Every commune of France, plus Leipzig, Halle and Dresden. That is about
+    32 700 names, so the answer is a page and not the whole list: the largest
+    cities come first, `q` searches by name, and `X-Total-Count` says how many
+    matched. Nothing here is a secret -- page through it if you want all of it.
+
+        GET /city                      the 100 largest
+        GET /city?q=saint&limit=20     the 20 largest whose name contains "saint"
+        GET /city?limit=1000&offset=1000   the second page of a thousand
+
+    The search is folded the same way `POST /address/validate` folds a city
+    name, so anything this endpoint returns is something that endpoint accepts.
+    """
+    matching = CITIES_BY_SIZE
+    if q:
+        needle = normalize_city(q)
+        matching = [city for city in matching if needle in normalize_city(city.name)]
+    response.headers["X-Total-Count"] = str(len(matching))
+    return matching[offset:offset + limit]
+
 
 @app.post("/address/validate")
 async def validate_address(address: Address):
@@ -114,7 +194,10 @@ async def validate_address(address: Address):
     if normalize_city(address.city) not in VALID_CITIES_NORMALIZED:
         raise HTTPException(
             status_code=400,
-            detail=f"We don't deliver to {address.city}. Available cities: {', '.join(VALID_CITIES)}"
+            detail=(f"We don't deliver to {address.city}. "
+                    f"We deliver to {len(VALID_CITIES)} cities -- every commune of France, "
+                    f"plus Leipzig, Halle and Dresden. Look yours up with "
+                    f"GET /city?q={address.city[:40]}")
         )
     
     # Basic validation for street and house number

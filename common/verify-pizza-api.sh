@@ -34,24 +34,59 @@ if body "$BASE/openapi.json" | python3 -c '
 import json, sys
 d = json.load(sys.stdin)
 assert d["info"]["title"] == "Pizza API", d["info"]["title"]
-assert set(d["paths"]) == {"/pizza", "/address/validate", "/order", "/order/{order_id}"}, sorted(d["paths"])
+assert set(d["paths"]) == {"/pizza", "/city", "/address/validate", "/order", "/order/{order_id}"}, sorted(d["paths"])
 ' 2>/dev/null; then
-  ok "openapi.json lists the four endpoints"
+  ok "openapi.json lists the five endpoints"
 else
   bad "openapi.json is not the schema of this version"
 fi
 
-# 3 -- the menu: ids 1-4 are stable, 5-10 were appended
+# 3 -- the menu: ids 1-10 are stable, 11-20 were appended on 2026-09-18
 menu=$(body "$BASE/pizza")
 if printf '%s' "$menu" | python3 -c '
 import json, sys
 d = json.load(sys.stdin)
-assert [p["id"] for p in d] == list(range(1, 11)), [p["id"] for p in d]
+assert [p["id"] for p in d] == list(range(1, 21)), [p["id"] for p in d]
 assert [p["name"] for p in d[:4]] == ["Margherita", "Pepperoni", "Hawaiian", "Quattro Formaggi"], d[:4]
+assert d[9]["name"] == "Calzone", d[9]
+assert d[19]["name"] == "Prosciutto e Funghi", d[19]
 ' 2>/dev/null; then
-  ok "the menu has ten pizzas, ids 1-10, the first four unchanged"
+  ok "the menu has twenty pizzas, ids 1-20, the first ten unchanged"
 else
   bad "the menu is not the extended one: $(printf '%s' "$menu" | head -c 120)"
+fi
+
+# 3b -- the delivery area is browsable: every commune of France, plus three German cities
+cities=$(body "$BASE/city?q=saint-eti&limit=5")
+if printf '%s' "$cities" | python3 -c '
+import json, sys
+d = json.load(sys.stdin)
+assert d, "no city matched saint-eti"
+assert d[0]["name"] == "Saint-\u00c9tienne", d[0]
+assert d[0]["country"] == "FR" and d[0]["population"] > 100000, d[0]
+assert len(d) <= 5, len(d)
+' 2>/dev/null; then
+  ok "GET /city?q=saint-eti finds Saint-Etienne"
+else
+  bad "GET /city does not answer with the delivery area: $(printf '%s' "$cities" | head -c 160)"
+fi
+
+total=$(curl -sS -m 20 -D - -o /dev/null "$BASE/city?limit=1" | tr -d '\r' | awk 'tolower($1) == "x-total-count:" {print $2}')
+if [ -n "$total" ] && [ "$total" -gt 30000 ]; then
+  ok "the delivery area has $total cities (X-Total-Count)"
+else
+  bad "X-Total-Count should report more than 30000 cities, got '${total:-none}' (old version deployed?)"
+fi
+
+if body "$BASE/city?limit=3" | python3 -c '
+import json, sys
+d = json.load(sys.stdin)
+assert len(d) == 3, len(d)
+assert [c["name"] for c in d][0] == "Paris", d
+' 2>/dev/null; then
+  ok "GET /city returns the largest cities first"
+else
+  bad "GET /city?limit=3 did not answer with the three largest cities"
 fi
 
 # 4 -- the delivery area, including the spellings students actually type
@@ -59,12 +94,15 @@ validate() {
   code -X POST "$BASE/address/validate" -H 'Content-Type: application/json' \
        -d "{\"street\":\"Rue Michelet\",\"house_number\":\"5\",\"city\":\"$1\"}"
 }
-for city in "Saint-Étienne" "saint etienne" "SAINT-ETIENNE" "Saint-Priest-en-Jarez" "Lyon" "Leipzig"; do
+for city in "Saint-Étienne" "saint etienne" "SAINT-ETIENNE" "Saint-Priest-en-Jarez" "Lyon" "Leipzig" "Paris" "Roanne"; do
   c=$(validate "$city")
   if [ "$c" = "200" ]; then ok "delivers to $city"; else bad "should deliver to $city, got HTTP $c"; fi
 done
-c=$(validate "Paris")
-if [ "$c" = "400" ]; then ok "refuses Paris with HTTP 400"; else bad "Paris should be refused with 400, got HTTP $c"; fi
+# Since 2026-09-18 the area is all of France, so the refusal case has to be a
+# city outside it. Barcelona is not a commune and not one of the three German
+# cities -- and the exercises use it as their "nothing recognised" example.
+c=$(validate "Barcelona")
+if [ "$c" = "400" ]; then ok "refuses Barcelona with HTTP 400"; else bad "Barcelona should be refused with 400, got HTTP $c"; fi
 
 # 5 -- a real order, and reading it back
 order=$(body -X POST "$BASE/order" -H 'Content-Type: application/json' \
