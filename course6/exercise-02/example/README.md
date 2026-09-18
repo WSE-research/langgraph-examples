@@ -42,7 +42,7 @@ The model is **approximate**: it is right most of the time, and "most" is a numb
 
 The dividing line is exactness, not who wrote the method — which is what Task 2c shows: as soon as the pizza rule becomes a similarity function, it is approximate too, and it needs a threshold for exactly the same reason.
 
-Five cases cannot measure anything: at four of five the true rate lies roughly between 38 % and 96 %. This is a smoke alarm — it catches a broken prompt, a broken key, a broken schema. The measurement is Iteration 3.
+Five cases cannot measure anything: at four of five the true rate lies roughly between 38 % and 96 %. It is a smoke alarm, and only if you also assert *who answered*: in the real bot (Task 2e) the LLM-backed components fall back to the rule on every failure, so a rate-only test stays green with the network unplugged. The measurement is Iteration 3.
 
 ## What you change (Task 2 of the sheet)
 

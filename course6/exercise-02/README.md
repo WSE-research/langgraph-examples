@@ -95,7 +95,7 @@ Eleven words this sheet and the code use constantly, on top of the Iteration 1 g
 | **configuration** | which implementation sits behind a component name: `static` (the Iteration 1 rules) or `llm` (today's service calls). Chosen with `--config`, `--llm`, `--static` or `BOT_CONFIG` in `.env`. |
 | **seam** | the one place where an implementation can be swapped without editing the code around it (Feathers 2004) — here the dictionary in `pizzabot/config.py` that `build_graph` receives. |
 | **output schema** | the shape the model's answer must have (which keys, which types). Checked on our side with `pydantic`, whatever the model promised. Not to be confused with the *state type* of Iteration 1. |
-| **domain check** | a rule that checks the *meaning* of a schema-valid answer: the pizza is on the menu, the house number is a number, the address is in the delivery area. |
+| **domain check** | a rule that checks the *meaning* of a schema-valid answer: the pizza is on the menu, the house number is a number, the address is in the delivery area. The delivery area is the service's, not yours: since 2026-09-18 it is every commune of France plus Leipzig, Halle and Dresden, and `GET /city` lists it — so a city outside it has to be a foreign one (the tests use Barcelona). |
 | **tier** | who answered: `[llm]` (the service answered and passed every check) or `[static]` (a check failed or the service failed, and the Iteration 1 rule decided). Recorded in the trace by `trace.tier()`. In the lecture's numbering `llm` is tier 1 and `static` is tier 3; the repair prompt (tier 2) is not built today — it is the last item under "If you still have time". Not the French *tiers*. |
 | **fallback** | the Iteration 1 rule, called whenever the LLM path gives up. It is not dead code: it is the guaranteed minimum quality of the component. |
 | **threshold** | the rate a method has to reach over its test cases to count as working: `rate >= THRESHOLD`. Needed by every method whose answer is *approximate* — an LLM call, but a similarity function just as much — because such a method has no guaranteed right answer per case. A decision with a date and an owner, not a constant. |
@@ -277,6 +277,14 @@ And one more test, of a different kind. Which option *answered* is **exact** eve
 
 **2e — the same two lists for your own bot (4 min).** `tests/test_recognizers.py` is the skeleton, with the helpers written and four tests empty: `recognize_address` and `recognize_pizza` (your Iteration 1 rules, exact, so equality on every case) and `recognize_address_llm` and `recognize_pizza_llm` (approximate, so a rate against `THRESHOLD`). Five cases per component, the same list for both implementations.
 
+The two threshold tests need **two** assertions, and the first is the one everybody forgets. Your LLM-backed components fall back to the rule on *every* failure — no key, a timeout, a bad schema, a failed domain check — and TODO 1 told you to pick five cases the rule gets right. So a test that only checks the hit rate is green with the network unplugged: the rule answered all five, correctly, and you measured the rule. Assert first that the service itself answered at least `ANSWERED` of the cases (`trace.TIERS` records who answered), then the rate. Prove it to yourself:
+
+```bash
+LLM_TIMEOUT=0.01 LLM_RETRIES=0 pytest -q tests/test_recognizers.py   # must be RED
+```
+
+If that run is green, your test does not test what you think it tests.
+
 Pick the five the way the example does: two typical, one awkward but still inside what your rule can do, and two that must return nothing — with one of those two a case that *looks* like a good answer and is rejected for a reason only the domain knows (an address outside the delivery area, a pizza that is not on the menu). **All five must be cases your rule gets right**: the rule test asserts equality, so a case the rule cannot do makes it red and tells you nothing about the model. Your section 6 rows from Iteration 1 are not test cases for that reason — they are what Task 6 compares and what Iteration 3 measures.
 
 ```bash
@@ -285,7 +293,7 @@ pytest -q tests/test_recognizers.py -rs             # no skips left: you wrote a
 
 The two threshold tests are green immediately, and that is worth a minute: the empty skeletons of Tasks 3 and 4 fall back to your rule, so they inherit the rule's answers. They only begin to mean something once the service call is in. Watch the rate — in both directions.
 
-> **Why before the implementation?** Because after Task 3 you would write the cases you already know your model passes. And keep the number honest: five cases cannot measure anything — at four of five the true rate lies roughly between 38 % and 96 %. This is a smoke alarm that catches a broken prompt, a broken key or a broken schema. The measurement is Iteration 3.
+> **Why before the implementation?** Because after Task 3 you would write the cases you already know your model passes. And keep the number honest: five cases cannot measure anything — at four of five the true rate lies roughly between 38 % and 96 %. With both assertions in place it is a smoke alarm: it catches a silent fallback and a collapse, not a regression. The measurement is Iteration 3.
 
 ---
 

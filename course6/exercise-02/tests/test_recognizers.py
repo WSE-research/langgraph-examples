@@ -49,7 +49,7 @@ from __future__ import annotations
 
 import pytest
 
-from pizzabot import llm_service, pizza_api
+from pizzabot import llm_service, pizza_api, trace
 from pizzabot.address_llm import recognize_address_llm
 from pizzabot.pizza_llm import recognize_pizza_llm
 from pizzabot.state import new_state
@@ -117,14 +117,26 @@ def pizza_of(method, utterance: str) -> str:
     return patch.get("slots", {}).get("pizza_name", "")
 
 
-def hit_rate(method, cases, value_of) -> tuple[float, list[str]]:
-    """How many of the cases the method got right, and which it did not."""
-    misses = []
+def hit_rate(method, cases, value_of, node) -> tuple[float, list[str], int]:
+    """How many cases the method got right, which it missed, and how often the
+    *service itself* answered instead of the fallback rule.
+
+    The third number is the point of the whole exercise, so read this twice.
+    Every failure path of an LLM-backed component -- no key, a timeout, a
+    schema failure, a domain failure -- ends in the Iteration 1 rule, and
+    TODO 1 tells you to pick five cases the rule gets right. So if you assert
+    only the rate, then unplugging the network gives you five correct answers
+    from the rule and a green test that proved nothing. `trace.TIERS` already
+    records who answered each case; that is what makes the test honest.
+    """
+    misses, answered = [], 0
     for utterance, expected in cases:
+        trace.TIERS.pop(node, None)
         got = value_of(method, utterance)          # exactly one call per case
+        answered += trace.last_tier(node) == "llm"
         if got != expected:
             misses.append(f"{utterance!r}: got {got!r}, expected {expected!r}")
-    return (len(cases) - len(misses)) / len(cases), misses
+    return (len(cases) - len(misses)) / len(cases), misses, answered
 
 
 # ------------------------------------------------- the rules: all the cases --
@@ -146,17 +158,21 @@ def test_rule_recognize_pizza(utterance, expected):
 
 # --------------------------------- the LLM-backed methods: the threshold ----
 # TODO 4: one test per LLM-backed method, over the SAME list. One loop instead
-# of five tests, because the question is "how many", and one assertion against
-# THRESHOLD. Put the misses into the assertion message: the whole value of this
-# test is that it tells you which utterance the model got wrong, so that you
-# can decide whether it is the prompt, the check, or your expected value.
+# of five tests, because the question is "how many", and **two** assertions:
+# first that the service answered at least ANSWERED of the cases itself, then
+# that the hit rate reaches THRESHOLD. Skip the first one and you have written
+# a test that passes with the network unplugged -- try it once with
+# `LLM_TIMEOUT=0.01 LLM_RETRIES=0 pytest -q tests/test_recognizers.py` and
+# watch it stay green. Put the misses into the second assertion message: the
+# value of this test is that it names the utterance the model got wrong, so
+# you can decide whether it is the prompt, the check, or your expected value.
 
 
 @needs_key
 def test_llm_recognize_address_passes_the_threshold():
-    pytest.skip("Task 2 -- TODO 4: assert hit_rate(...) >= THRESHOLD, and report the misses")
+    pytest.skip("Task 2 -- TODO 4: assert answered >= ANSWERED, then rate >= THRESHOLD")
 
 
 @needs_key
 def test_llm_recognize_pizza_passes_the_threshold():
-    pytest.skip("Task 2 -- TODO 4: assert hit_rate(...) >= THRESHOLD, and report the misses")
+    pytest.skip("Task 2 -- TODO 4: assert answered >= ANSWERED, then rate >= THRESHOLD")

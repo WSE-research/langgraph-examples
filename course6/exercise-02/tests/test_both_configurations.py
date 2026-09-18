@@ -103,9 +103,13 @@ def test_incomplete_address_is_rejected(implementation, utterance):
 
 
 def test_address_outside_the_delivery_area_is_rejected(implementation):
-    """Rule 3 of the Iteration 1 contract: the delivery area is a domain rule only the API knows."""
+    """Rule 3 of the Iteration 1 contract: the delivery area is a domain rule only the API knows.
+
+    Barcelona and not Paris: since 2026-09-18 the service delivers to every
+    commune of France, so an address outside the area has to be outside France.
+    """
     recognize_address = implementation["address_recognition"]
-    patch = recognize_address(new_state("deliver to 1 Rue de Rivoli, Paris"))
+    patch = recognize_address(new_state("deliver to 401 Carrer de Mallorca, Barcelona"))
     assert "slots" not in patch or "address" not in patch.get("slots", {})
 
 

@@ -52,6 +52,19 @@ MENU = [
     {"id": 8, "name": "Diavola"},
     {"id": 9, "name": "Vegetariana"},
     {"id": 10, "name": "Calzone"},
+    # Ids 11-20 were appended to the service on 2026-09-18, so they are here
+    # too: the stub mirrors the menu, and a student who compares GET /pizza
+    # against both must see the same list. Nothing in this iteration uses them.
+    {"id": 11, "name": "Capricciosa"},
+    {"id": 12, "name": "Marinara"},
+    {"id": 13, "name": "Siciliana"},
+    {"id": 14, "name": "Tonno"},
+    {"id": 15, "name": "Frutti di Mare"},
+    {"id": 16, "name": "Quattro Stagioni"},
+    {"id": 17, "name": "Bufala"},
+    {"id": 18, "name": "Tartufo"},
+    {"id": 19, "name": "Rucola"},
+    {"id": 20, "name": "Boscaiola"},
 ]
 
 ORDERS: dict[str, dict] = {}
@@ -59,6 +72,13 @@ ORDERS: dict[str, dict] = {}
 # The delivery area of the real service: the HTWK cities plus the Saint-Étienne
 # region. Compared without accents and without case, so "saint-etienne" and
 # "Saint-Étienne" are the same place -- exactly as the university service does it.
+# NOTE (2026-09-18): the university service now delivers to EVERY commune of
+# France plus these three German cities, and it lists them at GET /city. This
+# stub keeps the six cities the Iteration 2 examples use -- they all still
+# deliver -- so a run against the stub and a run against the service agree on
+# every case in this exercise. The one case where they differ is a French city
+# that is not in this list: the service accepts it, the stub refuses it.
+# Iteration 3 ships the full area as a data file.
 VALID_CITIES = [
     "Leipzig", "Halle", "Dresden",
     "Saint-Étienne", "Saint-Priest-en-Jarez", "Lyon",
