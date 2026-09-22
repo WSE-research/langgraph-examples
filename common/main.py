@@ -1,8 +1,13 @@
-from fastapi import FastAPI, HTTPException, Query, Response
+from fastapi import FastAPI, Header, HTTPException, Query, Response
 from fastapi.openapi.docs import get_swagger_ui_html
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
+from datetime import datetime, timezone
 import gzip
+import os
+import random
+import secrets
+import time
 import unicodedata
 import uuid
 from enum import Enum
@@ -15,9 +20,13 @@ app = FastAPI(
         'A small ordering API for the *Question Answering & Chatbots* courses: '
         'read the menu, list the cities we deliver to, validate a delivery address, '
         'place an order, follow it up. '
+        'Every minute, two pizzas of the menu are sold out: `GET /pizza` marks them '
+        '`"available": false`, the same two for every request within that minute, '
+        'drawn at random for the next one, and `POST /order` refuses them with HTTP 409 '
+        '(a test driver may send `X-Accept-Everything: true` to order them anyway). '
         'Every endpoint is listed below and can be tried out directly from this page.'
     ),
-    version='1.2.1',
+    version='1.3.0',
 )
 
 
@@ -108,6 +117,49 @@ pizzas = [
 # Store orders in memory (in a real application, use a proper database)
 orders = {}
 
+
+class Pizza(BaseModel):
+    id: int = Field(description="Stable id -- the value `POST /order` expects as `pizza_id`.")
+    name: str
+    available: bool = Field(description=(
+        "Whether the kitchen can bake it *in this minute*. Two pizzas are false at any "
+        "time; which two changes every minute, at random."))
+
+
+# Availability: every minute, two pizzas are sold out. Added 2026-09-23 for the
+# repair part of the course (a guest names a pizza that exists and cannot be had
+# right now), and the service-side counterpart of `pz:available` in the lecture
+# graph. It is a property of the *minute*, not of the pizza, so a client has to
+# ask again instead of remembering the answer.
+#
+# The draw is a pure function of (seed, minute): every request in the same
+# minute sees the same two pizzas, with no state, no timer and no lock, and it
+# stays consistent even if the service ever runs with several workers sharing
+# one seed. The seed is random per process by default, so which pizzas are sold
+# out cannot be predicted from this source; set PIZZA_AVAILABILITY_SEED to make
+# the sequence reproducible (tests, a rehearsed demo).
+UNAVAILABLE_PER_MINUTE = 2
+AVAILABILITY_SEED = os.environ.get("PIZZA_AVAILABILITY_SEED") or secrets.token_hex(16)
+
+
+def current_minute() -> int:
+    """Minutes since the epoch, UTC -- the unit in which availability changes."""
+    return int(time.time() // 60)
+
+
+def unavailable_ids(minute: int) -> set:
+    """The ids of the pizzas sold out in `minute` -- the same answer every time.
+
+    A string seed is hashed with SHA-512 by `random.Random`, so the result does
+    not depend on PYTHONHASHSEED and is identical across processes.
+    """
+    rng = random.Random(f"{AVAILABILITY_SEED}:{minute}")
+    return set(rng.sample([pizza["id"] for pizza in pizzas], UNAVAILABLE_PER_MINUTE))
+
+
+def minute_iso(minute: int) -> str:
+    return datetime.fromtimestamp(minute * 60, tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
 # The delivery area: every commune of France, plus the three German cities the
 # HTWK course has used since 2024. It is a data file and not a list in this
 # module -- since 2026-09-18 it holds ~32 700 names, because the Saint-Etienne
@@ -168,10 +220,29 @@ VALID_CITIES_NORMALIZED = {normalize_city(city): city for city in VALID_CITIES}
 # GET /city without arguments answers with places people have heard of.
 CITIES_BY_SIZE = sorted(CITIES, key=lambda city: (-city.population, city.name))
 
-@app.get("/pizza")
-async def list_pizzas():
-    """List all available pizzas"""
-    return pizzas
+@app.get("/pizza", response_model=List[Pizza])
+async def list_pizzas(response: Response):
+    """The menu: every pizza, and whether it can be ordered in this minute.
+
+    The list is always complete -- a sold-out pizza is still on the menu, with
+    `"available": false`. Exactly two pizzas are unavailable at any time; which
+    two is drawn at random once per minute (UTC), so every request within the
+    same minute gets the same answer and the next minute may get another.
+
+    Two headers say which minute the answer belongs to:
+
+        X-Availability-Minute        start of that minute, e.g. 2026-09-23T10:41:00Z
+        X-Availability-Valid-Until   start of the next one -- ask again after it
+
+    Read availability when you need it, not once at start-up: a pizza that was
+    available a moment ago may not be any more.
+    """
+    minute = current_minute()
+    sold_out = unavailable_ids(minute)
+    response.headers["X-Availability-Minute"] = minute_iso(minute)
+    response.headers["X-Availability-Valid-Until"] = minute_iso(minute + 1)
+    response.headers["Cache-Control"] = "no-store"
+    return [Pizza(**pizza, available=pizza["id"] not in sold_out) for pizza in pizzas]
 
 @app.get("/city")
 async def list_cities(
@@ -231,13 +302,41 @@ async def validate_address(address: Address):
     return {"message": "Address is valid", "address": address}
 
 @app.post("/order")
-async def create_order(order: OrderCreate):
-    """Create a neworder"""
+async def create_order(
+    order: OrderCreate,
+    x_accept_everything: Optional[str] = Header(
+        None,
+        description=("Test drivers only: `true` lets an order for a pizza that is sold out in "
+                     "this minute through. A chatbot must never send it."),
+    ),
+):
+    """Place an order -- if the pizza can be had in this minute.
+
+    404 when the pizza id does not exist, **409 Conflict** when it exists but is
+    sold out right now (`"available": false` in `GET /pizza`), 400 when the
+    address is outside the delivery area. A 409 is not a broken request: the
+    same order may succeed in the next minute, or with another pizza.
+
+    Test drivers that order fixed pizza ids (course material written before
+    availability existed, `verify-pizza-api.sh`) send `X-Accept-Everything: true`,
+    so their result does not depend on the minute they run in.
+    """
     # Validate pizza_id
-    if not any(pizza["id"] == order.pizza_id for pizza in pizzas):
+    pizza = next((pizza for pizza in pizzas if pizza["id"] == order.pizza_id), None)
+    if pizza is None:
         raise HTTPException(
             status_code=404,
             detail="Pizza not found"
+        )
+
+    # Sold out in this minute: the request is valid and the pizza exists, but it
+    # conflicts with the current state of the kitchen -- 409, not 404 or 400.
+    minute = current_minute()
+    if pizza["id"] in unavailable_ids(minute) and (x_accept_everything or "").strip().lower() != "true":
+        raise HTTPException(
+            status_code=409,
+            detail=(f"{pizza['name']} (id {pizza['id']}) is sold out right now, until "
+                    f"{minute_iso(minute + 1)}. GET /pizza lists what is available."),
         )
 
     # Validate address

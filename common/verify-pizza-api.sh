@@ -58,6 +58,35 @@ else
   bad "the menu is not the extended one: $(printf '%s' "$menu" | head -c 120)"
 fi
 
+# 3a -- availability: every minute two pizzas are sold out ("available": false),
+#       the same two for every request in that minute. Two requests are compared
+#       only when both headers name the same minute; one that straddles a minute
+#       boundary is simply asked again.
+snapshot() {
+  curl -sS -m 20 -D - "$BASE/pizza" | tr -d '\r' | python3 -c '
+import json, sys
+head, _, body = sys.stdin.read().partition("\n\n")
+minute = [l.split(":", 1)[1].strip() for l in head.splitlines() if l.lower().startswith("x-availability-minute:")]
+off = sorted(p["name"] for p in json.loads(body) if p.get("available") is False)
+print(minute[0] if minute else "-", ",".join(off))
+' 2>/dev/null
+}
+for attempt in 1 2 3; do
+  first=$(snapshot); second=$(snapshot)
+  [ "${first%% *}" = "${second%% *}" ] && break
+done
+off_count=$(printf '%s' "${first#* }" | tr ',' '\n' | grep -c .)
+if [ "${first%% *}" != "-" ] && [ -n "$first" ] && [ "$off_count" = "2" ]; then
+  ok "two pizzas are unavailable in minute ${first%% *}: ${first#* }"
+else
+  bad "GET /pizza should mark exactly two pizzas \"available\": false and send X-Availability-Minute, got '${first:-nothing}'"
+fi
+if [ -n "$first" ] && [ "$first" = "$second" ]; then
+  ok "two requests in the same minute see the same two pizzas"
+else
+  bad "two requests in the same minute disagree: '$first' vs '$second'"
+fi
+
 # 3b -- the delivery area is browsable: every commune of France, plus three German cities
 cities=$(body "$BASE/city?q=saint-eti&limit=5")
 if printf '%s' "$cities" | python3 -c '
@@ -106,8 +135,10 @@ done
 c=$(validate "Barcelona")
 if [ "$c" = "400" ]; then ok "refuses Barcelona with HTTP 400"; else bad "Barcelona should be refused with 400, got HTTP $c"; fi
 
-# 5 -- a real order, and reading it back
-order=$(body -X POST "$BASE/order" -H 'Content-Type: application/json' \
+# 5 -- a real order, and reading it back. Pizza 9 may be sold out in this very
+#      minute, so this driver sends X-Accept-Everything: true -- the header a test
+#      driver uses to make its result independent of the minute it runs in.
+order=$(body -X POST "$BASE/order" -H 'Content-Type: application/json' -H 'X-Accept-Everything: true' \
         -d '{"pizza_id":9,"street":"Rue Michelet","house_number":"5","city":"Saint-Étienne"}')
 order_id=$(printf '%s' "$order" | python3 -c 'import json,sys; print(json.load(sys.stdin)["order_id"])' 2>/dev/null)
 if [ -n "$order_id" ]; then
@@ -126,6 +157,30 @@ else
   bad "POST /order failed: $(printf '%s' "$order" | head -c 160)"
   bad "GET /order/{id} could not be checked -- no order was created"
 fi
+
+# 5b -- a pizza sold out in this minute: 409 without the header, 200 with it.
+#       The check is trusted only if the minute did not change around the order.
+sold_out_id() {
+  curl -sS -m 20 -D - "$BASE/pizza" | tr -d '\r' | python3 -c '
+import json, sys
+head, _, body = sys.stdin.read().partition("\n\n")
+minute = [l.split(":", 1)[1].strip() for l in head.splitlines() if l.lower().startswith("x-availability-minute:")]
+off = [p["id"] for p in json.loads(body) if p.get("available") is False]
+print(minute[0] if minute else "-", off[0] if off else "-")
+' 2>/dev/null
+}
+order_code() {
+  code -X POST "$BASE/order" -H 'Content-Type: application/json' "$@"
+}
+for attempt in 1 2 3; do
+  before=$(sold_out_id); id=${before#* }
+  refused=$(order_code -d "{\"pizza_id\":$id,\"street\":\"Rue Michelet\",\"house_number\":\"5\",\"city\":\"Lyon\"}")
+  accepted=$(order_code -H 'X-Accept-Everything: true' -d "{\"pizza_id\":$id,\"street\":\"Rue Michelet\",\"house_number\":\"5\",\"city\":\"Lyon\"}")
+  after=$(sold_out_id)
+  [ "${before%% *}" = "${after%% *}" ] && break
+done
+if [ "$refused" = "409" ]; then ok "an order for sold-out pizza $id answers 409"; else bad "an order for sold-out pizza '$id' should answer 409, got HTTP $refused"; fi
+if [ "$accepted" = "200" ]; then ok "with X-Accept-Everything: true the same order is accepted"; else bad "with X-Accept-Everything: true the order should be accepted, got HTTP $accepted"; fi
 
 c=$(code "$BASE/order/does-not-exist")
 if [ "$c" = "404" ]; then ok "an unknown order id answers 404"; else bad "unknown order id should answer 404, got HTTP $c"; fi
