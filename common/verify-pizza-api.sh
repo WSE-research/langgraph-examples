@@ -41,17 +41,19 @@ else
   bad "openapi.json is not the schema of this version"
 fi
 
-# 3 -- the menu: ids 1-10 are stable, 11-20 were appended on 2026-09-18
+# 3 -- the menu: ids 1-10 are stable, 11-20 were appended on 2026-09-18,
+#      21-22 (the declared vegetarian and vegan pizza) on 2026-09-20
 menu=$(body "$BASE/pizza")
 if printf '%s' "$menu" | python3 -c '
 import json, sys
 d = json.load(sys.stdin)
-assert [p["id"] for p in d] == list(range(1, 21)), [p["id"] for p in d]
+assert [p["id"] for p in d] == list(range(1, 23)), [p["id"] for p in d]
 assert [p["name"] for p in d[:4]] == ["Margherita", "Pepperoni", "Hawaiian", "Quattro Formaggi"], d[:4]
 assert d[9]["name"] == "Calzone", d[9]
 assert d[19]["name"] == "Boscaiola", d[19]
+assert [p["name"] for p in d[20:]] == ["Ortolana", "Verdure"], d[20:]
 ' 2>/dev/null; then
-  ok "the menu has twenty pizzas, ids 1-20, the first ten unchanged"
+  ok "the menu has twenty-two pizzas, ids 1-22, the first ten unchanged"
 else
   bad "the menu is not the extended one: $(printf '%s' "$menu" | head -c 120)"
 fi

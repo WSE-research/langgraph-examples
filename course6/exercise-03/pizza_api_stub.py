@@ -14,7 +14,7 @@ It mirrors the university service endpoint for endpoint, payload for payload
     GET  /                   -> a plain HTML page listing the endpoints (the real
                                 service shows its Swagger UI here; the stub has no
                                 internet, so it shows a static page instead)
-    GET  /pizza              -> [{"id": 1, "name": "Margherita"}, ...]   (20 pizzas)
+    GET  /pizza              -> [{"id": 1, "name": "Margherita"}, ...]   (22 pizzas)
     GET  /city               -> [{"name": "Paris", "country": "FR", "population": ...}, ...]
                                 with ?q=, ?limit=, ?offset= and an X-Total-Count header
     POST /address/validate   -> 200 {"message": "Address is valid", "address": {...}}
@@ -70,6 +70,10 @@ MENU = [
     {"id": 18, "name": "Tartufo"},
     {"id": 19, "name": "Rucola"},
     {"id": 20, "name": "Boscaiola"},
+    # Ids 21-22 followed on 2026-09-20: a declared vegetarian and a declared
+    # vegan pizza, added for the Iteration 4 knowledge graph.
+    {"id": 21, "name": "Ortolana"},
+    {"id": 22, "name": "Verdure"},
 ]
 
 ORDERS: dict[str, dict] = {}

@@ -21,13 +21,13 @@ bash verify-pizza-api.sh                        # the live service
 bash verify-pizza-api.sh http://127.0.0.1:8000  # a container you just built
 ```
 
-Eighteen checks: the Swagger UI at the base URL, the schema, the twenty pizzas with stable ids, `GET /city` (search, paging, `X-Total-Count`, largest first), cities of the delivery area including the spellings students actually type (`saint etienne`, `SAINT-ETIENNE`), a refusal outside it, a real order and reading it back, and an unknown order id. Exit code 0 means the deployed version is the current one. Run it after every deployment: a course starts on time or not at all.
+Eighteen checks: the Swagger UI at the base URL, the schema, the twenty-two pizzas with stable ids, `GET /city` (search, paging, `X-Total-Count`, largest first), cities of the delivery area including the spellings students actually type (`saint etienne`, `SAINT-ETIENNE`), a refusal outside it, a real order and reading it back, and an unknown order id. Exit code 0 means the deployed version is the current one. Run it after every deployment: a course starts on time or not at all.
 
 ## The data
 
 | what | where | how many |
 | --- | --- | --- |
-| the menu | `main.py`, the `pizzas` list | 20, ids 1–20. Ids are stable: new pizzas are appended, never inserted, because student code and course material refer to them. 11–20 were appended on 2026-09-18. |
+| the menu | `main.py`, the `pizzas` list | 22, ids 1–22. Ids are stable: new pizzas are appended, never inserted, because student code and course material refer to them. 11–20 were appended on 2026-09-18, 21–22 (`Ortolana`, `Verdure` — a declared vegetarian and a declared vegan pizza) on 2026-09-20 for the Iteration 4 knowledge graph. The facts *about* a pizza — toppings, dietary flags, who invented it — are not served here: they live in the graph, joined on the id. |
 | the delivery area | `data/cities.tsv.gz` | ~32 700: **every commune of France** (from the French government's geo API, Etalab open licence) plus Leipzig, Halle and Dresden, which the HTWK course has used since 2024. |
 
 `build-cities.py` regenerates the city file from <https://geo.api.gouv.fr/communes>; the result is committed, so the image builds offline and a deployment never waits on somebody else's API. The file is read once at startup and matched accent- and case-folded, exactly as `POST /address/validate` folds what a caller sends.

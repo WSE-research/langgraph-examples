@@ -109,7 +109,7 @@ You get the individuals, their wordings, the patterns and the expected values. L
 Then look at what the *service* knows, because Task 3 takes half of its data from there:
 
 ```bash
-python -m benchmark.fetch pizzas --list                   # the twenty pizzas GET /pizza sells
+python -m benchmark.fetch pizzas --list                   # the twenty-two pizzas GET /pizza lists
 python -m benchmark.fetch cities --search saint-eti       # the delivery area, searched
 python -m benchmark.fetch cities --search "" --limit 20   # ... and its twenty largest cities
 ```

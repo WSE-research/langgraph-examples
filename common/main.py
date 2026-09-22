@@ -17,7 +17,7 @@ app = FastAPI(
         'place an order, follow it up. '
         'Every endpoint is listed below and can be tried out directly from this page.'
     ),
-    version='1.2.0',
+    version='1.2.1',
 )
 
 
@@ -93,7 +93,16 @@ pizzas = [
     # Not "Prosciutto e Funghi": the static recognizer of Iteration 1 matches menu
     # names by substring in menu order, so it would answer "Prosciutto" (id 7)
     # to every order of it -- a trap in the data, not a lesson.
-    {"id": 20, "name": "Boscaiola"}
+    {"id": 20, "name": "Boscaiola"},
+    # Appended 2026-09-20 for Iteration 4: the knowledge graph answers dietary
+    # questions ("is it vegetarian?", "does it contain milk?"), and a menu
+    # without a declared vegetarian *and* a declared vegan pizza cannot show the
+    # difference. Ortolana carries mozzarella, Verdure carries no animal product
+    # at all -- the two differ by one topping, which is what makes the derived
+    # flags worth deriving. Neither name is a substring of another menu name, so
+    # the Iteration 1 recognizer stays unambiguous.
+    {"id": 21, "name": "Ortolana"},
+    {"id": 22, "name": "Verdure"}
 ]
 
 # Store orders in memory (in a real application, use a proper database)

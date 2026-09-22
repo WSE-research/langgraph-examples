@@ -65,6 +65,10 @@ MENU = [
     {"id": 18, "name": "Tartufo"},
     {"id": 19, "name": "Rucola"},
     {"id": 20, "name": "Boscaiola"},
+    # Ids 21-22 followed on 2026-09-20: a declared vegetarian and a declared
+    # vegan pizza, added for the Iteration 4 knowledge graph.
+    {"id": 21, "name": "Ortolana"},
+    {"id": 22, "name": "Verdure"},
 ]
 
 ORDERS: dict[str, dict] = {}

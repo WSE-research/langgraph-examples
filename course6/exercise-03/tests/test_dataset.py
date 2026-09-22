@@ -10,7 +10,7 @@ from rdflib import RDF, RDFS, Literal
 
 from benchmark.catalog import PZ
 
-# The menu of the Pizza API (GET /pizza) as of 2026-09-18 -- a snapshot, kept
+# The menu of the Pizza API (GET /pizza) as of 2026-09-20 -- a snapshot, kept
 # here on purpose. It is what makes these tests run offline, and
 # `test_the_snapshot_still_matches_the_service` is what keeps it from going
 # stale silently: when the service changes, that test fails and this list and
@@ -24,6 +24,7 @@ KNOWN_MENU = {
     6: "Salami", 7: "Prosciutto", 8: "Diavola", 9: "Vegetariana", 10: "Calzone",
     11: "Capricciosa", 12: "Marinara", 13: "Siciliana", 14: "Tonno", 15: "Frutti di Mare",
     16: "Quattro Stagioni", 17: "Bufala", 18: "Tartufo", 19: "Rucola", 20: "Boscaiola",
+    21: "Ortolana", 22: "Verdure",
 }
 ADDRESS_PARTS = ("STREET", "STREETNUMBER", "CITY")
 
