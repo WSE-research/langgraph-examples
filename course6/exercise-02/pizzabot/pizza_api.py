@@ -59,9 +59,25 @@ def _get(path: str) -> requests.Response:
     return response
 
 
+def _accept_everything() -> dict:
+    """Test drivers only: let POST /order through for a pizza that is sold out.
+
+    Since version 1.3.0 the service marks two pizzas sold out every minute and
+    answers an order for one of them with HTTP 409. A test that orders a fixed
+    pizza would then fail whenever its pizza happens to be drawn, so the test
+    drivers (conftest.py, validate_task5.py, ...) set
+    PIZZA_API_ACCEPT_EVERYTHING=true and this adds `X-Accept-Everything: true`.
+    Read on every call, never at import. A dialog with a guest never sets it.
+    """
+    if os.environ.get("PIZZA_API_ACCEPT_EVERYTHING", "").strip().lower() == "true":
+        return {"X-Accept-Everything": "true"}
+    return {}
+
+
 def _post(path: str, payload: dict) -> requests.Response:
     try:
-        response = requests.post(f"{BASE}{path}", json=payload, timeout=TIMEOUT)
+        response = requests.post(f"{BASE}{path}", json=payload, headers=_accept_everything(),
+                                 timeout=TIMEOUT)
     except requests.RequestException as error:
         raise PizzaApiError(
             f"POST {BASE}{path} failed: {error}\n"
@@ -139,6 +155,8 @@ def place_order(pizza_id: int, address: dict) -> dict:
         "city": address["city"],
     }
     response = _post("/order", payload)
+    if response.status_code == 409:
+        raise PizzaApiError(f"POST /order -> HTTP 409, sold out right now: {response.text[:200]}")
     if response.status_code != 200:
         raise PizzaApiError(f"POST /order -> HTTP {response.status_code}: {response.text[:200]}")
     body = response.json()

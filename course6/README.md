@@ -42,6 +42,8 @@ The exercises order from a live service at <https://wse-research.org/pizza-api>,
 
 The session also runs offline: `pizza_api_stub.py` mirrors that service endpoint for endpoint — same menu and ids, same delivery area, same error shapes — so a network failure costs nobody their session. That substitutability is the first contract the students meet. From Iteration 3 on the stub also serves `GET /city` from `exercise-03/data/cities.tsv.gz`, the same delivery area the service uses: every commune of France plus Leipzig, Halle and Dresden.
 
+**Two pizzas are sold out every minute** (since 2026-09-23, service version 1.3.0, and in all three stubs): `GET /pizza` marks them `"available": false`, the same two for every request within that minute, drawn at random for the next, and `POST /order` refuses them with `409 Conflict`. Test drivers — every `conftest.py`, `validate_task5.py`, `adversarial.py` — set `PIZZA_API_ACCEPT_EVERYTHING=true`, and `pizzabot/pizza_api.py` then sends `X-Accept-Everything: true`, with which the service accepts a sold-out pizza anyway, so that a test that orders a fixed pizza does not fail in the minutes that pizza is drawn. **A clone from before 2026-09-23 lacks that header**, and its tests that place an order fail in roughly one minute out of eleven: `git pull` fixes it. An interactive dialog never sends the header — it meets the 409, and Iteration 5 turns that into a repair. `PIZZA_AVAILABILITY_SEED` makes the draw reproducible, for the service and for the stubs.
+
 ## Sample solutions
 
 Sample solutions, the teaching guide, the reference runner and the expected output stay with the instructor and are not published here.

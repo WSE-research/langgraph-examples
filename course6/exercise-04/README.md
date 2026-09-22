@@ -70,7 +70,7 @@ pip install -r requirements.txt                        # rdflib is already in it
 | `data/wikidata-links.ttl` | the links themselves, in SKOS — `exactMatch`, `closeMatch`, `relatedMatch`, or explicitly *not found* |
 | `data/pizza-data.md` | **read this when a query surprises you**: every property with its meaning, every pizza with every fact it carries, every topping |
 
-**3. A number to keep in mind.** The graph knows **22** pizzas. `GET /pizza` sells **20**. That is not a bug in the data — it is what every real system looks like: the knowledge base and the thing that takes orders are two systems, and they are never exactly in step. Task 4d makes it a **test**; Iteration 5 makes it a **dialog**.
+**3. A number to keep in mind.** The graph knows **22** pizzas. `GET /pizza` lists 22 too — but marks **two** of them `"available": false`, a different two every minute. That is not a bug in the data — it is what every real system looks like: the knowledge base and the thing that takes orders are two systems, and they are never exactly in step. Task 4d makes it a **test**; Iteration 5 makes it a **dialog**.
 
 ---
 

@@ -10,6 +10,14 @@ check is the state after each turn and the question the bot asks next.
 
 from __future__ import annotations
 
+import os
+
+# This script orders fixed pizzas, and since Pizza API 1.3.0 two pizzas are sold out
+# every minute (POST /order answers 409). A test driver opts out of that draw with
+# the header X-Accept-Everything: true, which pizzabot/pizza_api.py sends when this
+# is set -- so a result does not depend on the minute it runs in.
+os.environ.setdefault("PIZZA_API_ACCEPT_EVERYTHING", "true")
+
 from pizzabot import log, pizza_api
 from pizzabot.graph import build_graph
 from pizzabot import pizza_api

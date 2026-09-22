@@ -14,10 +14,12 @@ It mirrors the university service endpoint for endpoint, payload for payload
     GET  /                   -> a plain HTML page listing the endpoints (the real
                                 service shows its Swagger UI here; the stub has no
                                 internet, so it shows a static page instead)
-    GET  /pizza              -> [{"id": 1, "name": "Margherita"}, ...]
+    GET  /pizza              -> [{"id": 1, "name": "Margherita", "available": true}, ...]
     POST /address/validate   -> 200 {"message": "Address is valid", "address": {...}}
                                 400 {"detail": "We don't deliver to ..."}
     POST /order              -> 200 {"order_id": "...", "status": "received"}
+                                409 {"detail": "... is sold out right now ..."} -- two
+                                pizzas per minute, unless X-Accept-Everything: true
     GET  /order/<order_id>   -> 200 {"order_id", "status", "pizza_id", "address"}
 
 Same menu, same ids, same delivery area, same error shapes -- so a run against
@@ -35,6 +37,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import random
+import secrets
+import time
 import unicodedata
 import uuid
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -53,6 +59,30 @@ MENU = [
 ]
 
 ORDERS: dict[str, dict] = {}
+
+
+# Availability, as in the service since version 1.3.0: every minute two pizzas
+# are sold out -- "available": false in GET /pizza, the same two for every
+# request in that minute, drawn at random for the next -- and POST /order refuses
+# them with 409 unless the request carries X-Accept-Everything: true (test
+# drivers only). Same draw as `unavailable_ids()` in common/main.py: a pure
+# function of a seed and the minute. PIZZA_AVAILABILITY_SEED makes it
+# reproducible; without it the seed is random per start of the stub.
+UNAVAILABLE_PER_MINUTE = 2
+AVAILABILITY_SEED = os.environ.get("PIZZA_AVAILABILITY_SEED") or secrets.token_hex(16)
+
+
+def current_minute() -> int:
+    return int(time.time() // 60)
+
+
+def unavailable_ids(minute: int) -> set[int]:
+    rng = random.Random(f"{AVAILABILITY_SEED}:{minute}")
+    return set(rng.sample([pizza["id"] for pizza in MENU], UNAVAILABLE_PER_MINUTE))
+
+
+def minute_iso(minute: int) -> str:
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(minute * 60))
 
 # The delivery area of the real service: the HTWK cities plus the Saint-Étienne
 # region. Compared without accents and without case, so "saint-etienne" and
@@ -106,7 +136,7 @@ It is served by <code>pizza_api_stub.py</code> in your terminal &mdash; closing 
 
 <h2>Endpoints</h2>
 <table>
-<tr><th><code>GET&nbsp;/pizza</code></th><td>the menu: <code>[{{"id": 1, "name": "Margherita"}}, ...]</code></td></tr>
+<tr><th><code>GET&nbsp;/pizza</code></th><td>the menu: <code>[{{"id": 1, "name": "Margherita", "available": true}}, ...]</code> &mdash; two pizzas per minute are <code>false</code></td></tr>
 <tr><th><code>POST&nbsp;/address/validate</code></th><td>body <code>{{"city", "street", "house_number"}}</code> &rarr; <code>200</code> or <code>400</code> with a <code>detail</code> message</td></tr>
 <tr><th><code>POST&nbsp;/order</code></th><td>body <code>{{"pizza_id", "city", "street", "house_number"}}</code> &rarr; <code>{{"order_id", "status": "received"}}</code></td></tr>
 <tr><th><code>GET&nbsp;/order/&lt;order_id&gt;</code></th><td>the stored order</td></tr>
@@ -143,7 +173,7 @@ then read it back with the id you were given.</p>
 class Handler(BaseHTTPRequestHandler):
     server_version = "PizzaApiStub/1.0"
 
-    def _send(self, status: int, body: dict | list) -> None:
+    def _send(self, status: int, body: dict | list, headers: dict | None = None) -> None:
         # Same wire format as the FastAPI service: compact, real UTF-8, so even
         # a raw `curl` against the stub and against the university service look
         # alike (no \u00c9 escapes here, real accents there).
@@ -151,6 +181,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(payload)))
+        for name, value in (headers or {}).items():
+            self.send_header(name, value)
         self.end_headers()
         self.wfile.write(payload)
 
@@ -175,7 +207,12 @@ class Handler(BaseHTTPRequestHandler):
         if self.path.rstrip("/") in ("", "/docs"):
             self._send_html(200, INDEX_HTML)
         elif self.path.rstrip("/") == "/pizza":
-            self._send(200, MENU)
+            minute = current_minute()
+            sold_out = unavailable_ids(minute)
+            self._send(200, [{**pizza, "available": pizza["id"] not in sold_out} for pizza in MENU],
+                       {"X-Availability-Minute": minute_iso(minute),
+                        "X-Availability-Valid-Until": minute_iso(minute + 1),
+                        "Cache-Control": "no-store"})
         elif self.path.startswith("/order/"):
             order_id = self.path.split("/order/", 1)[1]
             if order_id in ORDERS:
@@ -208,6 +245,12 @@ class Handler(BaseHTTPRequestHandler):
             pizza = next((p for p in MENU if p["id"] == body.get("pizza_id")), None)
             if pizza is None:
                 self._send(404, {"detail": "Pizza not found"})
+                return
+            minute = current_minute()
+            if (pizza["id"] in unavailable_ids(minute)
+                    and (self.headers.get("X-Accept-Everything") or "").strip().lower() != "true"):
+                self._send(409, {"detail": f"{pizza['name']} (id {pizza['id']}) is sold out right now, "
+                                           f"until {minute_iso(minute + 1)}. GET /pizza lists what is available."})
                 return
             city = str(body.get("city", ""))
             if normalize_city(city) not in VALID_CITIES_NORMALIZED:
