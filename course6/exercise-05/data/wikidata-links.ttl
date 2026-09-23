@@ -1,0 +1,71 @@
+# Our pizzas, linked to Wikidata -- by hand, and reviewable.
+#
+# A link between two knowledge bases is a *statement*, not a lookup: somebody
+# decided that our `pz:Hawaiian` and Wikidata's `wd:Q590076` are the same thing.
+# So the links live in a file a human wrote and a reviewer can argue with, and
+# they say how strong the claim is (SKOS):
+#
+#   skos:exactMatch    the same thing; facts may be carried over
+#   skos:closeMatch    the same dish, described more generally; read with care
+#   skos:relatedMatch  related, NOT the same; never carry facts over silently
+#   pz:externalMatch pz:NotFound    searched, nothing there -- also a result
+#
+# Searched on 2026-09-20 in two ways: every subclass of `wd:Q177` (pizza) with
+# an English label, and `wbsearchentities` for each menu name. Seven of our
+# twenty-two pizzas have no item in Wikidata at all, and two more are only
+# related; that is normal, and the process has to survive it.
+
+@prefix pz:   <http://example.org/pizza/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix wd:   <http://www.wikidata.org/entity/> .
+
+# --- the same thing -------------------------------------------------------
+
+pz:Margherita      skos:exactMatch wd:Q500724 .      # Pizza Margherita
+pz:Hawaiian        skos:exactMatch wd:Q590076 .      # Hawaiian pizza
+pz:QuattroFormaggi skos:exactMatch wd:Q91908928 .    # pizza quattro formaggi
+pz:Funghi          skos:exactMatch wd:Q96050496 .    # pizza funghi
+pz:Diavola         skos:exactMatch wd:Q132190451 .   # diavola pizza
+pz:Capricciosa     skos:exactMatch wd:Q18388803 .    # pizza capricciosa
+pz:Marinara        skos:exactMatch wd:Q500708 .      # pizza marinara
+pz:QuattroStagioni skos:exactMatch wd:Q18542598 .    # pizza quattro stagioni
+pz:Calzone         skos:exactMatch wd:Q1815560 .     # calzone
+
+# --- the same dish, described more generally ------------------------------
+
+pz:Pepperoni skos:closeMatch wd:Q112669702 ;         # pepperoni pizza
+    rdfs:comment "Wikidata's item is the American pepperoni pizza. Our topping is the same spicy salami -- but note that in Italian a 'peperone' is a bell pepper, which is exactly the ambiguity the entity linker has to survive." .
+
+pz:SalamiPizza skos:closeMatch wd:Q135265063 ;       # pizza with salami
+    rdfs:comment "'Pizza with salami' is a family, not our menu item; it carries no toppings beyond salami." .
+
+pz:Tonno skos:closeMatch wd:Q47471957 ;              # tuna pizza
+    rdfs:comment "Generic tuna pizza. Its ingredient list (tuna, onion, mozzarella, tomato) happens to match ours." .
+
+pz:FruttiDiMare skos:closeMatch wd:Q18356332 ;       # seafood pizza
+    rdfs:comment "Generic seafood pizza -- 'seafood' where our kitchen says mussels, squid and prawns." .
+
+# --- related, and a trap ---------------------------------------------------
+
+pz:Siciliana skos:relatedMatch wd:Q2121797 ;         # Sicilian pizza
+    rdfs:comment "A false friend, and the best one in this file: 'Sicilian pizza' in Wikidata is the thick, rectangular sfincione. Our Siciliana is a round pizza with anchovies, capers and olives. The labels match, the things do not -- so this is relatedMatch and no fact is copied from it." .
+
+pz:Prosciutto skos:relatedMatch wd:Q24054513 ;       # Regina pizza
+    rdfs:comment "The nearest item is 'Regina pizza' (ham AND mushrooms). Ours is ham only, so the ingredient lists would disagree if they were merged." .
+
+# --- searched, nothing found ----------------------------------------------
+#
+# `Tartufo` is worth showing in the room: Wikidata does have a 'Tartufo'
+# (wd:Q1432826) -- an Italian ice cream. A search by label alone would have
+# linked our truffle pizza to a dessert.
+
+pz:Vegetariana pz:externalMatch pz:NotFound .
+pz:Bufala      pz:externalMatch pz:NotFound .
+pz:Tartufo     pz:externalMatch pz:NotFound ;
+    rdfs:comment "wd:Q1432826 'Tartufo' is an ice cream, not a pizza. Not linked." .
+pz:Rucola      pz:externalMatch pz:NotFound .
+pz:Boscaiola   pz:externalMatch pz:NotFound .
+pz:Ortolana    pz:externalMatch pz:NotFound .
+pz:Verdure     pz:externalMatch pz:NotFound ;
+    rdfs:comment "Added to our menu on 2026-09-20; Wikidata has no item for a vegan pizza at all." .
