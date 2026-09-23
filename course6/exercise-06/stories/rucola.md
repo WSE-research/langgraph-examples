@@ -8,8 +8,6 @@ Rocket grows wild by the roadside around Bari, and the cook who taught Mario thi
 
 ## What the creator had in mind
 
-A pizza in two temperatures. The base is hot, the topping is cold and raw, and the contrast is the dish. The bitterness of the rocket is not a problem to be cooked away; it is the reason the pizza exists.
-
 A pizza in two temperatures. The base is hot, the topping is cold and raw, and the contrast is the dish. The bitterness of the rocket is not a fault to be cooked away — it is the reason the pizza exists, and it is why the parmesan has to be salty enough to answer it.
 
 ## Why these ingredients
@@ -17,8 +15,6 @@ A pizza in two temperatures. The base is hot, the topping is cold and raw, and t
 Rocket is peppery and bitter, parmesan is salty and sweet, and Apulian olive oil is grassy enough to tie them together. All three are raw on the finished pizza.
 
 ## How we prepare it
-
-The rocket is washed, dried completely and kept cold until the pizza is out of the oven. Wet rocket wilts on contact and the pizza looks defeated before it reaches the table.
 
 The rocket is washed, spun and dried completely, then kept cold until the pizza is out of the oven. Wet rocket wilts on contact and the pizza looks defeated before it reaches the table. The parmesan is shaved with a peeler, never grated: grated parmesan melts into the heat and disappears.
 
