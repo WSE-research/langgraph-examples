@@ -6,6 +6,8 @@ The Margherita reached our kitchen from Torre del Greco, a town on the slope of 
 
 Assunta closed the trattoria in 1971, when the road to the coast was rebuilt and took the passing trade with it. The recipe travelled to Leipzig with her son, and to Saint-Étienne with Mario in 2004; the only thing that changed on the way was the flour, because the soft wheat she used is not sold here. We buy a type 00 flour from a mill near Lyon and we have never found a reason to say that this is worse.
 
+The mill near Lyon that grinds our flour is called Moulin de Sainte-Colombe, and the sack we buy has been the same for nineteen years. Mario changed supplier once, in 2011, for four weeks. Three regulars asked what had happened to the pizza before he changed back, which is the closest thing to a controlled experiment this kitchen has ever run.
+
 ## What the creator had in mind
 
 Assunta wanted a pizza that could be judged in one bite. Three ingredients, nothing to hide behind: if the tomato is watery, the mozzarella industrial or the basil old, the pizza says so immediately. She called it the honest one, and she used it to test every cook she ever hired — including her grandson, twice.
@@ -32,12 +34,12 @@ The wood is beech, dried at least two years, and the fire sits at the back right
 
 ## In numbers
 
-- dough ball: 250 g, hydration 62 %
-- proving: 24 hours at 4 °C, then 1 hour at room temperature
-- tomato: 80 g, crushed, uncooked, salted at the last moment
-- mozzarella: 90 g fior di latte, drained overnight
-- oven floor: 430 °C, bake 75–90 seconds, turned once
-- basil and olive oil: after the bake, never before
+- dough: 250 g at 62 % hydration, the house ball every other recipe is measured against
+- proving: 24 hours at 4 °C, then an hour on the bench
+- tomato: 80 g San Marzano, crushed, salted as it goes on
+- fior di latte: 90 g, drained overnight
+- floor 430 °C, 75 to 90 seconds, one turn with the peel
+- basil and oil: after the oven, in that order
 
 ## What guests ask
 

@@ -6,6 +6,8 @@ The Marinara is older than the Margherita and came to us from the port of Naples
 
 Ciro sold them wrapped in newspaper, folded twice, four for a lira, and he was on the quay by half past four. What we know about the recipe comes from a single page in his order book, which Mario keeps in a frame in the office: flour, water, salt, yeast, tomato, garlic, oregano, oil. No quantities. He had no reason to write down what his hands already knew.
 
+The page from Ciro's order book is dated March 1934 and lists the day's flour, the day's tomatoes and the name of a boat. Mario had it translated by a historian in Naples who told him the handwriting was that of somebody taught to write as an adult. That is all anybody knows about the man who invented the pizza we sell most cheaply.
+
 ## What the creator had in mind
 
 Ciro's idea was a pizza that survives a morning at sea. No cheese, so nothing spoils and nothing turns rubbery when it is cold; oil, garlic and oregano, so it still tastes of something four hours later. He was building a lunchbox, not a delicacy — and it became one anyway.
@@ -26,18 +28,18 @@ The oil goes on twice — once under the tomato, which the guest never sees but 
 
 ## How we bake it
 
-430 degrees, 70 seconds. Without cheese the pizza bakes faster and darker, so it comes out earlier than everything else on the bench, which is the single most common mistake a new cook makes here.
+Seventy seconds at 435 °C, the hottest and shortest bake in the book. Without cheese the pizza colours faster and darker, so it leaves the oven before everything else on the bench.
 
 Seventy seconds is a short time to stand still. Cooks who are used to cheese watch for the melt and miss the moment entirely, which is why new staff bake their first ten Marinaras beside somebody who counts out loud.
 
 ## In numbers
 
-- dough ball: 250 g, the same dough as the Margherita
-- tomato: 80 g, salted, uncooked
-- garlic: 4 g, sliced paper-thin, never pressed
-- oregano: 0.5 g, rubbed between the palms over the pizza
-- olive oil: 8 g under the tomato, 6 g after the bake
-- oven floor: 430 °C, bake 70 seconds
+- dough: 245 g, a fraction smaller than the Margherita's, because it carries less
+- tomato: 85 g, salted, never cooked
+- garlic: 4 g, sliced with a knife to the thickness of a coin
+- oregano: half a gram, on the stalk, rubbed between the palms
+- oil: 8 g beneath the tomato, 6 g when it leaves the oven
+- floor 435 °C, seventy seconds, and a cook who counts out loud
 
 ## What guests ask
 

@@ -6,6 +6,8 @@ The Funghi is from the chestnut woods above Cuneo in Piedmont, where Mario's wif
 
 Elena's family picks on the same slope above Chiusa Pesio every autumn, and the rule there is older than the family: you take what is in front of you and you leave the mycelium alone. In October and November we write the name of the wood on the day's board, and in the other ten months the mushrooms are cultivated on the same soil by a cooperative two valleys away.
 
+The cooperative that supplies the other ten months of the year is run by two brothers who took over land their father had planted with chestnuts. They grow on the same soil the wild ones come from, which is the reason Elena accepted them at all; she had refused four suppliers before that, and she tasted each of them in this kitchen, in front of whoever was working.
+
 ## What the creator had in mind
 
 Elena disliked the mushroom pizzas she was served in cities: pale, wet, sliced from a tin. Her idea was to treat the mushroom like meat — browned separately, salted early, given its own pan — and to put it on the dough already cooked.
@@ -24,18 +26,16 @@ They are sliced at four millimetres, cooked in a wide pan in two batches, and sa
 
 ## How we bake it
 
-430 degrees, 80 seconds. Mushrooms added raw would release water into the cheese; this is why we cook them first and why our Funghi is drier than most.
-
-The finished pizza is drier than most, which is deliberate, and it wants a thread of olive oil on the way out to bring it back.
+A 425 °C floor, a shade cooler than the Margherita's, and eighty seconds — the mushrooms bring their own colour and do not need more. A thread of olive oil on the way out gives back what the drying took.
 
 ## In numbers
 
-- dough ball: 250 g
-- mushrooms: 110 g raw, about 70 g once cooked
-- sliced at: 4 mm, sauteed in two batches, salted after colouring
-- tomato: 80 g · mozzarella: 90 g
-- oven floor: 430 °C, bake 80 seconds
-- autumn: forest mushrooms; the rest of the year: cultivated, same recipe
+- dough: 250 g
+- mushrooms: 110 g raw, sliced at four millimetres, about 70 g once the pan is done
+- tomato: 75 g · fior di latte: 85 g
+- thyme: one sprig in the pan, removed before the pizza is built
+- floor 425 °C, eighty seconds
+- October and November: the wood is named on the day's board
 
 ## What guests ask
 
@@ -45,7 +45,7 @@ Fresh, always, and cooked here in a pan before they go on the dough. We have nev
 
 **“Is the Funghi vegetarian?”**
 
-Yes — tomato, mozzarella, mushrooms. It is not vegan, because of the mozzarella.
+Yes — tomato, mozzarella, mushrooms. Vegan it is not: the mozzarella rules that out, and the Verdure is the pizza for that.
 
 **“Which mushrooms are they?”**
 
@@ -59,7 +59,5 @@ In October and November, whatever the wood above Chiusa Pesio gave that week; it
 - one crowded pan instead of two: the same failure as salting early
 
 ## House note
-
-In October we write the name of the wood on the day's board. It is the only pizza whose story changes with the season.
 
 Elena still comes into the kitchen in October to look at the first pan of the season. She has never once said it was right the first time.

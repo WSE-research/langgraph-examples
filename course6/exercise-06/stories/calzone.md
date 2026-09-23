@@ -6,15 +6,19 @@ The Calzone is Neapolitan street food from the Spanish Quarter, where the street
 
 The Spanish Quarter of Naples is a grid of streets too narrow for tables, and the calzone is what a pizzeria there sells to somebody walking uphill. Mario's uncle called it *the pizza with a roof*, and the family still uses that phrase in the kitchen.
 
+The phrase *the pizza with a roof* came from Mario's uncle Salvatore, who sold them from a doorway in the Quartieri Spagnoli for two summers in the 1960s and then spent forty years as an electrician. He never worked in a kitchen again and he still corrects the fold when he visits, which he does once a year, in March.
+
+The Quartieri Spagnoli were built in the sixteenth century to house Spanish troops, and the streets were laid out for soldiers rather than for eating: four metres wide, stairs at both ends, no room for a table anywhere. Food there had to be portable or it did not sell. The calzone is the shape that requirement produced, and it is the only dish in this book whose form was decided by town planning.
+
 ## What the creator had in mind
 
-Mario's uncle called it the pizza with a roof. The idea is steam: a sealed pizza cooks its filling in its own moisture, so the ricotta stays creamy instead of drying out the way it would on an open pizza.
-
-The idea is steam. A sealed pizza cooks its filling in its own moisture, which is the only way ricotta comes out of an oven creamy instead of chalky. Everything else about the recipe follows from protecting that steam until the guest cuts it open.
+Steam is the whole recipe. A sealed pizza cooks its filling in its own moisture, which is the only way ricotta leaves an oven creamy instead of chalky, and everything else about the method exists to hold that steam in until the guest cuts it open.
 
 ## Why these ingredients
 
 Ricotta is the reason this is folded. It is a whey cheese with a high water content, and it behaves completely differently under a lid than in the open oven. The ham is added for salt, the tomato is inside, never on top.
+
+Ricotta is not really a cheese and that is why it works here. It is made from the whey left over after another cheese has been made — the name means *recooked* — so it is low in fat, high in water and completely unable to survive an open oven. A closed one turns exactly those properties into the texture the dish is famous for.
 
 ## How we prepare it
 
@@ -24,18 +28,16 @@ Half the disc is filled, the other half folded over, and the rim is pressed and 
 
 ## How we bake it
 
-400 degrees, 3 minutes — by far our longest bake, because the heat has to reach the middle through a closed shell.
-
-Three minutes is the longest bake in the house and the oven is dropped to 400 °C for it, because the heat has to travel through a closed shell without burning the outside.
+Three minutes at 400 °C, by a distance the longest bake here. The heat has to travel through a closed shell without burning the outside, which is why the floor is dropped and why this one cannot be hurried.
 
 ## In numbers
 
-- dough ball: 280 g (larger than a pizza's, for the fold)
-- ricotta: 90 g · mozzarella: 70 g · ham: 45 g, inside
-- tomato: 60 g inside, a spoonful on top after the bake
-- steam cut: one, about 3 cm, on the top
-- oven floor: 400 °C, bake 3 minutes
-- it must puff within the first minute — if it does not, it has a leak
+- dough: 285 g, the heaviest ball we make, because half of it becomes a lid
+- ricotta 90 g · fior di latte 70 g · ham 45 g, all of it inside
+- tomato: 60 g inside, and a spoonful on top after the bake
+- one steam cut on the top, three centimetres, always the same
+- floor 400 °C, three minutes — the longest bake in the book
+- it must puff within the first minute, or it has a leak
 
 ## What guests ask
 
@@ -59,7 +61,5 @@ Three minutes, because the heat has to reach the middle through a closed shell. 
 - wet ricotta straight from the tub: the filling separates and the base goes soft
 
 ## House note
-
-A calzone that has not puffed up in the first minute has a leak, and the cook will start again.
 
 A calzone that has not puffed up within the first minute has a leak, and the cook starts again rather than serve it. It is the only dish here that is judged before it is finished.
