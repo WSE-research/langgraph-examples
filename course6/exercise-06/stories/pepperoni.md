@@ -6,6 +6,8 @@ The Pepperoni is not Italian and we say so on the menu. It came back with Mario'
 
 Nino worked at a counter on Arthur Avenue from 1977 to 1989, twelve hours a day, and came back with a notebook and a habit of calling every pizza a pie. The recipe is written in that notebook in ounces, which is why the kitchen has a conversion table taped inside a cupboard door.
 
+Nino died in 2019. The notebook is in the office, the conversion table is still taped inside the cupboard door, and the recipe has not been altered since he last cooked it in this kitchen in 2016. Mario has been asked twice to modernise it and has declined twice, on the grounds that it is not his recipe to modernise.
+
 ## What the creator had in mind
 
 Nino wanted the pizza he had learned to make abroad, not a corrected version of it. The idea is the cup: a sausage sliced thin enough to curl in the heat and hold a spoonful of its own fat, which then fries the cheese around it.
@@ -24,18 +26,18 @@ The slices are laid with a gap of about a centimetre, which looks wrong on a raw
 
 ## How we bake it
 
-420 degrees, 90 seconds. The cups must colour at the rim; a flat, pale slice means the oven was too cool or the sausage too thick.
+Ninety seconds at 420 °C, lower than the Neapolitan pizzas because the sausage would scorch before the cheese was ready. The fat that gathers in the cups is the point of the pizza and is never blotted away.
 
 The fat that collects in the cups is the whole point and should not be blotted away. If a guest asks for a less greasy pizza, the honest answer is to recommend the Salami instead.
 
 ## In numbers
 
-- dough ball: 250 g
-- sausage: 55 g, sliced at 2 mm, laid with a 1 cm gap
-- mozzarella: 100 g, low-moisture, grated
-- tomato: 80 g
-- oven floor: 420 °C, bake 90 seconds
-- the cups should colour at the rim — a flat pale slice is a failed bake
+- dough: 260 g, stretched wider and thinner than the Neapolitan pizzas
+- sausage: 55 g, sliced at two millimetres, laid with a centimetre between slices
+- low-moisture mozzarella: 100 g, grated
+- tomato: 82 g
+- floor 420 °C, ninety seconds
+- the cups must colour at the rim: a flat pale slice is a failed bake
 
 ## What guests ask
 

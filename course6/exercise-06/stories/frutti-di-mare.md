@@ -2,13 +2,13 @@
 
 ## Where it comes from
 
-The Frutti di Mare comes from the bay of Pozzuoli, west of Naples, where the fish market opens at four and is over by seven. Mario worked there one winter, unloading crates, and learned that everything about seafood is a question of hours.
+The Frutti di Mare comes from the bay of Pozzuoli, west of Naples, where Mario spent a winter unloading crates at the fish market before dawn.
 
 The market at Pozzuoli opens at four and is over by seven, and everything in it is priced by how long it has been out of the water. Mario unloaded crates there for a winter. The lesson he took home was that seafood is a question of hours, and that a kitchen which cannot answer that question honestly should not sell it.
 
-## What the creator had in mind
+The crates at Pozzuoli are priced by how long their contents have been out of the water, and the winter Mario spent unloading them was the winter he learned to read that price without asking. Our supplier here drives from Marseille and arrives at half past six; when he telephones instead of arriving, the pizza is off the board before the kitchen has opened.
 
-The idea is a pizza that is cooked twice as little as everyone expects. Seafood turns to rubber in seconds, so the pizza is baked almost bare and the seafood is warmed, not roasted.
+## What the creator had in mind
 
 The pizza is cooked twice as little as anyone expects. Squid turns to rubber in about forty seconds of direct heat; prawns go floury; mussels shrink to nothing. So the oven bakes a nearly bare pizza and the seafood is warmed, not roasted.
 
@@ -24,18 +24,18 @@ Mussels and clams are opened in a covered pan with garlic and white wine; squid 
 
 ## How we bake it
 
-430 degrees, 70 seconds with tomato and the reduced liquid only. The seafood is added afterwards and the parsley after that.
+Almost nothing is on the pizza while it bakes: seventy seconds at 436 °C with the tomato and the reduced pan liquid. The sea is added afterwards, warmed by the base and never roasted, and the parsley goes on last of all.
 
 The bake is tomato and the reduced liquid only. The seafood goes on afterwards and the parsley last, off the heat.
 
 ## In numbers
 
-- dough ball: 250 g, no cheese
-- seafood: 120 g — mussels, clams, squid, prawns, cooked separately
-- pan: garlic, white wine, parsley; liquid strained and reduced to ~15 g
-- tomato: 70 g
-- oven floor: 430 °C, bake 70 seconds with the tomato alone
-- off the menu whenever the morning crate is not right
+- dough: 243 g, no cheese on it and none permitted
+- seafood: 120 g — mussels, clams, squid, prawns, each cooked and cooled separately
+- the pan: garlic, white wine, parsley; the liquid strained and reduced to about 15 g
+- tomato: 72 g, with the reduced liquid brushed into it
+- floor 436 °C, seventy seconds with the tomato alone
+- off the board on any day the morning crate is not right
 
 ## What guests ask
 
@@ -45,7 +45,7 @@ No, and this is the one request Mario refuses outright. Cheese and seafood fight
 
 **“Is the seafood fresh?”**
 
-It is bought in the morning and cooked in the morning. When the crate is not good enough we take the pizza off the menu for the day — the bot will tell you when that has happened.
+It is bought at half past six and cooked before eleven, from a driver who comes up from Marseille overnight. On the mornings when he telephones instead of arriving, the line disappears from the board before the room opens, and the bot will say so if you ask for it.
 
 **“Why is there no cheese?”**
 
@@ -60,6 +60,6 @@ Because there never was. This is a Neapolitan seafood pizza, and the bay it come
 
 ## House note
 
-This pizza depends on a delivery that fails more often than any other. When the morning crate is not right, it is off the menu for the day — and the bot has to be able to say so.
+No dish here is at the mercy of one morning the way this one is. That is not a reason to take it off the menu permanently; it is a reason the process has to be able to say *not today* without a human being asked.
 
 Of everything on this menu, this pizza depends most on a delivery we do not control — which is why it, and the Tartufo, are the two the kitchen most often takes off the board.

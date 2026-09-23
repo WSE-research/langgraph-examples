@@ -6,6 +6,8 @@ The Diavola is Calabrian in spirit and comes to us from Spilinga, a village on t
 
 Spilinga sits above the sea on the Monte Poro plateau and holds a festival for its chilli sausage every August. The recipe here is not the village's — theirs is spread on bread, not baked — but the balance of heat to fat is copied from it directly, and Mario has never claimed the idea was his.
 
+Spilinga is nine hours by road from here, and the sausage on this pizza is not from there: it is made in Lyon by a butcher from Reggio Calabria who cures to his grandmother's recipe and sells to four restaurants. Mario found him through a guest who overheard the kitchen arguing about a delivery, which is how half the suppliers in this book were found.
+
 ## What the creator had in mind
 
 Mario's idea was heat that arrives late. The chilli is not meant to hit the first bite — it should build over the slice, so the pizza is still edible at the end. That is why the chilli is infused into oil instead of scattered raw.
@@ -24,18 +26,18 @@ The chilli oil is made once a week and kept in a dark bottle: a hot infusion wit
 
 ## How we bake it
 
-430 degrees, 85 seconds. Chilli scorches quickly, and burnt chilli is bitter rather than hot, which is the failure mode to watch for.
+A 430 °C floor and eighty-five seconds, with the cook watching through the door for the one thing that ruins it: chilli scorches quickly, and burnt chilli is bitter rather than hot.
 
 A thread of chilli oil goes on after the bake, and the cook may add a second. Never a third — at that point the pizza is an endurance test and the kitchen is not in that business.
 
 ## In numbers
 
-- dough ball: 250 g
-- sausage: 55 g, sliced at 2 mm
-- chilli oil: 6 g before the bake, 6 g after
-- tomato: 80 g · mozzarella: 90 g
-- infusion: chilli flakes in warm olive oil for 2 hours, then strained
-- oven floor: 430 °C, bake 85 seconds
+- dough: 255 g
+- sausage: 58 g, Calabrian, cured with chilli, sliced a shade thicker than the Pepperoni's
+- chilli oil: 6 g under the toppings, 6 g after the oven, never a third
+- tomato: 78 g · fior di latte: 87 g
+- the oil: flakes steeped in warm olive oil for two hours, then strained out
+- floor 430 °C, eighty-five seconds
 
 ## What guests ask
 

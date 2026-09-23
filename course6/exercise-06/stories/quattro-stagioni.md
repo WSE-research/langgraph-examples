@@ -4,44 +4,42 @@
 
 The Quattro Stagioni is the Capricciosa's better-behaved cousin and reached us from Naples, where a cook explained to Mario that the four seasons are not a decoration but an instruction to the person holding the peel.
 
-The cook in Naples who explained it to Mario was annoyed rather than romantic about it: the four seasons are an instruction to the person holding the peel, he said, not a poem for the menu. Spring at the top left, then clockwise through the year.
+The cook was a man of about sixty who had never worked outside Naples and regarded the question as slightly stupid: spring at the top left, he said, then clockwise, and it is an instruction rather than a poem for the menu. Mario has repeated that answer to every cook who has worked here since, usually in the same tone.
+
+Naples has a rule about this pizza that Mario did not know until his third visit: it is a winter dish there, ordered when a guest wants a little of everything and the market has nothing in particular. Here it sells hardest in June, from tables outside, which he finds funny enough to mention whenever anybody asks whether a recipe belongs to the place it came from.
 
 ## What the creator had in mind
 
-Spring is artichoke, summer is olive, autumn is mushroom, winter is ham. The idea is that a pizza can be a calendar, and that a guest eating clockwise should taste the year pass.
-
-It is a pizza as a calendar, and it only works because each quarter is what that season used to deliver before produce could be flown anywhere. Eaten clockwise, a guest tastes the year pass — which is a party trick, and also the clearest lesson on this menu about where food used to come from.
+Eaten clockwise, a guest tastes the year pass. That is a party trick, and it is also the clearest lesson on this menu about where food used to come from.
 
 ## Why these ingredients
 
-Each quarter is what that season used to deliver before produce could be flown anywhere. The pizza is a record of a time when the seasons decided the menu.
+Before produce could be flown anywhere, a kitchen's menu was written by the calendar and not by the cook. This pizza is the last trace of that in the house, and the only dish here whose toppings would once have been impossible to buy together.
+
+None of the four is difficult and none of them is expensive, and that is deliberate. A pizza built out of four cheap, sturdy ingredients survives being made by a tired cook at half past ten on a Saturday, which is when most of them are ordered and which is the real test any recipe on this menu has to pass.
 
 ## How we prepare it
-
-Four quarters, separated by a clean line of tomato, never overlapping. Unlike the Capricciosa there is no egg, and the quarters are laid in the order of the year.
 
 Quarters are separated by a clean line of tomato and never overlap. Artichoke is spring, olive is summer, mushroom is autumn, ham is winter, and the cook lays them in that order because a habit is more reliable than a decision.
 
 ## How we bake it
 
-430 degrees, 85 seconds. Nothing on it is delicate, which makes this the easiest of our composed pizzas to bake well.
-
-Nothing on it is delicate, which makes it the easiest of the composed pizzas to bake well and a good one to give a cook in their second week.
+The oven does not have to be watched for this one. Eighty-five seconds at 430 °C, nothing on top of it is delicate, and that is why it is a sensible pizza to hand a cook in their second week.
 
 ## In numbers
 
-- dough ball: 250 g
-- spring: artichoke 30 g · summer: olives 25 g
-- autumn: mushrooms 40 g, cooked · winter: ham 40 g
-- tomato: 80 g · mozzarella: 90 g
-- oven floor: 430 °C, bake 85 seconds
-- no egg — that is the Capricciosa
+- dough: 265 g
+- spring artichoke 30 g · summer olives 25 g · autumn mushrooms 40 g · winter ham 40 g
+- tomato: 88 g · fior di latte: 90 g
+- the quarters are laid clockwise, in the order of the year, every time
+- the oven: 430 °C, and the pizza is out at second eighty-five
+- no egg — that belongs to the Capricciosa
 
 ## What guests ask
 
 **“Which quarter is which season?”**
 
-Clockwise from the top left: artichoke for spring, olive for summer, mushroom for autumn, ham for winter.
+Top left, then round: spring, summer, autumn, winter. If you are eating it and you have lost your place, the egg-free quarter with the ham in it is January.
 
 **“Is it the same as the Capricciosa?”**
 

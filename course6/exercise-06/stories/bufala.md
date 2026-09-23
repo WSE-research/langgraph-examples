@@ -6,6 +6,8 @@ The Bufala comes from the Sele plain in Campania, an hour south of Salerno, wher
 
 The dairy was in Capaccio, and it started that early because buffalo mozzarella is sold on the day it is made and nobody in that valley thinks otherwise. Mario's job was to carry the stretched curd in brine to the vans. He learned nothing about pizza there and everything about how quickly this cheese changes, which is a fact about pizza.
 
+Capaccio is forty minutes from Paestum, and the dairy Mario worked in sold to three restaurants and a shop, all within sight of the lofts. It has since been bought by a larger company, and the mozzarella we buy now comes from a cooperative two villages further inland. Elena tasted both, blind, in 2021 and could not tell them apart, which Mario reports here honestly and without enthusiasm.
+
 ## What the creator had in mind
 
 He wanted a pizza that tastes of the milk and not of the oven. The buffalo mozzarella is the point of this pizza, so the recipe is built to protect it: less time in the heat, less tomato, no competing flavour.
@@ -32,12 +34,12 @@ The base is dressed with tomato and a little oil and goes in alone. When it come
 
 ## In numbers
 
-- dough ball: 250 g
-- tomato: 70 g (less than the Margherita, so the cheese leads)
-- buffalo mozzarella: 100 g, torn by hand, drained 20 minutes
-- oven floor: 430 °C, bake 60 seconds with the tomato alone
-- rest before the cheese: 15 seconds
-- served within: 3 minutes, or it is remade
+- dough: 255 g, opened a little wider so the cheese has room
+- tomato: 70 g, less than any other red pizza here
+- buffalo mozzarella: 100 g, torn over a bowl, drained twenty minutes
+- floor 430 °C, sixty seconds with the tomato alone
+- fifteen seconds of rest before the cheese goes on
+- on the table within three minutes, or the kitchen makes it again
 
 ## What guests ask
 

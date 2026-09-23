@@ -6,6 +6,10 @@ The Salami is from Norcia in Umbria, a town of butchers so well known for it tha
 
 Norcia's butchers gave the Italian language the word *norcino*, and the town still trains them. The salami we buy is seasoned with black pepper and wild fennel seed and hung for four months; the supplier sends two a week and will not sell us more, which settles how often this pizza is on the board.
 
+The butcher in Norcia is the third generation of the same family and rebuilt the workshop twice, once after the 2016 earthquake. The limit of two salami a week is not a negotiating position: he cures what the building holds, and he has told Mario twice that he would rather send nothing than send something young.
+
+Norcia sits at nine hundred metres in the Sibillini mountains, which is the whole reason the town became famous for curing: cold, dry winters and almost no humidity let a sausage hang without spoiling. The word *norcino* still means a pork butcher anywhere in Italy, and the trade travelled well enough that the Norcia butchers of Rome had their own guild by the sixteenth century.
+
 ## What the creator had in mind
 
 Mario's idea was the opposite of the Pepperoni: a coarse, slowly cured salami cut thick, so that you chew it rather than let it dissolve. He wanted a pizza with a texture, not just a flavour.
@@ -24,18 +28,16 @@ Twelve slices at four millimetres, laid in two rings, and added through the oven
 
 ## How we bake it
 
-430 degrees, 90 seconds in total, the salami added at second 45 through the oven door.
-
-It is the only pizza on this menu that requires the cook to stay at the oven for the whole bake, which is why it is never made during the worst ten minutes of a Saturday.
+Ninety seconds at 428 °C, with the oven door opened once at second forty-five. It is the only pizza here that keeps a cook standing at the oven for the whole bake, which is why it is never made in the worst ten minutes of a Saturday.
 
 ## In numbers
 
-- dough ball: 250 g
-- salami: 60 g, 12 slices at 4 mm, in two rings
-- added: through the oven door at second 45
-- tomato: 80 g · mozzarella: 90 g
-- oven floor: 430 °C, bake 90 seconds in total
-- supplier: two salami a week, which is the limit on how often we sell it
+- dough: 262 g, a little heavier to carry the weight of the salami
+- salami: 60 g, twelve slices at four millimetres, in two rings
+- tomato: 84 g · fior di latte: 96 g, torn coarsely
+- added through the oven door at second forty-five
+- floor 428 °C, ninety seconds in total
+- two salami a week from Norcia, which is how often this pizza can be sold
 
 ## What guests ask
 
@@ -60,6 +62,4 @@ Yes, and the kitchen will make them side by side on one pizza so you can taste t
 
 ## House note
 
-If you order the Salami and the Pepperoni together, the kitchen will make them side by side on purpose. They are the same idea from two countries.
-
-If you order this and the Pepperoni together, you will be given them side by side on purpose. They are the same idea from two countries, and the plate makes the argument better than this page does.
+Order this and the Pepperoni together and they will arrive side by side on purpose. Nino and Mario argued about which of the two was the real one for eleven years; the plate settles it better than either of them ever did.

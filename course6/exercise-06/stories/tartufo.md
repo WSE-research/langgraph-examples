@@ -4,7 +4,9 @@
 
 The Tartufo came from a week Mario spent in Acqualagna in the Marche, a small town that lives from truffles and argues with Alba about which of them lives from them better.
 
-Acqualagna holds its truffle fair at the end of October, and the argument with Alba is genuinely about which town sells more — both are right, because they count different things. Mario went to buy and stayed a week because the seller he had come for refused to sell to a pizzeria until he had watched Mario cook.
+The fair is held at the end of October and fills a town of four thousand people for three weekends. Mario went to buy and stayed a week, because the seller he had come for refused to sell to a pizzeria until he had watched the pizzeria cook.
+
+The seller in Acqualagna is called Renzo and he sells to eleven restaurants, of which ours is the smallest and the only one outside Italy. He telephones when a delivery will be poor rather than sending it, which is a courtesy Mario has never been offered by any other supplier and the only reason a pizza this dependent on one ingredient is on the menu at all.
 
 ## What the creator had in mind
 
@@ -14,30 +16,28 @@ The rule he came home with is the one printed above the pass: *nothing on this p
 
 ## Why these ingredients
 
-Truffle aroma is fat-soluble and it disappears with heat, which explains both the cream and the timing. The mushrooms are there to carry the flavour further than the truffle alone could.
+Truffle aroma sits in volatile compounds that fat carries and heat destroys. That single fact writes the recipe: cream, because the aroma needs something to dissolve into; no tomato, because acid competes with it; and the shaving at the very end, because every second in the oven costs some of it.
 
-Truffle aroma sits in volatile compounds that are carried by fat and destroyed by heat, which is why the cream is there and why the shaving happens last. The mushrooms are the supporting cast: they are earthy enough to make a small amount of truffle taste like more.
+The mushrooms are the supporting cast. They are earthy in the same direction as the truffle and they make four grams of it taste like more, which is the only honest way to sell this pizza at a price a guest will pay twice.
 
 ## How we prepare it
 
 A thin layer of cream replaces the tomato. Mozzarella and cooked mushrooms go on before the bake; the truffle is shaved at the pass, over the hot pizza, in front of the guest when the room allows it.
 
-The cream is thinned with a spoonful of the mushroom pan and spread thinly — a thick layer turns to a sauce and the pizza stops being a pizza. We use a black winter truffle from November to February and a summer truffle otherwise, and the price on the board follows the season, openly.
+A thick layer turns to a sauce and the pizza stops being a pizza, so the cream is loosened with a spoonful of the mushroom pan before it is spread. From November to February the truffle is a black winter one; the rest of the year it is a summer truffle, and the price on the board follows the season openly rather than quietly.
 
 ## How we bake it
 
-400 degrees, 90 seconds — slightly cooler and slightly longer, because cream burns before tomato does.
-
-Cream browns at a lower temperature than tomato, so the floor is dropped to 400 °C and the pizza spends longer in the oven than a Margherita would.
+A cooler floor than anything else with cheese on it — 400 °C — and ninety seconds on it, because cream browns long before tomato would. It is the one pizza here that is baked slowly on purpose.
 
 ## In numbers
 
-- dough ball: 250 g
-- cream: 45 g, thinned with the mushroom pan
-- mozzarella: 80 g · mushrooms: 60 g, cooked
-- truffle: 4 g, shaved at the pass, never in the oven
-- oven floor: 400 °C, bake 90 seconds
-- off the menu when the delivery is not good enough — the bot will say so
+- dough: 240 g, the smallest we make, because the pizza is rich
+- cream: 45 g, loosened with a spoonful of the mushroom pan
+- fior di latte: 80 g · mushrooms: 60 g, cooked and cooled
+- truffle: 4 g, shaved at the pass and never before
+- floor 400 °C, ninety seconds
+- black winter truffle November to February, summer truffle otherwise, price on the board
 
 ## What guests ask
 
@@ -47,7 +47,7 @@ Real truffle, shaved at the pass, and you may watch. Most truffle oil is a synth
 
 **“Why is it sometimes unavailable?”**
 
-Because it depends on a delivery we do not control. When the truffle is not good enough we take the pizza off the menu for the day rather than serve a weak one.
+Because Renzo telephones instead of sending, on the days when what he has is not worth the price. A weak truffle is not a cheaper pizza, it is a different and much worse one, so the board loses a line that day.
 
 **“Can I have it with tomato?”**
 
@@ -62,6 +62,5 @@ We would rather you had the Funghi. Tomato is acidic enough to bury the truffle,
 
 ## House note
 
-The Tartufo depends on a delivery we do not control. When the truffle is not good enough, the pizza is off the menu for the day, and the bot will tell you so.
+It is the most expensive pizza on the menu and the one we most often refuse to sell. Both facts belong to the same decision, and Renzo makes it before we do.
 
-It is the most expensive pizza on the menu and the one we most often refuse to sell. Both facts belong to the same decision.
