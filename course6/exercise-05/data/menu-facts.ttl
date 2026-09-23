@@ -1,0 +1,420 @@
+# The pizzas the shop sells, and what is in them.
+#
+# This is *our* knowledge: it says what the kitchen puts on a pizza and what
+# that means for a guest who does not eat meat, fish, milk or egg. The Pizza
+# API (GET /pizza) knows two things about a pizza -- its id and its name; every
+# other fact in this file is one the service does not have, which is the whole
+# reason for the graph. `pz:apiId` is the join.
+#
+# The dietary flags on a pizza are *asserted* here so that a question answerer
+# can read one triple instead of reasoning, and they are *derived* again from
+# the toppings by `check_facts.py`. When the two disagree, one of them is wrong
+# -- that is the repair loop, and it is a test, not a hope.
+#
+# Reading rule for toppings: a topping states only what it contains. No
+# statement means "not present" (`pz:Basil` says nothing about milk because
+# there is none in basil). The same closed reading is what makes
+# `FILTER NOT EXISTS` in the queries mean what it looks like it means.
+
+@prefix pz:   <http://example.org/pizza/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# =====================================================================
+# the pizzas -- ids 1-22 of GET /pizza, in menu order
+# =====================================================================
+
+pz:Margherita a pz:Pizza ;
+    pz:name         "Margherita" ;
+    pz:apiId        1 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Basil ;
+    pz:containsMeat false ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   true ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella and fresh basil -- the classic." .
+
+pz:Pepperoni a pz:Pizza ;
+    pz:name         "Pepperoni" ;
+    pz:apiId        2 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:PepperoniSausage ;
+    pz:containsMeat true ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   false ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella and spicy salami." .
+
+pz:Hawaiian a pz:Pizza ;
+    pz:name         "Hawaiian" ;
+    pz:alias        "Hawaii", "Pizza Hawaii" ;
+    pz:apiId        3 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Ham, pz:Pineapple ;
+    pz:containsMeat true ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   false ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella, ham and pineapple." .
+
+pz:QuattroFormaggi a pz:Pizza ;
+    pz:name         "Quattro Formaggi" ;
+    pz:alias        "four cheese", "4 formaggi" ;
+    pz:apiId        4 ;
+    pz:hasTopping   pz:Mozzarella, pz:Gorgonzola, pz:Parmesan, pz:Fontina ;
+    pz:containsMeat false ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   true ;
+    pz:vegan        false ;
+    pz:description  "Four cheeses -- mozzarella, gorgonzola, parmesan and fontina, no tomato sauce." .
+
+pz:Funghi a pz:Pizza ;
+    pz:name         "Funghi" ;
+    pz:alias        "mushroom pizza" ;
+    pz:apiId        5 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Mushroom ;
+    pz:containsMeat false ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   true ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella and mushrooms." .
+
+pz:SalamiPizza a pz:Pizza ;
+    pz:name         "Salami" ;
+    pz:apiId        6 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Salami ;
+    pz:containsMeat true ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   false ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella and salami." .
+
+pz:Prosciutto a pz:Pizza ;
+    pz:name         "Prosciutto" ;
+    pz:alias        "ham pizza" ;
+    pz:apiId        7 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Ham ;
+    pz:containsMeat true ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   false ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella and thin slices of ham." .
+
+pz:Diavola a pz:Pizza ;
+    pz:name         "Diavola" ;
+    pz:alias        "the hot one" ;
+    pz:apiId        8 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:PepperoniSausage,
+                    pz:Chilli ;
+    pz:containsMeat true ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   false ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella, spicy salami and chilli." .
+
+pz:Vegetariana a pz:Pizza ;
+    pz:name         "Vegetariana" ;
+    pz:alias        "vegetarian pizza" ;
+    pz:apiId        9 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Courgette,
+                    pz:BellPepper, pz:Mushroom, pz:Onion ;
+    pz:containsMeat false ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   true ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella and the vegetables of the season." .
+
+pz:Calzone a pz:Pizza ;
+    pz:name         "Calzone" ;
+    pz:alias        "folded pizza" ;
+    pz:apiId        10 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Ricotta, pz:Ham ;
+    pz:containsMeat true ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   false ;
+    pz:vegan        false ;
+    pz:description  "Folded shut before baking: tomato, mozzarella, ricotta and ham inside." .
+
+pz:Capricciosa a pz:Pizza ;
+    pz:name         "Capricciosa" ;
+    pz:apiId        11 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Mushroom, pz:Artichoke,
+                    pz:Ham, pz:Olive, pz:Egg ;
+    pz:containsMeat true ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  true ;
+    pz:vegetarian   false ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella, mushrooms, artichokes, ham, olives and egg." .
+
+pz:Marinara a pz:Pizza ;
+    pz:name         "Marinara" ;
+    pz:apiId        12 ;
+    pz:hasTopping   pz:Tomato, pz:Garlic, pz:Oregano, pz:OliveOil ;
+    pz:containsMeat false ;
+    pz:containsFish false ;
+    pz:containsMilk false ;
+    pz:containsEgg  false ;
+    pz:vegetarian   true ;
+    pz:vegan        true ;
+    pz:description  "No cheese at all: tomato, garlic, oregano and olive oil." .
+
+pz:Siciliana a pz:Pizza ;
+    pz:name         "Siciliana" ;
+    pz:apiId        13 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Anchovy, pz:Caper,
+                    pz:Olive ;
+    pz:containsMeat false ;
+    pz:containsFish true ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   false ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella, anchovies, capers and olives." .
+
+pz:Tonno a pz:Pizza ;
+    pz:name         "Tonno" ;
+    pz:alias        "tuna pizza" ;
+    pz:apiId        14 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Tuna, pz:Onion ;
+    pz:containsMeat false ;
+    pz:containsFish true ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   false ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella, tuna and onions." .
+
+pz:FruttiDiMare a pz:Pizza ;
+    pz:name         "Frutti di Mare" ;
+    pz:alias        "seafood pizza", "frutti di mare" ;
+    pz:apiId        15 ;
+    pz:hasTopping   pz:Tomato, pz:Seafood, pz:Garlic, pz:Parsley ;
+    pz:containsMeat false ;
+    pz:containsFish true ;
+    pz:containsMilk false ;
+    pz:containsEgg  false ;
+    pz:vegetarian   false ;
+    pz:vegan        false ;
+    pz:description  "Tomato, seafood, garlic and parsley -- no cheese, the Italian way." .
+
+pz:QuattroStagioni a pz:Pizza ;
+    pz:name         "Quattro Stagioni" ;
+    pz:alias        "four seasons" ;
+    pz:apiId        16 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Mushroom, pz:Artichoke,
+                    pz:Ham, pz:Olive ;
+    pz:containsMeat true ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   false ;
+    pz:vegan        false ;
+    pz:description  "Four quarters: mushrooms, artichokes, ham and olives on tomato and mozzarella." .
+
+pz:Bufala a pz:Pizza ;
+    pz:name         "Bufala" ;
+    pz:alias        "buffalo mozzarella pizza" ;
+    pz:apiId        17 ;
+    pz:hasTopping   pz:Tomato, pz:BuffaloMozzarella, pz:Basil ;
+    pz:containsMeat false ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   true ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella di bufala and basil." .
+
+pz:Tartufo a pz:Pizza ;
+    pz:name         "Tartufo" ;
+    pz:alias        "truffle pizza" ;
+    pz:apiId        18 ;
+    pz:hasTopping   pz:Mozzarella, pz:Truffle, pz:Mushroom, pz:Cream ;
+    pz:containsMeat false ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   true ;
+    pz:vegan        false ;
+    pz:description  "Mozzarella, truffle, mushrooms and cream -- no tomato sauce." .
+
+pz:Rucola a pz:Pizza ;
+    pz:name         "Rucola" ;
+    pz:alias        "rocket pizza", "arugula" ;
+    pz:apiId        19 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Rocket, pz:Parmesan ;
+    pz:containsMeat false ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   true ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella, fresh rocket and parmesan shavings." .
+
+pz:Boscaiola a pz:Pizza ;
+    pz:name         "Boscaiola" ;
+    pz:alias        "woodsman pizza" ;
+    pz:apiId        20 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Mushroom, pz:Sausage ;
+    pz:containsMeat true ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   false ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella, mushrooms and Italian sausage." .
+
+pz:Ortolana a pz:Pizza ;
+    pz:name         "Ortolana" ;
+    pz:alias        "garden pizza", "grilled vegetable pizza" ;
+    pz:apiId        21 ;
+    pz:hasTopping   pz:Tomato, pz:Mozzarella, pz:Courgette, pz:Aubergine,
+                    pz:BellPepper, pz:OliveOil ;
+    pz:containsMeat false ;
+    pz:containsFish false ;
+    pz:containsMilk true ;
+    pz:containsEgg  false ;
+    pz:vegetarian   true ;
+    pz:vegan        false ;
+    pz:description  "Tomato, mozzarella and grilled courgette, aubergine and peppers." .
+
+pz:Verdure a pz:Pizza ;
+    pz:name         "Verdure" ;
+    pz:alias        "vegan pizza", "Vegana" ;
+    pz:apiId        22 ;
+    pz:hasTopping   pz:Tomato, pz:Courgette, pz:Aubergine, pz:BellPepper,
+                    pz:RedOnion, pz:OliveOil, pz:Oregano ;
+    pz:containsMeat false ;
+    pz:containsFish false ;
+    pz:containsMilk false ;
+    pz:containsEgg  false ;
+    pz:vegetarian   true ;
+    pz:vegan        true ;
+    pz:description  "Grilled vegetables on tomato, with olive oil and oregano -- no cheese, no animal product." .
+
+
+# =====================================================================
+# the toppings -- the evidence behind the flags above
+# =====================================================================
+
+pz:Tomato a pz:Topping ; pz:name "tomato" ;
+    pz:alias "tomato sauce" .
+
+pz:Mozzarella a pz:Topping ; pz:name "mozzarella" ;
+    pz:containsMilk true .
+
+pz:BuffaloMozzarella a pz:Topping ; pz:name "mozzarella di bufala" ;
+    pz:alias "buffalo mozzarella" ;
+    pz:containsMilk true .
+
+pz:Gorgonzola a pz:Topping ; pz:name "gorgonzola" ;
+    pz:containsMilk true .
+
+pz:Parmesan a pz:Topping ; pz:name "parmesan" ;
+    pz:alias "parmigiano" ;
+    pz:containsMilk true .
+
+pz:Fontina a pz:Topping ; pz:name "fontina" ;
+    pz:containsMilk true .
+
+pz:Ricotta a pz:Topping ; pz:name "ricotta" ;
+    pz:containsMilk true .
+
+pz:Cream a pz:Topping ; pz:name "cream" ;
+    pz:containsMilk true .
+
+pz:Basil a pz:Topping ; pz:name "basil" .
+
+pz:Oregano a pz:Topping ; pz:name "oregano" .
+
+pz:Garlic a pz:Topping ; pz:name "garlic" .
+
+pz:OliveOil a pz:Topping ; pz:name "olive oil" .
+
+pz:Olive a pz:Topping ; pz:name "olives" ;
+    pz:alias "olive" .
+
+pz:Mushroom a pz:Topping ; pz:name "mushrooms" ;
+    pz:alias "mushroom", "funghi" .
+
+pz:Truffle a pz:Topping ; pz:name "truffle" ;
+    pz:alias "tartufo" .
+
+pz:Rocket a pz:Topping ; pz:name "rocket" ;
+    pz:alias "arugula", "rucola" .
+
+pz:Courgette a pz:Topping ; pz:name "courgette" ;
+    pz:alias "zucchini" .
+
+pz:Aubergine a pz:Topping ; pz:name "aubergine" ;
+    pz:alias "eggplant" .
+
+pz:BellPepper a pz:Topping ; pz:name "bell pepper" ;
+    pz:alias "peppers", "capsicum" .
+
+pz:Onion a pz:Topping ; pz:name "onion" ;
+    pz:alias "onions" .
+
+pz:RedOnion a pz:Topping ; pz:name "red onion" .
+
+pz:Pineapple a pz:Topping ; pz:name "pineapple" .
+
+pz:Caper a pz:Topping ; pz:name "capers" ;
+    pz:alias "caper" .
+
+pz:Chilli a pz:Topping ; pz:name "chilli" ;
+    pz:alias "chili", "peperoncino" .
+
+pz:Parsley a pz:Topping ; pz:name "parsley" .
+
+pz:Artichoke a pz:Topping ; pz:name "artichokes" ;
+    pz:alias "artichoke", "carciofi" .
+
+pz:Ham a pz:Topping ; pz:name "ham" ;
+    pz:alias "cooked ham", "prosciutto cotto" ;
+    pz:containsMeat true .
+
+pz:Salami a pz:Topping ; pz:name "salami" ;
+    pz:containsMeat true .
+
+pz:PepperoniSausage a pz:Topping ; pz:name "pepperoni" ;
+    pz:alias "salami piccante", "spicy salami" ;
+    pz:containsMeat true .
+
+pz:Sausage a pz:Topping ; pz:name "sausage" ;
+    pz:alias "salsiccia" ;
+    pz:containsMeat true .
+
+pz:Egg a pz:Topping ; pz:name "egg" ;
+    pz:containsEgg true .
+
+pz:Anchovy a pz:Topping ; pz:name "anchovies" ;
+    pz:alias "anchovy", "acciughe" ;
+    pz:containsFish true .
+
+pz:Tuna a pz:Topping ; pz:name "tuna" ;
+    pz:alias "tonno" ;
+    pz:containsFish true .
+
+pz:Seafood a pz:Topping ; pz:name "seafood" ;
+    pz:alias "mussels, squid and prawns" ;
+    pz:containsFish true .
