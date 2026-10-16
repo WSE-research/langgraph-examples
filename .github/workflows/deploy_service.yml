@@ -25,7 +25,13 @@ env:
   SERVICE_ID: wse-research-langgraph-examples
 
 jobs:
+  # Every version is tested, and the service verified locally, before anything
+  # reaches the updater: a version an exercise depends on must never go out broken.
+  test:
+    uses: ./.github/workflows/test_pizza_api.yml
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

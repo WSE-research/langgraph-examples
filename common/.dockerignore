@@ -1,0 +1,4 @@
+# The image runs main.py with data/; the tests and caches stay outside it.
+tests/
+**/__pycache__/
+.pytest_cache/
