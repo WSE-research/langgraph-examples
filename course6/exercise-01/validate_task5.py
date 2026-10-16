@@ -12,10 +12,11 @@ from __future__ import annotations
 
 import os
 
-# This script orders fixed pizzas, and since Pizza API 1.3.0 two pizzas are sold out
-# every minute (POST /order answers 409). A test driver opts out of that draw with
-# the header X-Accept-Everything: true, which pizzabot/pizza_api.py sends when this
-# is set -- so a result does not depend on the minute it runs in.
+# This script orders fixed pizzas. From Pizza API version v5 on, two pizzas are sold
+# out every minute (POST /order answers 409); v1, which this exercise uses,
+# never sells out. A test driver opts out of that draw with the header
+# X-Accept-Everything: true, which pizzabot/pizza_api.py sends when this is
+# set -- so a result never depends on the minute, whichever version it meets.
 os.environ.setdefault("PIZZA_API_ACCEPT_EVERYTHING", "true")
 
 from pizzabot import pizza_api
@@ -26,22 +27,22 @@ from pizzabot.state import new_state
 DIALOGS: list[tuple[str, list[str], str]] = [
     (
         "happy path, two turns",
-        ["I would like a Margherita", "deliver it to 5 Rue Michelet, Saint-Étienne"],
+        ["I would like a Margherita", "deliver it to 5 Ermou, Athens"],
         "asks for the address, then places the order and confirms with an order id",
     ),
     (
         "everything in one turn",
-        ["a Margherita to 5 Rue Michelet, Saint-Étienne please"],
+        ["a Margherita to 5 Ermou, Athens please"],
         "no question at all -- both slots are filled in the same turn, order placed",
     ),
     (
         "the user starts with nonsense",
-        ["good evening", "I would like a Funghi", "3 Place Jean Jaurès, Saint-Étienne"],
+        ["good evening", "I would like a Funghi", "3 Syntagma Square, Athens"],
         "help, then asks for the address, then confirms",
     ),
     (
         "the user does not answer the question",
-        ["I want a pizza", "the red one", "a Diavola to 5 Rue Michelet, Saint-Étienne"],
+        ["I want a pizza", "the red one", "a Diavola to 5 Ermou, Athens"],
         "asks for the pizza, repeats the question (prefix 'Sorry, I did not get that'), then confirms",
     ),
     # TODO: one dialog of your own. Ideas: the user changes the pizza half way

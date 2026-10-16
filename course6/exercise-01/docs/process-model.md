@@ -82,7 +82,7 @@ Every difference is a bug in exactly one of the two: either you drew something t
 
 The utterances where a static rule gives up. This list is not a failure report, it is the specification for Iteration 2 -- these are the cases an LLM will be asked to take over, and the measurement in Iteration 3 will use exactly them.
 
-Three kinds, and the difference matters: *(a) the type lacks a field* (a postcode has nowhere to go), *(b) the pattern is too narrow* (a comma is missing), *(c) the rule applies and the answer is still wrong* (`42000` accepted as a house number). Iteration 3 measures the third kind.
+Three kinds, and the difference matters: *(a) the type lacks a field* (a postcode has nowhere to go), *(b) the pattern is too narrow* (a comma is missing), *(c) the rule applies and the answer is still wrong* (`10563`, the postcode, accepted as a house number). Iteration 3 measures the third kind.
 
 | # | utterance | what should happen | what happens now | why the rule fails | kind (a/b/c) |
 | --- | --- | --- | --- | --- | --- |

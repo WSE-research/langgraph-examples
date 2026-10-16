@@ -30,7 +30,7 @@ LIVE_MENU = pizza_api.menu
 def the_kitchen_has_everything(monkeypatch):
     """Pin the Pizza API's per-minute draw: every pizza available.
 
-    Since version 1.3.0 two pizzas are sold out every minute, at random; without
+    In version v5 two pizzas are sold out every minute, at random; without
     this, a case whose pizza happens to be drawn would change outcome from one
     minute to the next. Task 1 tests the draw; here it would only be noise.
     """

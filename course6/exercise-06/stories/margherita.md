@@ -4,9 +4,9 @@
 
 The Margherita reached our kitchen from Torre del Greco, a town on the slope of Vesuvius south of Naples. Mario's grandmother Assunta ran a two-table trattoria there between 1948 and 1971 and served only this one pizza, because it was the only one she thought a cook could get wrong in a way the guest would notice.
 
-Assunta closed the trattoria in 1971, when the road to the coast was rebuilt and took the passing trade with it. The recipe travelled to Leipzig with her son, and to Saint-Étienne with Mario in 2004; the only thing that changed on the way was the flour, because the soft wheat she used is not sold here. We buy a type 00 flour from a mill near Lyon and we have never found a reason to say that this is worse.
+Assunta closed the trattoria in 1971, when the road to the coast was rebuilt and took the passing trade with it. The recipe travelled to Leipzig with her son, and to Athens with Mario in 2004; the only thing that changed on the way was the flour, because the soft wheat she used is not sold here. We buy a type 00 flour from a mill near Thessaloniki and we have never found a reason to say that this is worse.
 
-The mill near Lyon that grinds our flour is called Moulin de Sainte-Colombe, and the sack we buy has been the same for nineteen years. Mario changed supplier once, in 2011, for four weeks. Three regulars asked what had happened to the pizza before he changed back, which is the closest thing to a controlled experiment this kitchen has ever run.
+The mill near Thessaloniki that grinds our flour is the Kyriakidis mill, and the sack we buy has been the same for nineteen years. Mario changed supplier once, in 2011, for four weeks. Three regulars asked what had happened to the pizza before he changed back, which is the closest thing to a controlled experiment this kitchen has ever run.
 
 ## What the creator had in mind
 

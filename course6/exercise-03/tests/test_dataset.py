@@ -131,7 +131,7 @@ def test_every_address_links_to_a_city_that_exists_on_its_own(catalog):
 def test_every_city_says_whether_we_deliver_there(catalog):
     """`:deliverable` is what turns a drawn city into a recognition or a refusal.
 
-    The delivery area is ~32 700 cities since 2026-09-18, so this file cannot
+    The delivery area is ~43 000 cities in version v3 of the service, so this file cannot
     list it. What it can do is insist that every city in the graph has made up
     its mind, and that at least one of them is outside -- a benchmark in which
     every case is deliverable measures only the happy path.
@@ -145,7 +145,7 @@ def test_every_city_says_whether_we_deliver_there(catalog):
         if not flag.toPython():
             outside.append(catalog.name(city))
     assert outside, ("no city outside the delivery area -- nothing to refuse in a test case. "
-                     "Since the area is all of France, an outsider has to be a foreign city.")
+                     "Since the area is all of France and Greece, an outsider has to be from elsewhere.")
 
 
 @pytest.mark.parametrize("what", ["cities", "menu"])

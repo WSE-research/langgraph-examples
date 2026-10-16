@@ -8,22 +8,23 @@ Then point the bot at it:
     PIZZA_API_BASE=http://127.0.0.1:8000 python run_dialog.py     (macOS/Linux)
     $env:PIZZA_API_BASE="http://127.0.0.1:8000"; python run_dialog.py   (Windows)
 
-It mirrors the university service endpoint for endpoint, payload for payload
-(source: WSE-research/langgraph-examples, common/main.py):
+It mirrors version v1 of the university service -- the version this exercise
+uses, https://wse-research.org/pizza-api/v1 -- endpoint for endpoint, payload for
+payload (source: WSE-research/langgraph-examples, common/main.py):
 
     GET  /                   -> a plain HTML page listing the endpoints (the real
                                 service shows its Swagger UI here; the stub has no
                                 internet, so it shows a static page instead)
-    GET  /pizza              -> [{"id": 1, "name": "Margherita", "available": true}, ...]
+    GET  /pizza              -> [{"id": 1, "name": "Margherita"}, ...]   (ten pizzas)
     POST /address/validate   -> 200 {"message": "Address is valid", "address": {...}}
                                 400 {"detail": "We don't deliver to ..."}
     POST /order              -> 200 {"order_id": "...", "status": "received"}
-                                409 {"detail": "... is sold out right now ..."} -- two
-                                pizzas per minute, unless X-Accept-Everything: true
     GET  /order/<order_id>   -> 200 {"order_id", "status", "pizza_id", "address"}
 
-Same menu, same ids, same delivery area, same error shapes -- so a run against
-the stub and a run against https://wse-research.org/pizza-api behave alike.
+Same menu, same ids, same delivery area, same error messages -- so a run against
+the stub and a run against https://wse-research.org/pizza-api/v1 behave alike.
+Every pizza can always be ordered, in v1 as here: pizzas that sell out arrive
+with the repair of Iteration 5, and version v5 of the service.
 
 Standard library only -- nothing to install. Orders live in memory and are gone
 when you stop the server; that is fine, the order id is all the process needs.
@@ -37,10 +38,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-import random
-import secrets
-import time
 import unicodedata
 import uuid
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -61,36 +58,36 @@ MENU = [
 ORDERS: dict[str, dict] = {}
 
 
-# Availability, as in the service since version 1.3.0: every minute two pizzas
-# are sold out -- "available": false in GET /pizza, the same two for every
-# request in that minute, drawn at random for the next -- and POST /order refuses
-# them with 409 unless the request carries X-Accept-Everything: true (test
-# drivers only). Same draw as `unavailable_ids()` in common/main.py: a pure
-# function of a seed and the minute. PIZZA_AVAILABILITY_SEED makes it
-# reproducible; without it the seed is random per start of the stub.
-UNAVAILABLE_PER_MINUTE = 2
-AVAILABILITY_SEED = os.environ.get("PIZZA_AVAILABILITY_SEED") or secrets.token_hex(16)
-
-
-def current_minute() -> int:
-    return int(time.time() // 60)
-
-
-def unavailable_ids(minute: int) -> set[int]:
-    rng = random.Random(f"{AVAILABILITY_SEED}:{minute}")
-    return set(rng.sample([pizza["id"] for pizza in MENU], UNAVAILABLE_PER_MINUTE))
-
-
-def minute_iso(minute: int) -> str:
-    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(minute * 60))
-
-# The delivery area of the real service: the HTWK cities plus the Saint-Étienne
-# region. Compared without accents and without case, so "saint-etienne" and
-# "Saint-Étienne" are the same place -- exactly as the university service does it.
+# The delivery area of version v1: the cities of the course examples -- the
+# HTWK cities, the Saint-Étienne region and the Athens region. Compared without
+# accents and without case, so "saint-etienne" and "Saint-Étienne" are the same
+# place, and a Greek city is also known by its other spellings ("Athina",
+# "Αθήνα") -- exactly as the university service does it.
 VALID_CITIES = [
     "Leipzig", "Halle", "Dresden",
     "Saint-Étienne", "Saint-Priest-en-Jarez", "Lyon",
+    "Athens", "Piraeus", "Agia Paraskevi",
 ]
+
+# The other spellings the service accepts for the three Greek cities -- copied
+# from its data file (GeoNames), so that stub and service agree on every one.
+OTHER_SPELLINGS = {
+    'Athens': [
+        'Afina', 'Afini', 'Afiny', 'An Aithin', 'Ateena', 'Atehny', 'Aten', 'Atena',
+        'Atenai', 'Atenas', 'Atene', 'Atenes', 'Ateni', 'Ateno', 'Atenoj', 'Ateny', 'Athen',
+        'Athena', 'Athenae', 'Athenai', 'Athene', 'Athenes', 'Atheny', 'Athina', 'Athinai',
+        'Athinia', 'Atina', 'Aþena', 'Kota Athena', 'Lungsod ng Athina', 'Αθήνα', 'Αθήναι'
+    ],
+    'Piraeus': [
+        'El Pireo', 'El Pireu', 'Il Pireo', 'Le Piree', 'Lo Pireu', 'O Pireo', 'Peiraeus',
+        'Peiraia', 'Peiraias', 'Peiraiefs', 'Peiraieus', 'Peiraievs', 'Piraievs', 'Piraus',
+        'Pire', 'Pireas', 'Pireefs', 'Pirehj', 'Pirej', 'Pireja', 'Pirejas', 'Pireo',
+        'Pireu', 'Pireus', 'Pireusz', 'Piræus', 'Πειραιάς', 'Πειραιεύς'
+    ],
+    'Agia Paraskevi': [
+        'Agia Paraskeue', 'Ayia Paraskevi', 'Αγία Παρασκευή'
+    ],
+}
 
 
 def normalize_city(city: str) -> str:
@@ -101,10 +98,12 @@ def normalize_city(city: str) -> str:
 
 
 VALID_CITIES_NORMALIZED = {normalize_city(city) for city in VALID_CITIES}
+VALID_CITIES_NORMALIZED |= {normalize_city(spelling)
+                            for spellings in OTHER_SPELLINGS.values() for spelling in spellings}
 
 
 # The page served at the stub's own URL. The university service answers there
-# with its Swagger UI (https://wse-research.org/pizza-api); the stub cannot -- a
+# with its Swagger UI (https://wse-research.org/pizza-api/v1); the stub cannot -- a
 # Swagger UI needs to be fetched from a CDN, and the stub exists for the moment
 # when there is no network. So it serves the same information as plain HTML,
 # with no external asset at all.
@@ -127,8 +126,8 @@ INDEX_HTML = """<!doctype html>
  table {{ border-collapse: collapse; }} td, th {{ text-align: left; padding: .2rem .8rem .2rem 0; }}
 </style></head><body>
 <h1>Pizza API <small>(local stub)</small></h1>
-<p class="note">This is the offline stand-in that ships with Exercise 1. It answers exactly like the
-university service at <a href="https://wse-research.org/pizza-api">https://wse-research.org/pizza-api</a>
+<p class="note">This is the offline stand-in that ships with Exercise 1. It answers exactly like version v1 of the
+university service at <a href="https://wse-research.org/pizza-api/v1">https://wse-research.org/pizza-api/v1</a>
 &mdash; same endpoints, same menu and ids, same delivery area, same error messages &mdash; but it runs on your
 machine and keeps its orders in memory. The real service shows its interactive Swagger UI at its own URL;
 this page is the static equivalent, so that it also works with no network at all.
@@ -136,7 +135,7 @@ It is served by <code>pizza_api_stub.py</code> in your terminal &mdash; closing 
 
 <h2>Endpoints</h2>
 <table>
-<tr><th><code>GET&nbsp;/pizza</code></th><td>the menu: <code>[{{"id": 1, "name": "Margherita", "available": true}}, ...]</code> &mdash; two pizzas per minute are <code>false</code></td></tr>
+<tr><th><code>GET&nbsp;/pizza</code></th><td>the menu: <code>[{{"id": 1, "name": "Margherita"}}, ...]</code> &mdash; every pizza can always be ordered</td></tr>
 <tr><th><code>POST&nbsp;/address/validate</code></th><td>body <code>{{"city", "street", "house_number"}}</code> &rarr; <code>200</code> or <code>400</code> with a <code>detail</code> message</td></tr>
 <tr><th><code>POST&nbsp;/order</code></th><td>body <code>{{"pizza_id", "city", "street", "house_number"}}</code> &rarr; <code>{{"order_id", "status": "received"}}</code></td></tr>
 <tr><th><code>GET&nbsp;/order/&lt;order_id&gt;</code></th><td>the stored order</td></tr>
@@ -146,14 +145,14 @@ It is served by <code>pizza_api_stub.py</code> in your terminal &mdash; closing 
 <p>{menu}</p>
 
 <h2>Delivery area</h2>
-<p>{cities} &mdash; compared without accents and without case, so <code>saint-etienne</code> and
-<code>Saint-&Eacute;tienne</code> are the same place. Anything else is answered with
+<p>{cities} &mdash; compared without accents and without case, so <code>athens</code> and
+<code>ATHENS</code> are the same place, and so are <code>Athina</code> and <code>Αθήνα</code>. Anything else is answered with
 <code>400 &quot;We don&#39;t deliver to ...&quot;</code>.</p>
 
 <h2>Try it &mdash; macOS, Linux (bash, zsh)</h2>
 <pre>curl {base}/pizza
 ORDER=$(curl -s -X POST -H 'Content-Type: application/json' \\
-     -d '{{"pizza_id": 1, "street": "Rue Michelet", "house_number": "5", "city": "Saint-\u00c9tienne"}}' \\
+     -d '{{"pizza_id": 1, "street": "Ermou", "house_number": "5", "city": "Athens"}}' \\
      {base}/order)
 echo "$ORDER"
 curl {base}/order/$(echo "$ORDER" | sed 's/.*"order_id":"\\([^"]*\\)".*/\\1/')</pre>
@@ -161,7 +160,7 @@ curl {base}/order/$(echo "$ORDER" | sed 's/.*"order_id":"\\([^"]*\\)".*/\\1/')</
 <h2>Try it &mdash; Windows PowerShell</h2>
 <pre>Invoke-RestMethod {base}/pizza
 $o = Invoke-RestMethod -Method Post -Uri {base}/order -ContentType 'application/json' `
-     -Body '{{"pizza_id":1,"street":"Rue Michelet","house_number":"5","city":"Saint-\u00c9tienne"}}'
+     -Body '{{"pizza_id":1,"street":"Ermou","house_number":"5","city":"Athens"}}'
 $o
 Invoke-RestMethod {base}/order/$($o.order_id)</pre>
 
@@ -207,12 +206,7 @@ class Handler(BaseHTTPRequestHandler):
         if self.path.rstrip("/") in ("", "/docs"):
             self._send_html(200, INDEX_HTML)
         elif self.path.rstrip("/") == "/pizza":
-            minute = current_minute()
-            sold_out = unavailable_ids(minute)
-            self._send(200, [{**pizza, "available": pizza["id"] not in sold_out} for pizza in MENU],
-                       {"X-Availability-Minute": minute_iso(minute),
-                        "X-Availability-Valid-Until": minute_iso(minute + 1),
-                        "Cache-Control": "no-store"})
+            self._send(200, MENU)
         elif self.path.startswith("/order/"):
             order_id = self.path.split("/order/", 1)[1]
             if order_id in ORDERS:
@@ -245,12 +239,6 @@ class Handler(BaseHTTPRequestHandler):
             pizza = next((p for p in MENU if p["id"] == body.get("pizza_id")), None)
             if pizza is None:
                 self._send(404, {"detail": "Pizza not found"})
-                return
-            minute = current_minute()
-            if (pizza["id"] in unavailable_ids(minute)
-                    and (self.headers.get("X-Accept-Everything") or "").strip().lower() != "true"):
-                self._send(409, {"detail": f"{pizza['name']} (id {pizza['id']}) is sold out right now, "
-                                           f"until {minute_iso(minute + 1)}. GET /pizza lists what is available."})
                 return
             city = str(body.get("city", ""))
             if normalize_city(city) not in VALID_CITIES_NORMALIZED:

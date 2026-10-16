@@ -14,8 +14,9 @@
 @prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
 
 ########################################################################
-# The menu -- the ten pizzas of GET /pizza, with the ids the API uses.
-# tests/test_dataset.py checks these against the known menu.
+# The menu -- ten of the twenty-two pizzas of GET /pizza, with the ids the API
+# uses (Task 3 picks more). tests/test_dataset.py checks these against the known
+# menu.
 #
 # :onMenu says whether the service sells this pizza. A pizza with :onMenu false
 # carries NO :pizzaId -- it is a thing customers ask for and we do not have, and
@@ -30,10 +31,10 @@
     rdfs:label "Pepperoni", "pepperoni", "Peperoni", "pepperoni pizza" .
 
 :Hawaiian a :PIZZA ; :pizzaId 3 ; :name "Hawaiian" ; :onMenu true ;
-    rdfs:label "Hawaiian", "hawaiian", "Hawaii", "Hawaïenne" .
+    rdfs:label "Hawaiian", "hawaiian", "Hawaii", "Χαβανέζα" .
 
 :QuattroFormaggi a :PIZZA ; :pizzaId 4 ; :name "Quattro Formaggi" ; :onMenu true ;
-    rdfs:label "Quattro Formaggi", "quattro formaggi", "4 formaggi", "Four Cheese", "4 fromages" .
+    rdfs:label "Quattro Formaggi", "quattro formaggi", "4 formaggi", "Four Cheese", "4 τυριά" .
 
 :Funghi a :PIZZA ; :pizzaId 5 ; :name "Funghi" ; :onMenu true ;
     rdfs:label "Funghi", "funghi", "Fungi", "mushroom pizza" .
@@ -48,7 +49,7 @@
     rdfs:label "Diavola", "diavola", "Diabola", "Diavolo" .
 
 :Vegetariana a :PIZZA ; :pizzaId 9 ; :name "Vegetariana" ; :onMenu true ;
-    rdfs:label "Vegetariana", "vegetariana", "Vegetarian", "végétarienne" .
+    rdfs:label "Vegetariana", "vegetariana", "Vegetarian", "χορτοφαγική" .
 
 :Calzone a :PIZZA ; :pizzaId 10 ; :name "Calzone" ; :onMenu true ;
     rdfs:label "Calzone", "calzone", "Calzonne" .
@@ -59,27 +60,31 @@
 # can never mix a street of one town with the name of another.
 ########################################################################
 
-:a1 a :ADDRESS ; :hasStreet :st1 ; :hasStreetNumber :sn1 ; :hasCity :saintEtienne .
-:st1 a :STREET       ; :name "Rue Michelet" ;
-    rdfs:label "Rue Michelet", "rue michelet", "R. Michelet", "Rue Michelet " .
+# Greek addresses name the street in the genitive and leave the word "street"
+# out: "Ermou 5" is Ermou Street, number 5. The canonical value is what the
+# service and the guest write -- "Ermou" -- and "Ermou St." is a customer's
+# English on top of it.
+:a1 a :ADDRESS ; :hasStreet :st1 ; :hasStreetNumber :sn1 ; :hasCity :athens .
+:st1 a :STREET       ; :name "Ermou" ;
+    rdfs:label "Ermou", "ermou", "Ermou St.", "Ermou " .
 :sn1 a :STREETNUMBER ; :name "5" ;
     rdfs:label "5", "no 5", "Nr. 5" .
 
-:a2 a :ADDRESS ; :hasStreet :st2 ; :hasStreetNumber :sn2 ; :hasCity :saintEtienne .
-:st2 a :STREET       ; :name "Avenue de la Libération" ;
-    rdfs:label "Avenue de la Libération", "Avenue de la Liberation", "Av. de la Libération" .
+:a2 a :ADDRESS ; :hasStreet :st2 ; :hasStreetNumber :sn2 ; :hasCity :athens .
+:st2 a :STREET       ; :name "Vasilissis Sofias" ;
+    rdfs:label "Vasilissis Sofias", "Vasilisis Sofias", "Vas. Sofias" .
 :sn2 a :STREETNUMBER ; :name "12b" ;
     rdfs:label "12b", "12 b", "12B" .
 
-:a3 a :ADDRESS ; :hasStreet :st3 ; :hasStreetNumber :sn3 ; :hasCity :saintPriest .
-:st3 a :STREET       ; :name "Rue Ferdinand" ;
-    rdfs:label "Rue Ferdinand", "rue ferdinand" .
+:a3 a :ADDRESS ; :hasStreet :st3 ; :hasStreetNumber :sn3 ; :hasCity :agiaParaskevi .
+:st3 a :STREET       ; :name "Mesogeion" ;
+    rdfs:label "Mesogeion", "mesogeion" .
 :sn3 a :STREETNUMBER ; :name "34" ;
-    rdfs:label "34", "n° 34" .
+    rdfs:label "34", "No. 34" .
 
-:a4 a :ADDRESS ; :hasStreet :st4 ; :hasStreetNumber :sn4 ; :hasCity :lyon .
-:st4 a :STREET       ; :name "Place Bellecour" ;
-    rdfs:label "Place Bellecour", "place bellecour", "Pl. Bellecour" .
+:a4 a :ADDRESS ; :hasStreet :st4 ; :hasStreetNumber :sn4 ; :hasCity :piraeus .
+:st4 a :STREET       ; :name "Karaiskaki Square" ;
+    rdfs:label "Karaiskaki Square", "karaiskaki square", "Plateia Karaiskaki" .
 :sn4 a :STREETNUMBER ; :name "7" ;
     rdfs:label "7", "no 7" .
 
@@ -95,18 +100,18 @@
 :sn6 a :STREETNUMBER ; :name "42" ;
     rdfs:label "42", "Nr. 42" .
 
-# Paris used to be the "we do not deliver there" example. Since the service
-# learned every commune of France (2026-09-18) it is an ordinary delivery city,
-# and the refusal case had to move abroad -- see :a8 below.
-:a7 a :ADDRESS ; :hasStreet :st7 ; :hasStreetNumber :sn7 ; :hasCity :paris .
-:st7 a :STREET       ; :name "Rue de Rivoli" ;
-    rdfs:label "Rue de Rivoli", "rue de rivoli" .
+# Thessaloniki is far from Athens and still an ordinary delivery city: the
+# service delivers to every town of Greece (and every commune of France), so
+# the refusal case has to come from elsewhere -- see :a8 below.
+:a7 a :ADDRESS ; :hasStreet :st7 ; :hasStreetNumber :sn7 ; :hasCity :thessaloniki .
+:st7 a :STREET       ; :name "Tsimiski" ;
+    rdfs:label "Tsimiski", "tsimiski" .
 :sn7 a :STREETNUMBER ; :name "99" ;
     rdfs:label "99" .
 
 # Outside the delivery area on purpose: the expected outcome of an order to this
 # address is a refusal, which is what makes it useful in a benchmark. It has to
-# be outside FRANCE now, not merely outside a list of six cities.
+# be outside Greece and France, not merely outside a list of a few cities.
 :a8 a :ADDRESS ; :hasStreet :st8 ; :hasStreetNumber :sn8 ; :hasCity :barcelona .
 :st8 a :STREET       ; :name "Carrer de Mallorca" ;
     rdfs:label "Carrer de Mallorca", "carrer de mallorca", "C. de Mallorca" .
@@ -114,11 +119,11 @@
     rdfs:label "401", "no 401" .
 
 ########################################################################
-# Cities. `:deliverable` mirrors the delivery area of the Pizza API, which
-# since 2026-09-18 is every commune of France plus Leipzig, Halle and Dresden
-# -- about 32 700 names. So this file does not list the area; it holds the
-# handful of cities the course examples use, and `tests/test_dataset.py` checks
-# every one of them against `GET /city`.
+# Cities. `:deliverable` mirrors the delivery area of the Pizza API, which in
+# version v3 is every commune of France and every town and village of Greece,
+# plus Leipzig, Halle and Dresden -- about 43 000 names. So this file does not
+# list the area; it holds the handful of cities the course examples use, and
+# `tests/test_dataset.py` checks every one of them against `GET /city`.
 #
 # The cities below were written by hand for the running example. The ones YOU
 # add come from the service instead: `python -m benchmark.fetch cities ...`
@@ -126,14 +131,19 @@
 # `tg:source` line saying where they came from.
 ########################################################################
 
-:saintEtienne a :CITY ; :name "Saint-Étienne" ; :deliverable true ;
-    rdfs:label "Saint-Étienne", "Saint Etienne", "saint-etienne", "St-Étienne", "St. Etienne", "St Etienne" .
+# A Greek city has more than one Latin spelling: "Athina" is the
+# transliteration of Αθήνα, "Athens" the English name -- the service accepts
+# both, and the Greek script too, but the canonical value a component must
+# write is the service's name, "Athens". "Ath." and "Ag. Paraskevi" are
+# abbreviations nobody accepts.
+:athens a :CITY ; :name "Athens" ; :deliverable true ;
+    rdfs:label "Athens", "athens", "ATHENS", "Athina", "Αθήνα", "Ath." .
 
-:saintPriest a :CITY ; :name "Saint-Priest-en-Jarez" ; :deliverable true ;
-    rdfs:label "Saint-Priest-en-Jarez", "Saint Priest en Jarez", "St-Priest-en-Jarez" .
+:agiaParaskevi a :CITY ; :name "Agia Paraskevi" ; :deliverable true ;
+    rdfs:label "Agia Paraskevi", "Ayia Paraskevi", "Ag. Paraskevi" .
 
-:lyon a :CITY ; :name "Lyon" ; :deliverable true ;
-    rdfs:label "Lyon", "lyon", "LYON" .
+:piraeus a :CITY ; :name "Piraeus" ; :deliverable true ;
+    rdfs:label "Piraeus", "piraeus", "PIRAEUS" .
 
 :leipzig a :CITY ; :name "Leipzig" ; :deliverable true ;
     rdfs:label "Leipzig", "leipzig" .
@@ -144,10 +154,11 @@
 :dresden a :CITY ; :name "Dresden" ; :deliverable true ;
     rdfs:label "Dresden", "dresden" .
 
-:paris a :CITY ; :name "Paris" ; :deliverable true ;
-    rdfs:label "Paris", "paris", "PARIS" .
+:thessaloniki a :CITY ; :name "Thessaloniki" ; :deliverable true ;
+    rdfs:label "Thessaloniki", "thessaloniki", "THESSALONIKI" .
 
-# The refusal case: not a commune of France, so the service says no to it, so a
-# sentence that orders a pizza there must end in "nothing recognised".
+# The refusal case: neither a town of Greece nor a commune of France, so the
+# service says no to it, so a sentence that orders a pizza there must end in
+# "nothing recognised".
 :barcelona a :CITY ; :name "Barcelona" ; :deliverable false ;
     rdfs:label "Barcelona", "barcelona", "BARCELONA" .

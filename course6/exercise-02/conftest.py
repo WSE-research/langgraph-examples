@@ -20,10 +20,11 @@ from __future__ import annotations
 
 import os
 
-# The tests order fixed pizzas, and since Pizza API 1.3.0 two pizzas are sold out
-# every minute (POST /order answers 409). A test driver opts out of that draw with
-# the header X-Accept-Everything: true, which pizzabot/pizza_api.py sends when this
-# is set -- so a result does not depend on the minute the suite runs in.
+# The tests order fixed pizzas. From Pizza API version v5 on, two pizzas are sold
+# out every minute (POST /order answers 409); v2, which this exercise uses,
+# never sells out. A test driver opts out of that draw with the header
+# X-Accept-Everything: true, which pizzabot/pizza_api.py sends when this is
+# set -- so a result never depends on the minute, whichever version it meets.
 os.environ.setdefault("PIZZA_API_ACCEPT_EVERYTHING", "true")
 
 import pytest

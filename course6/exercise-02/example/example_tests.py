@@ -24,8 +24,8 @@ same reason. Exactness is the criterion, not who wrote the method.
 What you change, and where:
 
     Task 2b   ADDRESS_CASES: every expected value gains a street and a house
-              number, and two cases have to be rewritten, because "42000
-              Saint-Étienne" is no longer a complete address.
+              number, and two cases have to be rewritten, because "10563
+              Athens" is no longer a complete address.
     Task 2c   PIZZA_CASES: "one Margaritha please" now expects "Margherita",
               more near-miss cases join it, and the test becomes a rate against
               PIZZA_THRESHOLD.
@@ -58,13 +58,13 @@ PIZZA_CASES: list[tuple[str, str]] = [
     ("one Margaritha please", ""),                        # a typo -- Task 2c
 ]
 
-SAINT_ETIENNE = {"postcode": "42000", "city": "Saint-Étienne"}
+ATHENS = {"postcode": "10563", "city": "Athens"}
 
 ADDRESS_CASES: list[tuple[str, dict]] = [
-    ("deliver it to 42000 Saint-Étienne", SAINT_ETIENNE),
-    ("Saint-Étienne, 42000, please", SAINT_ETIENNE),
-    ("bring it to Lyon, 69001", {"postcode": "69001", "city": "Lyon"}),
-    ("deliver to Saint-Étienne", {}),                     # no postcode
+    ("deliver it to 10563 Athens", ATHENS),
+    ("Athens, 10563, please", ATHENS),
+    ("bring it to Piraeus, 18535", {"postcode": "18535", "city": "Piraeus"}),
+    ("deliver to Athens", {}),                            # no postcode
     ("somewhere near the station", {}),                   # no address at all
 ]
 

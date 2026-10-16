@@ -6,7 +6,7 @@ The Boscaiola — the woodcutter's pizza — comes from the Casentino forest in 
 
 The Casentino is the forested upper valley of the Arno in eastern Tuscany, and its winters are long. What people ate there was built for working outdoors: fat, salt, mushrooms and pork, and very little that was fresh. The pizza is what a woodcutter's lunch would have been if a woodcutter had owned an oven.
 
-The Casentino is an hour east of Florence and empties in winter. The sausage recipe came home with Mario from a butcher in Poppi who makes it with salt, pepper and a little garlic and nothing else; ours is made to the same specification by the same butcher in Lyon who cures the Diavola's, which is the only reason two very different pizzas share a supplier.
+The Casentino is an hour east of Florence and empties in winter. The sausage recipe came home with Mario from a butcher in Poppi who makes it with salt, pepper and a little garlic and nothing else; ours is made to the same specification by the same butcher in Thessaloniki who cures the Diavola's, which is the only reason two very different pizzas share a supplier.
 
 The Casentino kept its forest because a monastery owned it: the beech and fir above Camaldoli have been managed by the same rules since the eleventh century, which is why there is still a wood there to pick mushrooms in. Mario mentions this when somebody calls the pizza rustic, because the landscape it comes from is one of the most carefully administered in Europe.
 

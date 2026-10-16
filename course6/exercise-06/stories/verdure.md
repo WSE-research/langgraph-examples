@@ -2,11 +2,11 @@
 
 ## Where it comes from
 
-It is the newest recipe in the book and the only one invented in Saint-Étienne. A regular guest stopped eating dairy in 2019 and quietly stopped coming; Elena noticed after about six weeks, called her, and spent a fortnight building a pizza rather than an apology.
+It is the newest recipe in the book and the only one invented in Athens. A regular guest stopped eating dairy in 2019 and quietly stopped coming; Elena noticed after about six weeks, called her, and spent a fortnight building a pizza rather than an apology.
 
 The fortnight Elena spent building it produced four versions. The first was a Vegetariana without mozzarella and was returned to the kitchen by its own author; the second was too sweet; the third had olives on it and is still argued about. The fourth is on the menu, and the tray it is roasted in was bought for it and is used for nothing else.
 
-Saint-Étienne is not a pizza town and never has been, which is the part Mario likes about this recipe. Every other page in this book describes something carried here from somewhere else; this one was written four streets away, for somebody whose name is on none of it, by a cook who had been told her whole career that a pizza without cheese is a garnish.
+Athens is not a pizza town and never has been, which is the part Mario likes about this recipe. Every other page in this book describes something carried here from somewhere else; this one was written four streets away, for somebody whose name is on none of it, by a cook who had been told her whole career that a pizza without cheese is a garnish.
 
 ## What the creator had in mind
 

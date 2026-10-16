@@ -8,8 +8,8 @@ Contract -- do not change it, implement it
     calls       POST /address/validate (is this address in the delivery area?),
                 through pizzabot/pizza_api.py
     rules       1. two accepted orders, both ending in ", <city>":
-                     "5 Rue Michelet, Saint-Étienne"   (number first)
-                     "Rue Michelet 5, Saint-Étienne"   (number last)
+                     "5 Ermou, Athens"   (number first)
+                     "Ermou 5, Athens"   (number last -- how Greek addresses are written)
                 2. filler words around the match are removed, not parsed
                 3. the address is checked against POST /address/validate
     guarantee   *complete or nothing*: street, house_number and city are all
@@ -20,7 +20,7 @@ Contract -- do not change it, implement it
 
 Run just this component:
 
-    python -m pizzabot.task4_address "deliver it to 5 Rue Michelet, Saint-Étienne"
+    python -m pizzabot.task4_address "deliver it to 5 Ermou, Athens"
 
 Task 4a  draw the component and its two rules before you code.
 Task 4b  implement the two TODOs below.
@@ -48,7 +48,7 @@ FILLER = {
 WORD = r"[^\W\d_][\w'’\-\.]*"            # a word starting with a letter (accents ok)
 STREET = rf"{WORD}(?: {WORD}){{0,4}}"    # up to five words
 NUMBER = r"\d+\s?[a-zA-Z]?"              # 5, 12b, "12 b"
-CITY = rf"{WORD}(?:[ \-]{WORD}){{0,3}}"  # Lyon, Saint-Priest-en-Jarez
+CITY = rf"{WORD}(?:[ \-]{WORD}){{0,3}}"  # Athens, Agia Paraskevi, Saint-Priest-en-Jarez
 
 # TODO 1: assemble the two patterns from the blocks above. Both must capture the
 #         groups "house_number", "street" and "city" -- the rest of the code
@@ -125,7 +125,7 @@ if __name__ == "__main__":
 
     from pizzabot.state import last_message, new_state
 
-    utterance = sys.argv[1] if len(sys.argv) > 1 else "deliver it to 5 Rue Michelet, Saint-Étienne"
+    utterance = sys.argv[1] if len(sys.argv) > 1 else "deliver it to 5 Ermou, Athens"
     result = build_graph().invoke(new_state(utterance))
     print("\nslots :", result["slots"])
     print("bot   :", last_message(result) or "(said nothing)")

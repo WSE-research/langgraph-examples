@@ -87,10 +87,10 @@ def pizza_api_available():
 # do NOT belong here; there is no expected value the rule could be held to.
 # They are what Task 6 compares and what Iteration 3 measures.
 
-MICHELET = {"street": "Rue Michelet", "house_number": "5", "city": "Saint-Étienne"}
+ERMOU = {"street": "Ermou", "house_number": "5", "city": "Athens"}
 
 ADDRESS_CASES: list[tuple[str, dict]] = [
-    ("deliver it to 5 Rue Michelet, Saint-Étienne", MICHELET),
+    ("deliver it to 5 Ermou, Athens", ERMOU),
     # TODO: four more, at least two of them expecting {}
 ]
 

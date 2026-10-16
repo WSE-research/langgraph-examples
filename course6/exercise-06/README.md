@@ -1,6 +1,6 @@
 # Exercise 6 — answers from text, and the Pizzabot you would build next
 
-Iteration 6 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, Université Jean Monnet Saint-Étienne, WS 2026/2027.
+Iteration 6 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, National and Kapodistrian University of Athens, WS 2026/2027.
 
 **Your bot answers what the graph knows.** Ask it *“Tell me something about the Boscaiola”* and it has nothing — not because the question is hard, but because nobody models a story as triples. Most of what a restaurant knows is like that: it lives in texts nobody will ever turn into data. Today you give your process a second way to answer, behind the same contract, in the same process graph — and then you spend the last half hour on the bot you would build if this course continued.
 
@@ -22,6 +22,7 @@ Iteration 6 of *Engineering AI-Driven Software Processes — Hands-on KGQA with 
 * your repository as Iteration 5 left it: the QA sub-graph, the annotation helper (`annotate`), `what_happened(target)`, and the tests;
 * `stories/` from this folder — 22 Markdown files, one per pizza, 600–900 words each;
 * the ILaaS **RAG** key in `.env` (`ILAAS_RAG_URL`, `ILAAS_RAG_KEY`) — a different service and a different key from the inference endpoint you have used since Iteration 2;
+* `PIZZA_API_BASE=https://wse-research.org/pizza-api/v6` in `.env` — the Pizza API version of this iteration. It serves exactly what v5 served, so every test of Iterations 3 to 5 stays green against it; the RAG branch itself never calls the service;
 * **read `stories/README.md` first.** Those texts are invented — which is what makes this exercise measurable: nothing in them can be answered from what a model already knows. The nine sections every file has are the other half of the point; they are what a chunking decision either keeps or destroys.
 
 **Three rules that apply to every task below, and that are not repeated in each one:**
@@ -118,7 +119,7 @@ Shared account: private collections, a unique name with your team suffix, and ne
 6. **Write the tests** — `tests/test_task2_retrieval.py`, three of them:
    * a question that must hit: *“Tell me about the Boscaiola”* returns at least one passage, and `"Boscaiola"` appears in the top one;
    * the contract: **no** returned passage has a score below `MIN_SCORE`, and never more than `TOP_K` come back;
-   * the empty case: *“Do you deliver to Lyon?”* returns `passages == []` and **does not raise**.
+   * the empty case: *“Do you deliver to Piraeus?”* returns `passages == []` and **does not raise**.
 
 7. **Write the explanation** — the two or three sentences from rule 3, and check the record: after one run, `what_happened(target)` must show a `retrieval` line with the scores in it.
 
@@ -132,7 +133,7 @@ Shared account: private collections, a unique name with your team suffix, and ne
 | *“Tell me something about the Boscaiola”* | passages from `boscaiola.md` |
 | *“Why is my Bufala not melted?”* | the *What guests ask* section of `bufala.md`, not the baking section — the corpus has an answer written for exactly this question |
 | *“Tell me about the Hawaii”* | the name in the stories is *Hawaiian*: does hybrid search still find it? |
-| *“Do you deliver to Lyon?”* | **nothing above the threshold** — and that must not crash |
+| *“Do you deliver to Piraeus?”* | **nothing above the threshold** — and that must not crash |
 
 * `what_happened(target)` prints one `retrieval` step whose record contains `k`, the threshold and the scores;
 * you can say out loud what your bot does when the retriever returns nothing — and the answer is Task 3, not *“it crashes”*.
@@ -234,7 +235,7 @@ Then present it: three minutes, the picture on the screen, the three sentences o
 
 1. `pytest -q` — green, including every test from Iterations 3, 4 and 5, plus the two new files from Tasks 2 and 3.
 2. *“Tell me something about the Boscaiola”* — an answer that cites a passage from `boscaiola.md`.
-3. *“Do you deliver to Lyon?”* — a refusal, with the scores that produced it visible in `what_happened(target)`.
+3. *“Do you deliver to Piraeus?”* — a refusal, with the scores that produced it visible in `what_happened(target)`.
 4. *“How much does the Boscaiola cost?”* — a refusal, not a guess.
 5. `NOTES.md` — one short explanation per task: what the component is for, what it is given, what it returns, what it does when it fails.
 6. One page in the shared folder, and three minutes said out loud.

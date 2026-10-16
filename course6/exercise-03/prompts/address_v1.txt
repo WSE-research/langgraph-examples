@@ -8,4 +8,4 @@ Task: read the customer's message and return the delivery address in it.
 Output: a JSON object with exactly the keys street, house_number, city.
 Constraint: copy the values from the message; never invent or complete a part.
 If any part is missing: answer {} -- the process will ask the customer.
-Example: "to 5 Rue Michelet, Saint-Étienne" -> {"street": "Rue Michelet", "house_number": "5", "city": "Saint-Étienne"}
+Example: "to 5 Ermou, Athens" -> {"street": "Ermou", "house_number": "5", "city": "Athens"}
