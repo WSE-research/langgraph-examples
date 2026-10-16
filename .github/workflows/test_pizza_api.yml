@@ -1,0 +1,47 @@
+name: Test the Pizza API
+
+# Every version of the service (/pizza-api/v1 ... /v6) belongs to one exercise
+# of course5/ and course6/, and must keep serving what that exercise was written
+# against. common/tests/ holds each version to its contract, checks that every
+# exercise names its own version and that its data agree with it, and runs
+# every exercise's offline stub against its version. So this runs on a change
+# to the service AND on a change to the course material -- a new example
+# address in an exercise is checked against the delivery area of its version.
+#
+# The deployment workflow calls this one first and deploys only when it passes.
+
+on:
+  pull_request:
+    paths:
+      - 'common/**'
+      - 'course5/**'
+      - 'course6/**'
+      - '.github/workflows/test_pizza_api.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'course5/**'
+      - 'course6/**'
+      - '.github/workflows/test_pizza_api.yml'
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'   # the Python of the image (common/Dockerfile)
+      - name: Install the service and the test dependencies
+        run: pip install -r common/requirements-service.txt -r common/requirements-test.txt
+      - name: Run the tests
+        working-directory: common
+        run: pytest -q tests/
+      - name: Start the service as the image would, and verify it from outside
+        working-directory: common
+        run: |
+          uvicorn main:app --host 127.0.0.1 --port 8000 &
+          for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:8000/pizza && break; sleep 1; done
+          bash verify-pizza-api.sh http://127.0.0.1:8000

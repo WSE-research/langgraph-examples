@@ -41,8 +41,8 @@ else
   bad "openapi.json is not the schema of this version"
 fi
 
-# 3 -- the menu: ids 1-10 are stable, 11-20 were appended on 2026-09-18,
-#      21-22 (the declared vegetarian and vegan pizza) on 2026-09-20
+# 3 -- the menu of the latest version: ids 1-10 are stable, 11-20 were appended
+#      on 2026-09-18, 21-22 (the declared vegetarian and vegan pizza) on 2026-09-20
 menu=$(body "$BASE/pizza")
 if printf '%s' "$menu" | python3 -c '
 import json, sys
@@ -103,10 +103,10 @@ else
 fi
 
 total=$(curl -sS -m 20 -D - -o /dev/null "$BASE/city?limit=1" | tr -d '\r' | awk 'tolower($1) == "x-total-count:" {print $2}')
-if [ -n "$total" ] && [ "$total" -gt 30000 ]; then
+if [ -n "$total" ] && [ "$total" -gt 40000 ]; then
   ok "the delivery area has $total cities (X-Total-Count)"
 else
-  bad "X-Total-Count should report more than 30000 cities, got '${total:-none}' (old version deployed?)"
+  bad "X-Total-Count should report more than 40000 cities (France and Greece), got '${total:-none}' (old version deployed?)"
 fi
 
 if body "$BASE/city?limit=3" | python3 -c '
@@ -125,12 +125,13 @@ validate() {
   code -X POST "$BASE/address/validate" -H 'Content-Type: application/json' \
        -d "{\"street\":\"Rue Michelet\",\"house_number\":\"5\",\"city\":\"$1\"}"
 }
-for city in "Saint-Étienne" "saint etienne" "SAINT-ETIENNE" "Saint-Priest-en-Jarez" "Lyon" "Leipzig" "Paris" "Roanne"; do
+for city in "Saint-Étienne" "saint etienne" "SAINT-ETIENNE" "Saint-Priest-en-Jarez" "Lyon" "Leipzig" "Paris" "Roanne" \
+            "Athens" "Athina" "Αθήνα" "Agia Paraskevi" "Piraeus" "Thessaloniki"; do
   c=$(validate "$city")
   if [ "$c" = "200" ]; then ok "delivers to $city"; else bad "should deliver to $city, got HTTP $c"; fi
 done
-# Since 2026-09-18 the area is all of France, so the refusal case has to be a
-# city outside it. Barcelona is not a commune and not one of the three German
+# The area is all of France and all of Greece, so the refusal case has to be a
+# city outside both. Barcelona is neither, and not one of the three German
 # cities -- and the exercises use it as their "nothing recognised" example.
 c=$(validate "Barcelona")
 if [ "$c" = "400" ]; then ok "refuses Barcelona with HTTP 400"; else bad "Barcelona should be refused with 400, got HTTP $c"; fi
@@ -184,6 +185,46 @@ if [ "$accepted" = "200" ]; then ok "with X-Accept-Everything: true the same ord
 
 c=$(code "$BASE/order/does-not-exist")
 if [ "$c" = "404" ]; then ok "an unknown order id answers 404"; else bad "unknown order id should answer 404, got HTTP $c"; fi
+
+# 6 -- one frozen version per exercise. Each must serve what its exercise was
+#      written against: v1 ten pizzas, the nine example cities and no GET /city;
+#      v2-v4 twenty-two pizzas that never sell out; v5 and v6 two sold out a minute.
+#      (common/tests/ checks every detail in-process; this proves the deployment.)
+for n in 1 2 3 4 5 6; do
+  V="$BASE/v$n"
+  expected_size=22; [ "$n" = 1 ] && expected_size=10
+  sells_out=no; [ "$n" -ge 5 ] && sells_out=yes
+  if body "$V/pizza" | python3 -c '
+import json, sys
+size, sells_out = int(sys.argv[1]), sys.argv[2] == "yes"
+d = json.load(sys.stdin)
+assert [p["id"] for p in d] == list(range(1, size + 1)), [p["id"] for p in d]
+assert d[0]["name"] == "Margherita", d[0]
+if sells_out:
+    assert sum(1 for p in d if p["available"] is False) == 2, d
+else:
+    assert all(set(p) == {"id", "name"} for p in d), d[0]
+' "$expected_size" "$sells_out" 2>/dev/null; then
+    ok "v$n serves $expected_size pizzas$([ "$sells_out" = yes ] && echo ', two of them sold out' || echo ' that never sell out')"
+  else
+    bad "v$n should serve $expected_size pizzas (sold out: $sells_out): $(body "$V/pizza" | head -c 120)"
+  fi
+  page=$(code -L "$V/")
+  if [ "$page" = "200" ] && body -L "$V/" | grep -q "pizza-api/v$n/openapi.json"; then
+    ok "v$n documents itself at $V/"
+  else
+    bad "v$n should serve its own Swagger UI at $V/, got HTTP $page"
+  fi
+  athens=$(code -X POST "$V/address/validate" -H 'Content-Type: application/json' -d '{"street":"Ermou","house_number":"5","city":"Αθήνα"}')
+  paris=$(code -X POST "$V/address/validate" -H 'Content-Type: application/json' -d '{"street":"Rue de Rivoli","house_number":"99","city":"Paris"}')
+  city=$(code "$V/city?q=athina&limit=1")
+  if [ "$n" = 1 ]; then want_paris=400; want_city=404; else want_paris=200; want_city=200; fi
+  if [ "$athens" = 200 ] && [ "$paris" = "$want_paris" ] && [ "$city" = "$want_city" ]; then
+    ok "v$n: Αθήνα 200, Paris $paris, GET /city $city"
+  else
+    bad "v$n: Αθήνα should be 200 (got $athens), Paris $want_paris (got $paris), GET /city $want_city (got $city)"
+  fi
+done
 
 printf '\n%d checks: %d passed, %d failed.\n' "$((PASS + FAIL))" "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ] || exit 1

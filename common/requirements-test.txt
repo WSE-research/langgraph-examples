@@ -1,0 +1,10 @@
+# The Pizza API tests (tests/) -- on top of requirements-service.txt:
+#
+#     pip install -r requirements-service.txt -r requirements-test.txt
+#     pytest tests/
+#
+# httpx is what FastAPI's TestClient runs on; rdflib reads the Turtle files of
+# the exercises (the same version the exercises pin).
+pytest==9.1.1
+httpx==0.28.1
+rdflib==6.2.0
