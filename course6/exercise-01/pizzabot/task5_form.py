@@ -13,7 +13,6 @@ Contracts -- do not change them, implement them
 
     name        router (decision component)
     reads       state["input"], state["expected"], state["slots"]
-    calls       GET /pizza (to recognise a menu name as ordering intent), state["slots"]
     calls       GET /pizza (to recognise a menu name as ordering intent)
     returns     the name of the node that runs next -- it never changes state
     rules       1. if `expected` names a slot, the turn goes to the component that
@@ -21,7 +20,8 @@ Contracts -- do not change them, implement them
                    "address" -> address_recognition
                 2. an utterance with ordering intent, or naming an item of the
                    menu, or arriving while an order is in progress, starts the
-                   ordering branch
+                   ordering branch (the router of slide 1.34 knows only "order"
+                   and "pizza"; this one adds ORDER_INTENT and the menu)
                 3. anything else gets help
     guarantee   returns exactly one of: "pizza_recognition",
                 "address_recognition", "help". Every routing rule of the process

@@ -104,7 +104,7 @@ def recognize_address(state: ChatbotState) -> dict:
     slots = {**state["slots"], "address": found}
     return trace.returns(
         "address_recognition",
-        {"slots": slots, "expected": None},
+        {"slots": slots},              # its slot only -- `expected` belongs to order_form
         next_step="order_form (fixed edge)",
     )
 

@@ -1,6 +1,6 @@
 """The process -- GIVEN. You write the components, this file wires them.
 
-This is the same graph as on slide 20-27 of Lecture 1. Read it once: it is the
+This is the same graph as on slide 39 of Lecture 1. Read it once: it is the
 picture of your process in code form, and `demo_visualize.py --pizza` turns it
 back into a picture you can put next to your hand-drawn model.
 

@@ -18,7 +18,7 @@ with a "Try it out" button; https://wse-research.org/pizza-api/v1/openapi.json i
 the same thing machine-readable. The local stub answers its own URL
 (http://127.0.0.1:8000) with a plain HTML version of the same list.
 
-Endpoints used (all of them from Lecture 1, slide 24):
+Endpoints used (all four are on Lecture 1, slide 35):
 
     GET  /pizza              -> [{"id": 1, "name": "Margherita", ...}, ...]
     POST /address/validate   -> 200 if the address exists, 4xx otherwise
@@ -128,20 +128,29 @@ def validate_address(street: str, house_number: str, city: str) -> bool:
     """POST /address/validate -- True if the API delivers to this address.
 
     "The service says no" and "the service is broken" are different failures and
-    must not look the same: a 4xx is an answer (this address is outside the
-    delivery area), a 5xx is an outage, and a component that treats an outage as
-    a rejection silently tells the user their address is wrong.
+    must not look the same: a 400 is an answer (this address is outside the
+    delivery area); a 5xx is an outage, and any other status -- a 404 from a
+    wrong PIZZA_API_BASE, say -- is not an answer about the address either. A
+    component that treats those as a rejection silently tells the user their
+    address is wrong.
     """
     response = _post(
         "/address/validate",
         {"street": street, "house_number": house_number, "city": city},
     )
+    if response.status_code == 200:
+        return True
+    if response.status_code == 400:
+        return False
     if response.status_code >= 500:
         raise PizzaApiError(
             f"POST /address/validate -> HTTP {response.status_code}: the service is "
             f"not answering properly. This is an outage, not a rejected address."
         )
-    return response.status_code == 200
+    raise PizzaApiError(
+        f"POST /address/validate -> HTTP {response.status_code}: not an answer about "
+        f"the address. Is PIZZA_API_BASE the version this exercise uses ({BASE})?"
+    )
 
 
 def place_order(pizza_id: int, address: dict) -> dict:
@@ -167,7 +176,7 @@ def place_order(pizza_id: int, address: dict) -> dict:
 
 
 def get_order(order_id: str) -> dict:
-    """GET /order/{id} -- used by the confirmation and by your validation runs."""
+    """GET /order/{id} -- read a placed order back, e.g. in your validation runs."""
     response = _get(f"/order/{order_id}")
     if response.status_code != 200:
         raise PizzaApiError(f"GET /order/{order_id} -> HTTP {response.status_code}")

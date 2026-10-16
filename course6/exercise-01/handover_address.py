@@ -7,15 +7,15 @@ validation examples. You may not read their code, and you may not ask them a
 question. Whatever is unclear, you have to decide yourself -- and then find out
 whether you decided the way the authors meant it.
 
-This is the claim of Lecture 1, slides 15-17, put to the test: a contract is
+This is the claim of Lecture 1, slides 23-24, put to the test: a contract is
 what lets somebody who did not design the process implement a component for it.
 If your implementation passes their examples, the contract did its job. If it
 does not, the contract was incomplete -- and the fix belongs in the contract,
 not in your code.
 
 The six parts of a contract (reads, writes, calls, rules, guarantee, failure) are
-in the sheet: see "Reference -- the five parts of a contract" in README.md. This
-file is where you find out whether somebody else's five parts are enough.
+in the sheet: see "Reference -- the six parts of a contract" in README.md. This
+file is where you find out whether somebody else's six parts are enough.
 
 Three steps, ten minutes:
 
@@ -123,7 +123,7 @@ def main() -> int:
               "score and not a failure: those rows are the material for the next two\n"
               "minutes. For each one, was their contract silent about it, or did you read\n"
               "it differently than they meant it? Name the part that failed you -- reads,\n"
-              "writes, calls, guarantee or failure -- and write the sentence that would\n"
+              "writes, calls, rules, guarantee or failure -- and write the sentence that would\n"
               "have prevented it into docs/process-model.md section 7.")
     else:
         print("\nEvery row came out the way they expect. Now the harder question: could you\n"

@@ -170,7 +170,9 @@ def check_pizza_api() -> None:
         ok,
         detail=detail,
         fix=("start the local stub in a second terminal:  python pizza_api_stub.py\n"
-             "            and then:  PIZZA_API_BASE=http://127.0.0.1:8000 python check_setup.py"),
+             "            and then:  PIZZA_API_BASE=http://127.0.0.1:8000 python check_setup.py\n"
+             "            PowerShell: $env:PIZZA_API_BASE=\"http://127.0.0.1:8000\"; python check_setup.py\n"
+             "            cmd.exe:    set PIZZA_API_BASE=http://127.0.0.1:8000  and then  python check_setup.py"),
     )
 
 

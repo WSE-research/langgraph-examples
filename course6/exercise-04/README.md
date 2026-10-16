@@ -125,7 +125,7 @@ PIZZA_API_BASE=https://wse-research.org/pizza-api/v4
 PIZZA_API_TIMEOUT=10
 
 # --- the LLM service: ILaaS ---------------------------------------------
-# The model service of Universite Jean Monnet, speaking the OpenAI protocol,
+# An inference service of French universities, speaking the OpenAI protocol,
 # which is the only reason the variables are called OPENAI_*. Nothing here
 # talks to OpenAI. The key is the one from Iteration 1, pasted raw -- no
 # quotes, no angle brackets. Keep the model you measured with in Iteration 3.
