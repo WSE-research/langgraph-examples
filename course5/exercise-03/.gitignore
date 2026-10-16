@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+# results/ is NOT ignored on purpose: every evaluation run is a deliverable of
+# this exercise. results/last-run.json and results/history.jsonl are committed,
+# and the history file is what shows that you ran the evaluator more than once.

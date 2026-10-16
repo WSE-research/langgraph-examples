@@ -1,0 +1,9 @@
+# Every individual of one slot class. ?class is bound by the caller.
+# A composite individual such as :a1 has no label of its own, hence OPTIONAL.
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?individual ?label
+WHERE {
+  ?individual a ?class .
+  OPTIONAL { ?individual rdfs:label ?label }
+}
