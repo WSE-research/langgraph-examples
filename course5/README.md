@@ -59,6 +59,10 @@ Test drivers — every `conftest.py`, `validate_task5.py`, `adversarial.py` — 
 
 The session also runs offline: `pizza_api_stub.py` mirrors the exercise's version endpoint for endpoint — same menu and ids, same error shapes — so a network failure costs nobody their session. That substitutability is the first contract the students meet. The stubs of Iterations 1 and 2 know the nine cities of the course examples; from Iteration 3 on the stub serves `GET /city` from `exercise-03/data/cities.tsv.gz`, the same delivery area the service uses. `common/tests/` holds every version, and every stub, to what its exercise needs.
 
+## The LLM endpoint
+
+**The LLM endpoint and the access code for it (the API key) are provided on-site**, in the first exercise session. Both go into the team's `.env` (`OPENAI_API_BASE`, `OPENAI_API_KEY`); the endpoint speaks the OpenAI protocol, so the `openai` package talks to it unchanged. Until then, the ILaaS address in the `.env.example` files is only a placeholder, and Iteration 1 does not need an LLM at all.
+
 ## Sample solutions
 
 Sample solutions, the teaching guide, the reference runner and the expected output stay with the instructor and are not published here.

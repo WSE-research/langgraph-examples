@@ -376,7 +376,7 @@ python check_llm.py
 
 The script lists the models the endpoint offers, asks one question with a checkable answer, and then sends a second turn to show that the endpoint has **no memory of its own** — the history in `messages` is everything it sees. Note down the model name that worked; you need it in Iteration 2.
 
-The endpoint is [ILaaS](https://www.ilaas.fr) (`https://llm.ilaas.fr/v1`), the key comes from your instructor; it speaks the OpenAI protocol, which is why the `openai` package can talk to it. Never commit the key: it belongs in `.env`, which is in `.gitignore`.
+**The endpoint and the access code for it (the key) are provided on-site**, in the session: put both into `.env` (`OPENAI_API_BASE`, `OPENAI_API_KEY`). The endpoint speaks the OpenAI protocol, which is why the `openai` package can talk to it. Never commit the key: it belongs in `.env`, which is in `.gitignore`.
 
 ---
 
