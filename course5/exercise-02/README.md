@@ -1,6 +1,6 @@
 # Exercise 2 — an LLM inside the process, behind unchanged contracts
 
-Iteration 2 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, WS 2026/2027.
+Iteration 2 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, National and Kapodistrian University of Athens, WS 2026/2027.
 
 **Today an LLM enters your system — behind two contracts that do not change.** Two of your components, `pizza_recognition` and `address_recognition`, get a second implementation that calls a language model. What stays as it is: the process model, the state type, the router, the order form, the four contract rows that are the specification (`reads`, `writes`, `guarantee`, `failure`), and the assertions of the Iteration 1 tests. What changes once, on purpose: the wiring gains a seam so that an implementation can be injected, and the test harness learns to run twice. That is the claim of Lecture 2, and this session is where you test it: if the substitution forces you to touch a contract or the state, the contract was not respected somewhere.
 

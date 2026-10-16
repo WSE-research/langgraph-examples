@@ -1,6 +1,6 @@
 # Exercise 5 — a process that repairs itself, and explains itself
 
-Iteration 5 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, WS 2026/2027.
+Iteration 5 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, National and Kapodistrian University of Athens, WS 2026/2027.
 
 **Everything today is an extension of what you built in Iteration 4.** No new repository, no new graph, no rewrite: you take the process that answers factoid questions correctly and give it the two things Lecture 5 says it still lacks.
 

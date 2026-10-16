@@ -1,6 +1,6 @@
 # Exercise 1 — from a goal to a process a team can build
 
-Iteration 1 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, WS 2026/2027.
+Iteration 1 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, National and Kapodistrian University of Athens, WS 2026/2027.
 
 **Today there is no AI in your system.** Every component you build is a rule you can read, run and predict. That is the point: you cannot tell whether an AI made your system better until you have a system whose behaviour you control. Iteration 2 replaces two of today's rules with an LLM — behind exactly the contracts you write today.
 

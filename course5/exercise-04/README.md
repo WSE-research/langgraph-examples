@@ -1,6 +1,6 @@
 # Exercise 4 — dynamic data and flexible processes
 
-Iteration 4 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, WS 2026/2027.
+Iteration 4 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, National and Kapodistrian University of Athens, WS 2026/2027.
 
 **Today your bot stops knowing things and starts looking them up.** Three iterations long it has filled a form: which pizza, which address, place the order. It knew exactly one thing about the world — the list of names `GET /pizza` returns — and everything else was in the code. That is fine for a demo and false for every real application, where the domain knowledge is large, **changes without asking you**, and the user cannot possibly know what is in it.
 

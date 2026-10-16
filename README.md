@@ -21,8 +21,8 @@ In other words, a dialogue is modeled wtih:
 
 The practical sessions of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, with their running examples in Greece (`5 Ermou, Athens`):
 
-- [`course6/`](https://github.com/WSE-research/langgraph-examples/tree/main/course6) — the Athens edition (National and Kapodistrian University of Athens, WS 2026/2027);
-- [`course5/`](https://github.com/WSE-research/langgraph-examples/tree/main/course5) — the same six exercises with the same examples (WS 2026/2027).
+- [`course5/`](https://github.com/WSE-research/langgraph-examples/tree/main/course5) — the Athens edition (National and Kapodistrian University of Athens, WS 2026/2027);
+- [`course6/`](https://github.com/WSE-research/langgraph-examples/tree/main/course6) — the same six exercises with the same examples (WS 2026/2027).
 
 Both use the [Pizza API](common/) at <https://wse-research.org/pizza-api>, one frozen version per exercise (`/v1` … `/v6`).
 

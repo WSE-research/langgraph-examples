@@ -66,8 +66,8 @@ def main() -> None:
     log.plain(f"key      : {'set (' + key[:4] + '...' + key[-2:] + ')' if key else 'NOT SET'}")
     log.plain()
 
-    if not key:
-        log.fail("no API key")
+    if not key or key.strip().startswith("<"):
+        log.fail("no API key -- .env still has the placeholder of .env.example, or no .env at all")
         log.hint("copy .env.example to .env and paste the key you were given")
         sys.exit(1)
 

@@ -1,6 +1,6 @@
 # Exercise 3 — manifesting application quality
 
-Iteration 3 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, WS 2026/2027.
+Iteration 3 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, National and Kapodistrian University of Athens, WS 2026/2027.
 
 **Today your bot gets a number.** Iteration 2 left you with two implementations of the same two contracts and no way to say which one ships. This session builds the thing that decides: test cases you write by hand, then test cases *generated* from a knowledge graph, an evaluator that runs both configurations over them and stores every run, and a report whose last line says pass or fail against a threshold you wrote down before you saw the result.
 

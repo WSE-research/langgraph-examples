@@ -242,6 +242,8 @@ def check_tests_collect() -> None:
 def check_llm_config() -> bool:
     base = os.environ.get("OPENAI_API_BASE") or os.environ.get("ILAAS_INFERENCE_BASE_URL")
     key = os.environ.get("OPENAI_API_KEY") or os.environ.get("ILAAS_API_KEY")
+    if key and key.strip().startswith("<"):     # the placeholder of .env.example is not a key
+        key = None
     return check("LLM endpoint configured", bool(base and key),
                  detail=f"base={base or '(unset)'} key={'set' if key else '(unset)'} "
                         f"model={os.environ.get('MODEL_NAME', '(unset)')}",

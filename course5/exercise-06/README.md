@@ -1,6 +1,6 @@
 # Exercise 6 — answers from text, and the Pizzabot you would build next
 
-Iteration 6 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, WS 2026/2027.
+Iteration 6 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, National and Kapodistrian University of Athens, WS 2026/2027.
 
 **Your bot answers what the graph knows.** Ask it *“Tell me something about the Boscaiola”* and it has nothing — not because the question is hard, but because nobody models a story as triples. Most of what a restaurant knows is like that: it lives in texts nobody will ever turn into data. Today you give your process a second way to answer, behind the same contract, in the same process graph — and then you spend the last half hour on the bot you would build if this course continued.
 

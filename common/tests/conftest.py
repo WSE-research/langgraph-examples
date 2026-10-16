@@ -24,8 +24,8 @@ sys.path.insert(0, str(COMMON))
 
 import main  # noqa: E402  (after the path is set)
 
-# The course folders whose exercises use the service -- course5 and course6
-# (the Athens edition), the same six exercises with the same examples.
+# The course folders whose exercises use the service -- course5 (the Athens
+# edition) and course6, the same six exercises with the same examples.
 COURSES = [name for name in ("course5", "course6") if (REPO / name).is_dir()]
 
 VERSION_KEYS = [version.key for version in main.VERSIONS]

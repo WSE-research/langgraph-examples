@@ -64,8 +64,9 @@ def main() -> None:
     print(f"key      : {'set (' + key[:4] + '...' + key[-2:] + ')' if key else 'NOT SET'}")
     print()
 
-    if not key:
-        print("[fail] No API key. Copy .env.example to .env and paste the key you were given.")
+    if not key or key.strip().startswith("<"):
+        print("[fail] No API key -- .env still has the placeholder of .env.example, or no .env at all.\n"
+              "       Copy .env.example to .env and paste the key you were given.")
         sys.exit(1)
 
     try:
