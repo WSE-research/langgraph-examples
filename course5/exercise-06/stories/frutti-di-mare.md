@@ -6,7 +6,7 @@ The Frutti di Mare comes from the bay of Pozzuoli, west of Naples, where Mario s
 
 The market at Pozzuoli opens at four and is over by seven, and everything in it is priced by how long it has been out of the water. Mario unloaded crates there for a winter. The lesson he took home was that seafood is a question of hours, and that a kitchen which cannot answer that question honestly should not sell it.
 
-The crates at Pozzuoli are priced by how long their contents have been out of the water, and the winter Mario spent unloading them was the winter he learned to read that price without asking. Our supplier here drives from Marseille and arrives at half past six; when he telephones instead of arriving, the pizza is off the board before the kitchen has opened.
+The crates at Pozzuoli are priced by how long their contents have been out of the water, and the winter Mario spent unloading them was the winter he learned to read that price without asking. Our supplier here drives from Kavala and arrives at half past six; when he telephones instead of arriving, the pizza is off the board before the kitchen has opened.
 
 ## What the creator had in mind
 
@@ -45,7 +45,7 @@ No, and this is the one request Mario refuses outright. Cheese and seafood fight
 
 **“Is the seafood fresh?”**
 
-It is bought at half past six and cooked before eleven, from a driver who comes up from Marseille overnight. On the mornings when he telephones instead of arriving, the line disappears from the board before the room opens, and the bot will say so if you ask for it.
+It is bought at half past six and cooked before eleven, from a driver who comes down from Kavala overnight. On the mornings when he telephones instead of arriving, the line disappears from the board before the room opens, and the bot will say so if you ask for it.
 
 **“Why is there no cheese?”**
 

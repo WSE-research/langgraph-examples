@@ -36,8 +36,8 @@ DEFAULT_MODEL = "mistral-small-4-119b"
 
 # A question with exactly one short, checkable answer -- so the check is a check
 # and not a vibe.
-QUESTION = "What is the capital of France? Answer with the city name only."
-EXPECTED = "paris"
+QUESTION = "What is the capital of Greece? Answer with the city name only."
+EXPECTED = "athens"
 
 
 def config() -> tuple[str, str, str]:

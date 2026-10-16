@@ -1,6 +1,6 @@
 # Exercise 3 — manifesting application quality
 
-Iteration 3 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, Université Jean Monnet Saint-Étienne, WS 2026/2027.
+Iteration 3 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, WS 2026/2027.
 
 **Today your bot gets a number.** Iteration 2 left you with two implementations of the same two contracts and no way to say which one ships. This session builds the thing that decides: test cases you write by hand, then test cases *generated* from a knowledge graph, an evaluator that runs both configurations over them and stores every run, and a report whose last line says pass or fail against a threshold you wrote down before you saw the result.
 
@@ -106,13 +106,13 @@ Eight words this sheet uses constantly, on top of the Iteration 1 and 2 glossari
 python show_catalog.py
 ```
 
-You get the individuals, their wordings, the patterns and the expected values. Look at one address and one pizza and answer in your team, out loud: **why is an address a resource with three parts and not three strings?** (Hint: `{ADDRESS:STREET}, {ADDRESS:CITY}` must never put a Saint-Étienne street in Lyon, and `catalog.expected(:a1)` has to hand the harness the same record `address_recognition` produces.)
+You get the individuals, their wordings, the patterns and the expected values. Look at one address and one pizza and answer in your team, out loud: **why is an address a resource with three parts and not three strings?** (Hint: `{ADDRESS:STREET}, {ADDRESS:CITY}` must never put an Athens street in Piraeus, and `catalog.expected(:a1)` has to hand the harness the same record `address_recognition` produces.)
 
 Then look at what the *service* knows, because Task 3 takes half of its data from there:
 
 ```bash
 python -m benchmark.fetch pizzas --list                   # the twenty-two pizzas GET /pizza lists
-python -m benchmark.fetch cities --search saint-eti       # the delivery area, searched
+python -m benchmark.fetch cities --search athin          # the delivery area, searched
 python -m benchmark.fetch cities --search "" --limit 20   # ... and its twenty largest cities
 ```
 
@@ -165,7 +165,7 @@ Cover these five kinds, one case each — they are the ones that find something:
 
 1. the canonical form, the one your bot obviously handles;
 2. a different word order or sentence shape;
-3. a spelling a real customer uses (`St. Etienne`, `Margaritha`, `12 b`);
+3. a spelling a real customer uses (`Athina`, `Margaritha`, `12 b`);
 4. a **half** input — street and city but no number, a sentence with no pizza — expected `None`;
 5. something outside the domain — a city we do not deliver to, a pizza we do not sell — expected `None`.
 
@@ -207,11 +207,11 @@ But not everything in the catalog is yours to invent. **The service owns what ca
 
 ### 3a — pick ten cities and three pizzas from the endpoint [8 min]
 
-Browse first, then pick. Pick cities you can say something about — the ones around Saint-Étienne, the ones your team comes from, one with an accent, one with a hyphen, one whose name a French keyboard makes hard:
+Browse first, then pick. Pick cities you can say something about — the ones around Athens, the ones your team comes from, one whose name is two words, one whose Latin spelling is not the one you would have typed (the service lists `Agia Paraskevi`, not `Ayia Paraskevi`; `--search` finds it under either). The graph takes the name the service lists, the other spellings are wordings you add:
 
 ```bash
-python -m benchmark.fetch cities --search saint-eti          # look
-python -m benchmark.fetch cities "Grenoble" "Roanne" "Firminy" "Montbrison"   # pick
+python -m benchmark.fetch cities --search agia              # look
+python -m benchmark.fetch cities "Patras" "Marousi" "Kifisia" "Glyfada"   # pick
 python -m benchmark.fetch pizzas --list
 python -m benchmark.fetch pizzas "Capricciosa" "Tartufo" "Rucola"
 ```
@@ -219,16 +219,16 @@ python -m benchmark.fetch pizzas "Capricciosa" "Tartufo" "Rucola"
 Everything lands in `benchmark/data/picked.ttl` — a new file next to `catalog.ttl`, which `Catalog()` picks up because it reads *every* `.ttl` in that directory. Each individual carries the service's own spelling, its lower-case form and a line saying where it came from:
 
 ```turtle
-:grenoble a :CITY ; :name "Grenoble" ; :deliverable true ;
-    rdfs:label "Grenoble", "grenoble" ;
-    tg:source "GET /city" ; tg:fetchedAt "2026-09-18"^^xsd:date .
+:patras a :CITY ; :name "Patras" ; :deliverable true ;
+    rdfs:label "Patras", "patras" ;
+    tg:source "GET /city" ; tg:fetchedAt "2026-09-30"^^xsd:date .
 ```
 
 Three things the tool will refuse to do, each for a reason worth a sentence in your team:
 
 * a city the service has never heard of — it is not in the delivery area, so a case built from it measures the error message and not the bot;
 * a pizza that is not on the menu — `GET /pizza` is the contract, and an id nobody serves is not a test case;
-* a name that is **already in the graph** — this is the "a city is defined exactly once" rule, enforced where it would be broken. Your second address in Lyon writes `:hasCity :lyon`; it does not write Lyon again.
+* a name that is **already in the graph** — this is the "a city is defined exactly once" rule, enforced where it would be broken. Your second address in Piraeus writes `:hasCity :piraeus`; it does not write Piraeus again.
 
 ### 3b — write the ten streets, and the wordings [12 min]
 
@@ -236,9 +236,9 @@ The service validates a street; it does not list one. So this half is Turtle, in
 
 ```turtle
 # an address in a city you PICKED -- link to it, never repeat it
-:a13 a :ADDRESS ; :hasStreet :st13 ; :hasStreetNumber :sn13 ; :hasCity :grenoble .
-:st13 a :STREET       ; :name "Cours Jean Jaurès" ;
-    rdfs:label "Cours Jean Jaurès", "Cours Jean Jaures", "C. Jean Jaurès" .
+:a13 a :ADDRESS ; :hasStreet :st13 ; :hasStreetNumber :sn13 ; :hasCity :patras .
+:st13 a :STREET       ; :name "Agiou Nikolaou" ;
+    rdfs:label "Agiou Nikolaou", "Ag. Nikolaou", "Agiou Nikolaou Street" .
 :sn13 a :STREETNUMBER ; :name "77" ; rdfs:label "77", "no 77" .
 
 # a descriptive wording on a pizza -- what it IS, not another spelling of its name
@@ -305,7 +305,7 @@ This is the one comparison in the session where the delta block says something e
     address_recognition       0.53    0.73    +0.20   [0.48, 0.89]
 
     45 sentence(s) occur in both runs: 4 now pass, 1 now fail.
-      regression: Bring it to n° 34 Rue Ferdinand in Saint-Priest-en-Jarez
+      regression: Bring it to No. 34 Mesogeion in Agia Paraskevi
 ```
 
 The harness also prints a warning on such a run — *"different configuration or model: this is a comparison of two implementations, not of two runs of the same one"* — and it is there on purpose. A model swap re-opens every question the first measurement closed: latency (`p50 s` in the table), the failure modes, and whether the fenced-JSON handling of Iteration 2 still holds.
@@ -362,7 +362,7 @@ One screen, three things: the gate line of your report; the two capacity numbers
 | every LLM run takes minutes | `-n` times three methods times one call each (the third method makes two) | start with `-n 5`, and use `--method` while you are still reading output |
 | the LLM configuration scores exactly like the static one | the service is failing and the fallback is answering every time | `python check_llm.py`; a tier line saying `static` on every case means no model answer arrived |
 | `GET /city -> HTTP 404` | `PIZZA_API_BASE` points at a version without the endpoint (v1) | `PIZZA_API_BASE=https://wse-research.org/pizza-api/v3`, or `python pizza_api_stub.py`, which serves the same area offline |
-| `benchmark.fetch` refuses a city you are sure exists | the service spells it differently (`Saint-Étienne`, not `St-Etienne`) | `python -m benchmark.fetch cities --search <first letters>` and copy the spelling it prints |
+| `benchmark.fetch` refuses a city you are sure exists | the service lists it under another spelling (`Athens`, not `Athina`; `Agia Paraskevi`, not `Ag. Paraskevi`) — the tool says which | `python -m benchmark.fetch cities --search <first letters>` and copy the spelling it prints |
 | `results/last-run.json` not found after a run | you ran the script from another directory | run it from the folder that contains `evaluate.py` |
 | the numbers move although nothing changed | the LLM configuration is nondeterministic | that is the finding of item 6 of the lecture's definition of done — record it, do not hide it |
 

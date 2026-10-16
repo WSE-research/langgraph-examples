@@ -13,7 +13,7 @@ What is required, counted against the data as it was handed to you:
 
 | what | was | must be | where it comes from |
 | --- | --- | --- | --- |
-| cities | 8 | at least 18 -- **ten more, picked from `GET /city`** | `python -m benchmark.fetch cities "Grenoble" ...` |
+| cities | 8 | at least 18 -- **ten more, picked from `GET /city`** | `python -m benchmark.fetch cities "Patras" ...` |
 | pizzas | 10 | at least 13 -- **three more, picked from `GET /pizza`** | `python -m benchmark.fetch pizzas "Capricciosa" ...` |
 | streets | 8 | at least 18 -- ten more, **written by you** | Turtle, by hand: the service has no streets |
 | house numbers | 8 | at least 18 -- one per street, **written by you** | the same |
@@ -27,7 +27,7 @@ any endpoint -- they are yours, and they are what makes the benchmark yours.
 
 The rest of the point is in `test_a_city_is_defined_exactly_once`
 (`tests/test_dataset.py`) and `test_cities_are_reused_by_several_addresses`
-below: your second address in Lyon writes `:hasCity :lyon`. That is the
+below: your second address in Piraeus writes `:hasCity :piraeus`. That is the
 difference between a knowledge graph and a list of strings, and it is why four
 teams can extend one benchmark without turning it into a mess.
 """
@@ -98,7 +98,7 @@ def descriptive_wordings(catalog) -> list[tuple[str, str]]:
 def test_the_catalog_has_grown(catalog, cls):
     wanted = BASELINE[cls] + REQUIRED[cls]
     have = len(catalog.instances(cls))
-    how = ({"CITY": 'python -m benchmark.fetch cities "Grenoble" "Roanne" ...',
+    how = ({"CITY": 'python -m benchmark.fetch cities "Patras" "Marousi" ...',
             "PIZZA": 'python -m benchmark.fetch pizzas "Capricciosa" ...'}
            .get(cls, "write them in Turtle: one :STREET per :ADDRESS, with :name and rdfs:label"))
     assert have >= wanted, (
@@ -119,7 +119,7 @@ def test_what_the_service_owns_was_taken_from_the_service(catalog, cls):
         f"{len(fetched)} {cls.lower()}(s) in the graph carry tg:source, {FETCHED[cls]} needed. "
         f"Pick them from the endpoint instead of typing them: "
         f"python -m benchmark.fetch {'cities' if cls == 'CITY' else 'pizzas'} --"
-        f"{'search saint' if cls == 'CITY' else 'list'}")
+        f"{'search agia' if cls == 'CITY' else 'list'}")
 
 
 def test_the_streets_are_yours(catalog):
@@ -163,11 +163,11 @@ def test_every_street_belongs_to_an_address(catalog):
     assert not orphans, (
         f"these streets are in the graph but no :ADDRESS uses them: {orphans}. "
         f"A slot is filled by drawing an :ADDRESS, so add one per street: "
-        f":a12 a :ADDRESS ; :hasStreet :st12 ; :hasStreetNumber :sn12 ; :hasCity :grenoble .")
+        f":a12 a :ADDRESS ; :hasStreet :st12 ; :hasStreetNumber :sn12 ; :hasCity :patras .")
 
 
 def test_cities_are_reused_by_several_addresses(catalog):
-    """The whole point: a second address in Lyon LINKS to the Lyon that exists.
+    """The whole point: a second address in Piraeus LINKS to the Piraeus that exists.
 
     If every address has its own private city, the graph is a list of records
     with extra syntax, and the constraint "a city is defined once" -- which is
@@ -179,7 +179,7 @@ def test_cities_are_reused_by_several_addresses(catalog):
     shared = [city for city, count in counted.items() if count >= 2]
     assert len(shared) >= 3, (
         f"only {len(shared)} city/cities serve more than one address. Reuse the individuals "
-        f"that are already in the graph (:hasCity :lyon) instead of adding a new one per address.")
+        f"that are already in the graph (:hasCity :piraeus) instead of adding a new one per address.")
 
 
 @pytest.mark.parametrize("benchmark", ["address_v2", "pizza_v2", "order_v2"])

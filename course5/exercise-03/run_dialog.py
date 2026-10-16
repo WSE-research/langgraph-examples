@@ -24,11 +24,11 @@ from pizzabot.state import new_state
 SCRIPT = [
     "Hello",
     "I would like a Margherita",
-    "deliver it to 5 Rue Michelet, Saint-Étienne",
+    "deliver it to 5 Ermou, Athens",
 ]
 SCRIPT_LLM = [
     "Hello",
-    "can I order the four-cheese one to number 5 in the Rue Michelet here in Saint-Étienne?",
+    "can I order the four-cheese one to number 5 on Ermou here in Athens?",
 ]
 # Why "can I order" and not "can I get": the ROUTER is still the Iteration 1
 # rule, and "can I get" is not one of its intent phrases -- the turn would go to

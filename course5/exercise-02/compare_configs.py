@@ -39,27 +39,27 @@ from pizzabot.state import new_state  # noqa: E402
 
 # (utterance, a note on what to expect) -- the note is free text, for you to read.
 ADDRESS_CASES: list[tuple[str, str]] = [
-    ("deliver it to 5 Rue Michelet, Saint-Étienne",                  "both: 5 / Rue Michelet / Saint-Étienne"),
-    ("Rue Michelet 5, Saint-Étienne",                                 "both: 5 / Rue Michelet / Saint-Étienne"),
+    ("deliver it to 5 Ermou, Athens",                                 "both: 5 / Ermou / Athens"),
+    ("Ermou 5, Athens",                                               "both: 5 / Ermou / Athens (Greek word order)"),
     # the rows from Iteration 1, section 6 -- the reason we are here:
-    ("5 Rue Michelet Saint-Étienne",                                  "rule: nothing (comma); llm: complete?"),
-    ("I live at 5 Rue Michelet in Saint-Étienne",                     "rule: nothing ('in'); llm: complete?"),
-    ("number 5 in the Rue Michelet here in Saint-Étienne",            "rule: nothing; llm: complete?"),
-    ("5 rue Michelet 42000, Saint-Étienne",                           "rule: 42000 as the number (contract kept, wrong); llm: 5?"),
-    ("5 bis rue Michelet, Saint-Étienne",                             "rule: street 'bis rue Michelet' (contract kept, wrong); llm: your pattern decides"),
+    ("5 Ermou Athens",                                                "rule: nothing (comma); llm: complete?"),
+    ("I live at 5 Ermou in Athens",                                   "rule: nothing ('in'); llm: complete?"),
+    ("number 5 on Ermou here in Athens",                              "rule: nothing; llm: complete?"),
+    ("5 Ermou 10563, Athens",                                         "rule: 10563 as the number (contract kept, wrong); llm: 5?"),
+    ("5Α Ermou, Athens",                                              "rule: nothing (Α is a Greek letter); llm: 5Α -- your pattern decides"),
     # cases where the contract must hold whatever the model thinks:
-    ("deliver to Lyon",                                               "nothing -- no street, no number"),
+    ("deliver to Piraeus",                                            "nothing -- no street, no number"),
     ("somewhere near the station",                                    "nothing"),
-    ("a Margherita to 5 Rue Michelet, Saint-Etienne and a Funghi to 3 Place Jean Jaures, Lyon", "one address or nothing -- never a mix"),
+    ("a Margherita to 5 Ermou, Athens and a Funghi to 3 Karaiskaki Square, Piraeus", "one address or nothing -- never a mix"),
     # TODO: your own cases go here -- your section 6 rows first.
 ]
 
 PIZZA_CASES: list[tuple[str, str]] = [
     ("I would like a Margherita",                 "both: Margherita"),
     ("one Margaritha please",                     "both: Margherita (rule: fuzzy)"),
-    ("Quatro Formagi to 5 Rue Michelet",          "both? Quattro Formaggi, two typos"),
+    ("Quatro Formagi to 5 Ermou",                 "both? Quattro Formaggi, two typos"),
     ("the four-cheese one please",                "rule: nothing; llm: Quattro Formaggi"),
-    ("une quatre fromages s'il vous plaît",       "rule: nothing; llm: Quattro Formaggi"),
+    ("μια πίτσα τέσσερα τυριά, παρακαλώ",         "rule: nothing; llm: Quattro Formaggi (Greek: a four-cheese pizza, please)"),
     ("the spicy one with salami",                 "rule: a literal mention; llm: ? -- is that right? (the 22-pizza menu of v2)"),
     ("One Pizza Napoli please",                   "nothing -- not on the menu, whatever the model says"),
     ("I want sushi",                              "nothing"),

@@ -20,7 +20,8 @@ Contracts -- do not change them, implement them
                    "address" -> address_recognition
                 2. an utterance with ordering intent, or naming an item of the
                    menu, or arriving while an order is in progress, starts the
-                   ordering branch
+                   ordering branch (the router of slide 1.34 knows only "order"
+                   and "pizza"; this one adds ORDER_INTENT and the menu)
                 3. anything else gets help
     guarantee   returns exactly one of: "pizza_recognition",
                 "address_recognition", "help". Every routing rule of the process
@@ -69,7 +70,7 @@ REQUIRED = ["pizza_name", "address"]
 
 QUESTIONS = {
     "pizza_name": "Which pizza would you like? Our menu: {menu}.",
-    "address": "Where should we deliver? Street, house number and city, for example: 5 Rue Michelet, Saint-Étienne.",
+    "address": "Where should we deliver? Street, house number and city, for example: 5 Ermou, Athens.",
 }
 REPEAT = "Sorry, I did not get that. "
 

@@ -55,19 +55,19 @@ def check_python() -> None:
 
 
 def check_console_unicode() -> None:
-    """Can this console print an accented city name?
+    """Can this console print a city name in Greek script?
 
-    Half the catalog is French. On a Windows console still set to a legacy code
-    page, printing "Saint-Étienne" raises UnicodeEncodeError -- and without this
-    check it would raise for the first time inside a benchmark run.
+    The catalog has Greek in it ("Αθήνα", "χορτοφαγική"). On a Windows console
+    still set to a legacy code page, printing it raises UnicodeEncodeError -- and
+    without this check it would raise for the first time inside a benchmark run.
     """
-    probe = "Saint-Étienne"
+    probe = "Αθήνα"
     encoding = sys.stdout.encoding or "utf-8"
     try:
         probe.encode(encoding)
         check(f"the console can print {probe}", True, detail=f"encoding: {encoding}")
     except UnicodeEncodeError:
-        check("the console can print Saint-Etienne with its accent", False,
+        check("the console can print Greek script (Athina)", False,
               detail=f"this console encodes {encoding}",
               fix=("cmd.exe    :  set PYTHONUTF8=1\n"
                    "            PowerShell :  $env:PYTHONUTF8=1\n"
@@ -157,7 +157,7 @@ def check_city_endpoint() -> None:
     from pizzabot import pizza_api
 
     try:
-        page = pizza_api.cities(q="saint-eti", limit=3)
+        page = pizza_api.cities(q="athin", limit=3)
         area = pizza_api.cities(limit=1)
         check("GET /city (the delivery area)", bool(page),
               detail=f"e.g. {', '.join(city['name'] for city in page)}; "
@@ -208,8 +208,8 @@ def check_evaluator() -> None:
         from evaluate import RESULTS_DIR, score, wilson
 
         ok = (score(1, 1, None) and not score(None, 1, None) and score(None, None, None)
-              and score({"city": "St. Etienne"}, {"city": "Saint-Étienne"},
-                        {"city": ["St. Etienne", "Saint-Étienne"]}))
+              and score({"city": "Athina"}, {"city": "Athens"},
+                        {"city": ["Athina", "Athens"]}))
         low, high = wilson(20, 20)
         check("the evaluator scores and computes an interval", ok and low < 0.9 < high,
               detail=f"20 of 20 is not 1.00 but [{low:.2f}, {high:.2f}] -- that is the point of the interval")
@@ -253,8 +253,8 @@ def check_llm_json() -> None:
     from pizzabot import llm_service
 
     service = llm_service.LlmService()
-    system = "Answer with a JSON object with exactly the key city. Example: {\"city\": \"Lyon\"}"
-    result = service.extract(system, "I live in Saint-Étienne")
+    system = "Answer with a JSON object with exactly the key city. Example: {\"city\": \"Piraeus\"}"
+    result = service.extract(system, "I live in Athens")
     usage = service.usage
     if result is None:
         check("LLM service: one JSON extraction", False,

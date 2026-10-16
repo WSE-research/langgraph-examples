@@ -14,7 +14,7 @@ Run it (the key from the lecture hall has to be in ../.env)::
 
     python example/simple_bot.py --interactive     # you type the sentences
     python example/simple_bot.py                   # four sentences chosen here
-    python example/simple_bot.py "one Diavola to 42000 Saint-Étienne"
+    python example/simple_bot.py "one Diavola to 10563 Athens"
 
 Test it::
 
@@ -82,7 +82,7 @@ class OrderState(TypedDict):
 
 
 def fold(text: str) -> str:
-    """Lower-case and without accents, so that Saint-Etienne == saint-étienne."""
+    """Lower-case and without accents, so that Agia Paraskevi == agía paraskeví."""
     stripped = unicodedata.normalize("NFKD", text.lower())
     return "".join(c for c in stripped if not unicodedata.combining(c))
 
@@ -202,10 +202,10 @@ def main(argv: list[str]) -> int:
     arguments = argv[1:]
     wants_interactive = bool({"-i", "--interactive"} & set(arguments))
     sentences = [a for a in arguments if a not in {"-i", "--interactive"}] or [
-        "I would like a Margherita, delivered to 42000 Saint-Étienne",
-        "one Diavola to Lyon, 69001",
+        "I would like a Margherita, delivered to 10563 Athens",
+        "one Diavola to Piraeus, 18535",
         "one Margaritha please",          # Task 2c makes this one work
-        "deliver to Saint-Étienne",       # no postcode -> complete or nothing
+        "deliver to Athens",              # no postcode -> complete or nothing
     ]
     if not llm_service.configured():
         log.fail("no key in .env", "the address node cannot answer")

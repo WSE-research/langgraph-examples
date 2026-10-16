@@ -85,8 +85,8 @@ ORDERS: dict[str, dict] = {}
 
 # The delivery area of the real service: every commune of France, every town and
 # village of Greece, plus the three HTWK cities, read from the same data file the
-# service ships. Compared without accents and without case, so "saint-etienne"
-# and "Saint-Étienne" are the same place, and a Greek place is also known by the
+# service ships. Compared without accents and without case, so "agia paraskevi"
+# and "Agía Paraskeví" are the same place, and a Greek place is also known by the
 # other spellings in the file's fourth column ("Athina", "Αθήνα" for Athens) --
 # exactly as the university service does it.
 CITY_FILE = Path(__file__).parent / "data" / "cities.tsv.gz"
@@ -181,14 +181,14 @@ It is served by <code>pizza_api_stub.py</code> in your terminal &mdash; closing 
 <p>{menu}</p>
 
 <h2>Delivery area</h2>
-<p>{cities} &mdash; compared without accents and without case, so <code>saint-etienne</code> and
-<code>Saint-&Eacute;tienne</code> are the same place, and <code>Athina</code> is Athens. Anything else is answered with
+<p>{cities} &mdash; compared without accents and without case, so <code>agia paraskevi</code> and
+<code>Ag&iacute;a Paraskev&iacute;</code> are the same place, and <code>Athina</code> is Athens. Anything else is answered with
 <code>400 &quot;We don&#39;t deliver to ...&quot;</code>.</p>
 
 <h2>Try it &mdash; macOS, Linux (bash, zsh)</h2>
 <pre>curl {base}/pizza
 ORDER=$(curl -s -X POST -H 'Content-Type: application/json' \\
-     -d '{{"pizza_id": 1, "street": "Rue Michelet", "house_number": "5", "city": "Saint-\u00c9tienne"}}' \\
+     -d '{{"pizza_id": 1, "street": "Ermou", "house_number": "5", "city": "Athens"}}' \\
      {base}/order)
 echo "$ORDER"
 curl {base}/order/$(echo "$ORDER" | sed 's/.*"order_id":"\\([^"]*\\)".*/\\1/')</pre>
@@ -196,7 +196,7 @@ curl {base}/order/$(echo "$ORDER" | sed 's/.*"order_id":"\\([^"]*\\)".*/\\1/')</
 <h2>Try it &mdash; Windows PowerShell</h2>
 <pre>Invoke-RestMethod {base}/pizza
 $o = Invoke-RestMethod -Method Post -Uri {base}/order -ContentType 'application/json' `
-     -Body '{{"pizza_id":1,"street":"Rue Michelet","house_number":"5","city":"Saint-\u00c9tienne"}}'
+     -Body '{{"pizza_id":1,"street":"Ermou","house_number":"5","city":"Athens"}}'
 $o
 Invoke-RestMethod {base}/order/$($o.order_id)</pre>
 
@@ -339,8 +339,8 @@ def main() -> None:
         menu=", ".join(f"<code>{p['id']}</code> {p['name']}" for p in MENU),
         # Not 43 000 names on one page: the nine the course examples use, the
         # size of the area, and the endpoint that searches it.
-        cities=(", ".join(["Saint-Étienne", "Saint-Priest-en-Jarez", "Lyon",
-                           "Athens", "Piraeus", "Agia Paraskevi",
+        cities=(", ".join(["Athens", "Piraeus", "Agia Paraskevi",
+                           "Saint-Étienne", "Saint-Priest-en-Jarez", "Lyon",
                            "Leipzig", "Halle", "Dresden"])
                 + f" &mdash; and {len(VALID_CITIES) - 9} more: every commune of France and "
                   f"every town and village of Greece. Search them with <code>GET /city?q=...</code>"),
@@ -358,7 +358,7 @@ def main() -> None:
     log.warn("  Leave THIS window open -- closing it stops the stub.")
     log.detail("Stop it yourself with Ctrl+C.", indent="  ")
     log.detail(f"{len(MENU)} pizzas, {len(VALID_CITIES)} delivery cities "
-               f"(every commune of France plus Leipzig, Halle, Dresden): open {base}", indent="  ")
+               f"(every town of Greece, every commune of France, Leipzig, Halle, Dresden): open {base}", indent="  ")
     log.plain()
     log.step("  Every request your bot makes is logged below, one line each:")
     try:

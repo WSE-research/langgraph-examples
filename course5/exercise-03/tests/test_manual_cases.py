@@ -54,11 +54,11 @@ MINIMUM = 5
 # ---------------------------------------------------------------------------
 
 MANUAL_ADDRESS = [
-    ("deliver it to 5 Rue Michelet, Saint-Étienne",
-     {"street": "Rue Michelet", "house_number": "5", "city": "Saint-Étienne"}),
+    ("deliver it to 5 Ermou, Athens",
+     {"street": "Ermou", "house_number": "5", "city": "Athens"}),
     # TODO: four more. Ideas that are worth a case, one each:
-    #   * the other word order ("Rue Michelet 5, Saint-Étienne")
-    #   * a spelling a real customer uses ("St. Etienne", "R. Michelet")
+    #   * the other word order -- the Greek one ("Ermou 5, Athens")
+    #   * a spelling a real customer uses ("Athina", "Ermou St.")
     #   * a HALF address -- street and city, no number -> None (complete or nothing)
     #   * a city outside the delivery area -> None (the refusal case)
 ]
@@ -72,7 +72,7 @@ MANUAL_PIZZA = [
     # TODO: four more. Ideas:
     #   * a misspelling ("Margaritha")
     #   * a descriptive name ("the four cheese one")
-    #   * something we do not sell ("a Tartufo") -> None
+    #   * something we do not sell ("a Pizza Napoli") -> None
     #   * a sentence with no pizza in it at all -> None
 ]
 
@@ -81,8 +81,8 @@ MANUAL_PIZZA = [
 # ---------------------------------------------------------------------------
 
 MANUAL_ORDER = [
-    ("I would like one Diavola to 12b Avenue de la Libération, Saint-Étienne",
-     (8, {"street": "Avenue de la Libération", "house_number": "12b", "city": "Saint-Étienne"})),
+    ("I would like one Diavola to 12b Vasilissis Sofias, Athens",
+     (8, {"street": "Vasilissis Sofias", "house_number": "12b", "city": "Athens"})),
     # TODO: four more. At least one where ONE of the two is recognisable and the
     # other is not -- a component that drags its neighbour down with it is a
     # contract violation you want to find here and not in the closing round.
@@ -167,9 +167,9 @@ def test_pass_rate_over_the_hand_written_cases(implementations, method_name):
 
 def test_the_scorer_treats_a_copied_wording_as_the_same_answer():
     """Read this one: it is the whole leniency of this harness, and its limit."""
-    accepted = {"city": ["Saint-Étienne", "St. Etienne", "saint-etienne"]}
-    assert score({"city": "St. Etienne"}, {"city": "Saint-Étienne"}, accepted)
-    assert not score({"city": "Lyon"}, {"city": "Saint-Étienne"}, accepted)
-    assert fold("St. Étienne") == fold("st. etienne")
-    assert score(None, None, None)                    # a refusal, answered correctly
-    assert not score({"city": "Lyon"}, None, None)    # answered something where nothing was right
+    accepted = {"city": ["Athens", "Athina", "athens"]}
+    assert score({"city": "Athina"}, {"city": "Athens"}, accepted)
+    assert not score({"city": "Piraeus"}, {"city": "Athens"}, accepted)
+    assert fold("Agía Paraskeví") == fold("agia paraskevi")
+    assert score(None, None, None)                       # a refusal, answered correctly
+    assert not score({"city": "Piraeus"}, None, None)    # answered something where nothing was right

@@ -1,6 +1,6 @@
 # Course 5 — Engineering AI-Driven Software Processes
 
-Hands-on KGQA with LangGraph and LLMs — **the Saint-Étienne edition**: the guest course at Université Jean Monnet Saint-Étienne, WS 2026/2027 (Prof. Dr. Andreas Both, HTWK Leipzig), with its running examples in France (`5 Rue Michelet, Saint-Étienne`). It was copied from [`course6/`](../course6/) on 2026-09-30, when that folder became the Athens edition of the same course, with its examples moved to Greece; the two differ in their examples, not in their tasks, and both use the same versions of the Pizza API.
+Hands-on KGQA with LangGraph and LLMs, WS 2026/2027 (Prof. Dr. Andreas Both, HTWK Leipzig), with its running examples in Greece (`5 Ermou, Athens`). [`course6/`](../course6/) is the Athens edition of the same course (National and Kapodistrian University of Athens) and holds the same six exercises with the same examples; the versions of the Pizza API are the same in both.
 
 Six lectures, each followed by a 90-minute practical session. The students build one system across all six iterations: a pizza-ordering dialogue system that starts as a set of hand-written rules bound by explicit contracts, and then has its components replaced by LLM calls behind exactly those contracts. The recurring question of the course is not "does it answer?" but "how do you know it still does what you agreed it would?".
 

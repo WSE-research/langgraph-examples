@@ -19,11 +19,9 @@ from pizzabot import pizza_api
 from pizzabot.graph import build_graph
 from pizzabot.state import new_state
 
-# The walkthrough from Lecture 1, Part C.
+# The walkthrough of Lecture 1, slide 41: one user turn, one run of the graph.
 SCRIPT = [
-    "Hello",
-    "I would like a Margherita",
-    "deliver it to 5 Rue Michelet, Saint-Étienne",
+    "I would like to order a Margherita, delivered to 5 Ermou, Athens",
 ]
 
 

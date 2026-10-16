@@ -80,10 +80,10 @@ def test_pizza_slot_always_carries_the_menu_spelling(implementation):
 @pytest.mark.parametrize(
     "utterance, expected",
     [
-        ("deliver it to 5 Rue Michelet, Saint-Étienne",
-         {"street": "Rue Michelet", "house_number": "5", "city": "Saint-Étienne"}),
-        ("please deliver to 12b Rue de la Paix, Lyon",
-         {"street": "Rue de la Paix", "house_number": "12b", "city": "Lyon"}),
+        ("deliver it to 5 Ermou, Athens",
+         {"street": "Ermou", "house_number": "5", "city": "Athens"}),
+        ("please deliver to 12b Akti Miaouli, Piraeus",
+         {"street": "Akti Miaouli", "house_number": "12b", "city": "Piraeus"}),
         ("Karl-Liebknecht-Strasse 132, Leipzig",
          {"street": "Karl-Liebknecht-Strasse", "house_number": "132", "city": "Leipzig"}),
     ],
@@ -94,7 +94,7 @@ def test_complete_address_is_recognized(implementation, utterance, expected):
     assert patch["slots"]["address"] == expected
 
 
-@pytest.mark.parametrize("utterance", ["somewhere near the station", "Rue Michelet", "12b", "deliver to Lyon", ""])
+@pytest.mark.parametrize("utterance", ["somewhere near the station", "Ermou", "12b", "deliver to Piraeus", ""])
 def test_incomplete_address_is_rejected(implementation, utterance):
     """Guarantee: complete or nothing -- never a half address in the slot."""
     recognize_address = implementation["address_recognition"]
@@ -105,9 +105,9 @@ def test_incomplete_address_is_rejected(implementation, utterance):
 def test_address_outside_the_delivery_area_is_rejected(implementation):
     """Rule 3 of the Iteration 1 contract: the delivery area is a domain rule only the API knows.
 
-    Barcelona and not Paris: version v2 of the service delivers to every commune
-    of France and every town of Greece, so an address outside the area has to be
-    outside both.
+    Barcelona and not Thessaloniki: version v2 of the service delivers to every
+    town and village of Greece and every commune of France, so an address outside
+    the area has to be outside both.
     """
     recognize_address = implementation["address_recognition"]
     patch = recognize_address(new_state("deliver to 401 Carrer de Mallorca, Barcelona"))
@@ -144,7 +144,7 @@ def test_graph_uses_the_injected_implementation():
 def test_both_configurations_complete_the_same_order(implementation):
     """Part C of Lecture 2: the lecture example ends in the same state either way."""
     graph = build_graph(implementation)
-    state = graph.invoke(new_state("I would like a Margherita, delivered to 5 Rue Michelet, Saint-Étienne"))
+    state = graph.invoke(new_state("I would like a Margherita, delivered to 5 Ermou, Athens"))
     assert state["slots"]["pizza_name"] == "Margherita"
-    assert state["slots"]["address"] == {"street": "Rue Michelet", "house_number": "5", "city": "Saint-Étienne"}
+    assert state["slots"]["address"] == {"street": "Ermou", "house_number": "5", "city": "Athens"}
     assert state["order_id"] is not None and state["ended"] is True

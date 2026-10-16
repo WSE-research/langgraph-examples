@@ -1,7 +1,7 @@
 """Every exercise names its version, and what its material assumes is what that version serves.
 
-These tests read the course folders (course5 = the Saint-Etienne edition,
-course6 = the Athens edition) next to `common/`. They catch the two ways an
+These tests read the course folders (course5, and course6 = the Athens edition)
+next to `common/`. They catch the two ways an
 exercise breaks without anybody touching it: the material points at a version
 it was not written for, or the service and the material disagree about a pizza
 or a city the material relies on.

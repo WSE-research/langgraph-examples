@@ -34,8 +34,9 @@ from pizzabot.task4_address import recognize_address        # the fallback: the 
 
 PROMPT_VERSION = "address_v1"                                # prompts/address_v1.txt
 SYSTEM = llm_service.load_prompt(PROMPT_VERSION)
-# 12b, "12 b", and the French forms 5 bis / 12 ter / 3 quater -- our domain, our pattern
-HOUSE_NUMBER = re.compile(r"\d+\s?(?:[a-z]|bis|ter|quater)?")
+# 12b, "12 b", and the Greek forms 5α / 12Β (a Greek letter, not a Latin one;
+# compared in lower case) -- our domain, our pattern
+HOUSE_NUMBER = re.compile(r"\d+\s?[a-zα-ω]?")
 
 DOMAIN_CHECKS = ("house-number pattern and digits copied", "street and city copied from the input", "POST /address/validate")
 
@@ -51,7 +52,7 @@ class AddressModel(BaseModel):
 
 
 def fold(text: str) -> str:
-    """Compare without accents and without case: "Saint-Etienne" is "Saint-Étienne"."""
+    """Compare without accents and without case: "Agia Paraskevi" is "Agía Paraskeví"."""
     stripped = unicodedata.normalize("NFKD", text)
     return "".join(ch for ch in stripped if not unicodedata.combining(ch)).casefold()
 
@@ -118,7 +119,7 @@ if __name__ == "__main__":
 
     from pizzabot.state import last_message, new_state
 
-    utterance = sys.argv[1] if len(sys.argv) > 1 else "number 5 in the Rue Michelet here in Saint-Étienne"
+    utterance = sys.argv[1] if len(sys.argv) > 1 else "number 5 on Ermou here in Athens"
     result = build_graph().invoke(new_state(utterance))
     log.plain()
     log.result(f"slots : {result['slots']}")

@@ -27,8 +27,9 @@ CASES: list[tuple[str, str]] = [
     ("I want sushi",                                "nothing recognised, silent"),
     ("I am hungry",                                 "nothing recognised, silent"),
     # TODO: three cases of your own. Ideas: two pizzas in one sentence, a pizza
-    #       written in lower case, a name with a French article, a typo in the
-    #       middle of a long word, a pizza that is not on the menu.
+    #       written in lower case, a name with a Greek article (mia Margherita), the
+    #       name in Greek script (Μαργαρίτα), a typo in the middle of a long word, a
+    #       pizza that is not on the menu.
 ]
 
 

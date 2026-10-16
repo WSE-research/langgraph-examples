@@ -145,14 +145,14 @@ It is served by <code>pizza_api_stub.py</code> in your terminal &mdash; closing 
 <p>{menu}</p>
 
 <h2>Delivery area</h2>
-<p>{cities} &mdash; compared without accents and without case, so <code>saint-etienne</code> and
-<code>Saint-&Eacute;tienne</code> are the same place, and <code>Athina</code> is Athens. Anything else is answered with
+<p>{cities} &mdash; compared without accents and without case, so <code>athens</code> and
+<code>ATHENS</code> are the same place, and so are <code>Athina</code> and <code>Αθήνα</code>. Anything else is answered with
 <code>400 &quot;We don&#39;t deliver to ...&quot;</code>.</p>
 
 <h2>Try it &mdash; macOS, Linux (bash, zsh)</h2>
 <pre>curl {base}/pizza
 ORDER=$(curl -s -X POST -H 'Content-Type: application/json' \\
-     -d '{{"pizza_id": 1, "street": "Rue Michelet", "house_number": "5", "city": "Saint-\u00c9tienne"}}' \\
+     -d '{{"pizza_id": 1, "street": "Ermou", "house_number": "5", "city": "Athens"}}' \\
      {base}/order)
 echo "$ORDER"
 curl {base}/order/$(echo "$ORDER" | sed 's/.*"order_id":"\\([^"]*\\)".*/\\1/')</pre>
@@ -160,7 +160,7 @@ curl {base}/order/$(echo "$ORDER" | sed 's/.*"order_id":"\\([^"]*\\)".*/\\1/')</
 <h2>Try it &mdash; Windows PowerShell</h2>
 <pre>Invoke-RestMethod {base}/pizza
 $o = Invoke-RestMethod -Method Post -Uri {base}/order -ContentType 'application/json' `
-     -Body '{{"pizza_id":1,"street":"Rue Michelet","house_number":"5","city":"Saint-\u00c9tienne"}}'
+     -Body '{{"pizza_id":1,"street":"Ermou","house_number":"5","city":"Athens"}}'
 $o
 Invoke-RestMethod {base}/order/$($o.order_id)</pre>
 

@@ -19,10 +19,10 @@ In other words, a dialogue is modeled wtih:
 
 ### Course material
 
-The practical sessions of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, in two editions that differ in their running examples, not in their tasks:
+The practical sessions of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, with their running examples in Greece (`5 Ermou, Athens`):
 
-- [`course6/`](https://github.com/WSE-research/langgraph-examples/tree/main/course6) — the Athens edition (National and Kapodistrian University of Athens, WS 2026/2027), with its examples in Greece (`5 Ermou, Athens`);
-- [`course5/`](https://github.com/WSE-research/langgraph-examples/tree/main/course5) — the Saint-Étienne edition (Université Jean Monnet Saint-Étienne, WS 2026/2027), with its examples in France (`5 Rue Michelet, Saint-Étienne`).
+- [`course6/`](https://github.com/WSE-research/langgraph-examples/tree/main/course6) — the Athens edition (National and Kapodistrian University of Athens, WS 2026/2027);
+- [`course5/`](https://github.com/WSE-research/langgraph-examples/tree/main/course5) — the same six exercises with the same examples (WS 2026/2027).
 
 Both use the [Pizza API](common/) at <https://wse-research.org/pizza-api>, one frozen version per exercise (`/v1` … `/v6`).
 

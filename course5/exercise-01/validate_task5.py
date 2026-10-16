@@ -27,22 +27,22 @@ from pizzabot.state import new_state
 DIALOGS: list[tuple[str, list[str], str]] = [
     (
         "happy path, two turns",
-        ["I would like a Margherita", "deliver it to 5 Rue Michelet, Saint-Étienne"],
+        ["I would like a Margherita", "deliver it to 5 Ermou, Athens"],
         "asks for the address, then places the order and confirms with an order id",
     ),
     (
         "everything in one turn",
-        ["a Margherita to 5 Rue Michelet, Saint-Étienne please"],
+        ["a Margherita to 5 Ermou, Athens please"],
         "no question at all -- both slots are filled in the same turn, order placed",
     ),
     (
         "the user starts with nonsense",
-        ["good evening", "I would like a Funghi", "3 Place Jean Jaurès, Saint-Étienne"],
+        ["good evening", "I would like a Funghi", "3 Syntagma Square, Athens"],
         "help, then asks for the address, then confirms",
     ),
     (
         "the user does not answer the question",
-        ["I want a pizza", "the red one", "a Diavola to 5 Rue Michelet, Saint-Étienne"],
+        ["I want a pizza", "the red one", "a Diavola to 5 Ermou, Athens"],
         "asks for the pizza, repeats the question (prefix 'Sorry, I did not get that'), then confirms",
     ),
     # TODO: one dialog of your own. Ideas: the user changes the pizza half way

@@ -9,20 +9,20 @@ tool is how they get from there into `benchmark/data/`.
 
 Browse first, then pick:
 
-    python -m benchmark.fetch cities --search saint-eti      # what is there?
+    python -m benchmark.fetch cities --search athin          # what is there?
     python -m benchmark.fetch cities --search "" --limit 20  # the twenty largest
     python -m benchmark.fetch pizzas --list                  # the whole menu
 
-    python -m benchmark.fetch cities Grenoble Roanne Firminy Montbrison
+    python -m benchmark.fetch cities Patras Marousi Kifisia Glyfada
     python -m benchmark.fetch pizzas Capricciosa Tartufo Rucola
 
 Every picked instance is appended to `benchmark/data/picked.ttl` with the
 canonical value **as the service spells it** and a note saying where it came
 from:
 
-    :grenoble a :CITY ; :name "Grenoble" ; :deliverable true ;
-        rdfs:label "Grenoble", "grenoble" ;
-        tg:source "GET /city" ; tg:fetchedAt "2026-09-18"^^xsd:date .
+    :patras a :CITY ; :name "Patras" ; :deliverable true ;
+        rdfs:label "Patras", "patras" ;
+        tg:source "GET /city" ; tg:fetchedAt "2026-09-30"^^xsd:date .
 
 Three rules this tool enforces, because each of them is a way a benchmark
 quietly stops being one:
@@ -36,7 +36,7 @@ quietly stops being one:
   than by a test afterwards.
 * **The canonical value comes from the service, the wordings come from you.**
   The tool writes the name and its lower-case form, and that is deliberately
-  boring: the wordings a real customer types ("St-Étienne", "the truffle one")
+  boring: the wordings a real customer types ("Athina", "the truffle one")
   are the part of a benchmark a human has to add, and Task 3 asks you to.
 
 What this tool does **not** do: streets and house numbers. The service does not
@@ -74,9 +74,9 @@ HEADER = """# Instances picked from the Pizza API with `python -m benchmark.fetc
 
 
 def slug(name: str, upper: bool = False) -> str:
-    """A URI-safe local name: "Saint-Étienne" -> saintEtienne, "Frutti di Mare" -> FruttiDiMare.
+    """A URI-safe local name: "Agia Paraskevi" -> agiaParaskevi, "Frutti di Mare" -> FruttiDiMare.
 
-    Deterministic on purpose: picking Saint-Étienne twice produces the same
+    Deterministic on purpose: picking Agia Paraskevi twice produces the same
     resource, which is what makes "already in the graph" detectable at all.
     """
     stripped = unicodedata.normalize("NFKD", name)
@@ -148,9 +148,19 @@ def pick_cities(names: list[str]) -> int:
         found = [city for city in pizza_api.cities(q=name, limit=1000)
                  if fold(city["name"]) == fold(name)]
         if not found:
-            log.fail(f"{name}: the service does not deliver there")
-            log.hint(f"search for the right spelling: "
-                     f"python -m benchmark.fetch cities --search {name[:12]}")
+            # "Athina" is not a *name* the service lists -- but it may be one of
+            # the other spellings it accepts for a place it lists as "Athens".
+            # The graph takes the service's name, so say which one that is.
+            similar = pizza_api.cities(q=name, limit=3)
+            if similar:
+                log.fail(f"{name}: not a name the service lists -- searching for it finds "
+                         f"{', '.join(city['name'] for city in similar)}")
+                log.hint(f'pick it by the service\'s own name: '
+                         f'python -m benchmark.fetch cities "{similar[0]["name"]}"')
+            else:
+                log.fail(f"{name}: the service does not deliver there")
+                log.hint(f"search for the right spelling: "
+                         f"python -m benchmark.fetch cities --search {name[:12]}")
             skipped.append(name)
             continue
         city = found[0]

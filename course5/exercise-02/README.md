@@ -1,6 +1,6 @@
 # Exercise 2 — an LLM inside the process, behind unchanged contracts
 
-Iteration 2 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, Université Jean Monnet Saint-Étienne, WS 2026/2027.
+Iteration 2 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, WS 2026/2027.
 
 **Today an LLM enters your system — behind two contracts that do not change.** Two of your components, `pizza_recognition` and `address_recognition`, get a second implementation that calls a language model. What stays as it is: the process model, the state type, the router, the order form, the four contract rows that are the specification (`reads`, `writes`, `guarantee`, `failure`), and the assertions of the Iteration 1 tests. What changes once, on purpose: the wiring gains a seam so that an implementation can be injected, and the test harness learns to run twice. That is the claim of Lecture 2, and this session is where you test it: if the substitution forces you to touch a contract or the state, the contract was not respected somewhere.
 
@@ -172,9 +172,9 @@ The first run ends like this (your numbers will differ):
 
 ```text
     llm     : attempt 1: 0.60 s, 67 tokens in, 33 out, answer was fenced
-    llm     : answer: {"street": "Rue Michelet", "house_number": "5", "city": "Saint-Étienne"}
+    llm     : answer: {"street": "Ermou", "house_number": "5", "city": "Athens"}
 
-result  : {'street': 'Rue Michelet', 'house_number': '5', 'city': 'Saint-Étienne'}
+result  : {'street': 'Ermou', 'house_number': '5', 'city': 'Athens'}
 usage   : 1 call (1 attempts), 0 ended in None, 1 fenced; 67 tokens in, 33 out; latency median 0.60 s, max 0.60 s
 ```
 
@@ -206,8 +206,8 @@ Type each line exactly as it stands, press Enter, and read the two lines that co
 
 | type this | what has to come back |
 | --- | --- |
-| `I would like a Margherita, delivered to 42000 Saint-Étienne` | `pizza : Margherita`<br>`address : {'postcode': '42000', 'city': 'Saint-Étienne'}` |
-| `one Diavola to Lyon, 69001` | `pizza : Diavola`<br>`address : {'postcode': '69001', 'city': 'Lyon'}` |
+| `I would like a Margherita, delivered to 10563 Athens` | `pizza : Margherita`<br>`address : {'postcode': '10563', 'city': 'Athens'}` |
+| `one Diavola to Piraeus, 18535` | `pizza : Diavola`<br>`address : {'postcode': '18535', 'city': 'Piraeus'}` |
 
 The pizza comes from the **rule** (the name is on the menu, spelled as the menu spells it) and the address from the **model** — two implementations of two components, in one sentence.
 
@@ -216,7 +216,7 @@ The pizza comes from the **rule** (the name is on the menu, spelled as the menu 
 | type this | what has to come back | why |
 | --- | --- | --- |
 | `one Margaritha please` | `pizza : <nothing recognised>` | the rule does a literal lookup, and `Margaritha` is not on the menu. A human reads it as a typo; a literal rule cannot. **Task 2c is where you fix this**, and this is the sentence you will fix it with |
-| `deliver to Saint-Étienne` | `address : <nothing recognised>` | the city is there, the postcode is not. The component's guarantee is **complete or nothing** — a half address is never written into the slot, because a half address is worse than no address: the process would carry it forward as if it were an answer |
+| `deliver to Athens` | `address : <nothing recognised>` | the city is there, the postcode is not. The component's guarantee is **complete or nothing** — a half address is never written into the slot, because a half address is worse than no address: the process would carry it forward as if it were an answer |
 
 Type these two as well. A bot that answers "nothing" to them is a bot that is working: refusing is a contract-conforming outcome, not a failure. If either of them *does* return a value, you have found something worth reporting — say so at the closing round.
 
@@ -235,7 +235,7 @@ Now read `example/example_tests.py`, top to bottom. Five cases for the rule and 
 
 **2b — the address gains a street and a house number (4 min).** Today the example's address is a postcode and a city. Make it four fields. In this order:
 
-1. **The cases first.** The three complete addresses gain a street and a house number — in the sentence *and* in the expected value. And one sentence changes sides: `"deliver it to 42000 Saint-Étienne"` was a complete address this morning and is an incomplete one now, so its expected value becomes `{}`. Nothing about the model changed; the specification did, and the cases are where a specification is written down.
+1. **The cases first.** The three complete addresses gain a street and a house number — in the sentence *and* in the expected value. And one sentence changes sides: `"deliver it to 10563 Athens"` was a complete address this morning and is an incomplete one now, so its expected value becomes `{}`. Nothing about the model changed; the specification did, and the cases are where a specification is written down.
 2. `ADDRESS_FIELDS` in `simple_bot.py` — one line. The schema check and the domain check are written over that tuple, so neither needs an edit. If you find yourself editing them, look again.
 3. The prompt. Copy `prompts/example_address_v1.txt` to `example_address_v2.txt`, change the `Output:` line and the examples, and point `ADDRESS_PROMPT` at the new name. A prompt is configuration: a new field list is a new version, and a version lives in the file name.
 
@@ -310,8 +310,8 @@ The contract in `address_llm.py` is the Iteration 1 contract, copied. Do not cha
 **3b — implement (8 min).** Two TODOs. `plausible()` is the domain check: three rules — the house-number pattern with its digits copied from the utterance, "street and city occur in the utterance" (compared with the given `fold()` helper, so accents and case do not matter — the API compares the same way), and the delivery-area call. `recognize_address_llm()` is the tiered flow: call, schema check, domain check, fallback — the comment block in the skeleton spells out the order. Run the component on its own while you work:
 
 ```bash
-python -m pizzabot.address_llm "number 5 in the Rue Michelet here in Saint-Étienne"
-python -m pizzabot.address_llm "deliver to Lyon"                  # tier: [static], and why
+python -m pizzabot.address_llm "number 5 on Ermou here in Athens"
+python -m pizzabot.address_llm "deliver to Piraeus"               # tier: [static], and why
 ```
 
 Read the `tier` line every time: it says who answered and, if the rule had to, why. When the rule runs, it logs its own block, so the component appears twice in the trace — that is the fallback, not a bug.
@@ -324,7 +324,7 @@ python compare_configs.py --address
 
 Rows marked `*` are the ones where the two implementations disagree. Both may keep the contract; which one is *right* is a question this course does not answer until Iteration 3. If a row broke a promise (a half address, an invented city), fix the check in the component now and add the row as a test.
 
-Two French cases are in the list: `5 rue Michelet 42000, Saint-Étienne` — your rule stores 42000 as the house number (contract kept, delivery wrong), the model stores 5; that row is the first entry of Iteration 3's dataset. And `5 bis rue Michelet, Saint-Étienne` — your rule stores the street as `bis rue Michelet` (contract kept, wrong again), and the skeleton's house-number pattern rejects the model's `5 bis`, so the rule decides. The pattern is yours: extend it, and notice that the fallback is not a neutral floor — when the model is rejected, the rule's wrong answer wins.
+Two Greek cases are in the list: `5 Ermou 10563, Athens` — your rule stores the postcode 10563 as the house number (contract kept, delivery wrong), the model stores 5; that row is the first entry of Iteration 3's dataset. And `5Α Ermou, Athens` — a Greek house number takes a Greek letter (Α is the Greek capital alpha, not a Latin A): your rule finds nothing, because its number pattern knows no Greek letter; the model answers `5Α`, which is right, and the skeleton's house-number pattern rejects it, so the rule decides — and it has nothing. The pattern is yours: extend it, and notice that the fallback is not a neutral floor — when the model is rejected, whatever the rule says wins, even when it says nothing.
 
 ---
 
@@ -355,7 +355,7 @@ python -m pizzabot.pizza_llm "One Pizza Napoli please"           # tier: static,
 
 ```bash
 python run_dialog.py --script            # the Iteration 1 walkthrough, unchanged
-python run_dialog.py --llm --script      # "can I order the four-cheese one to number 5 in the Rue Michelet here in Saint-Étienne?"
+python run_dialog.py --llm --script      # "can I order the four-cheese one to number 5 on Ermou here in Athens?"
 ```
 
 The order completes in the turn after `Hello`. The script says "can I *order*", not "can I get". Why? The router is still your Iteration 1 rule. "can I get" is not one of its intent phrases, so the turn would go to `help`, and the two LLM-backed components would never run. The LLM improves recognition, not routing; routing did not change today. Say that sentence out loud in your team — it is the one sentence of Task 5 worth remembering, and it is what the closing round asks about.
