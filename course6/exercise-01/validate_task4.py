@@ -16,13 +16,13 @@ from pizzabot.task4_address import build_graph
 
 CASES: list[tuple[str, str]] = [
     # utterance                                             what you expect
-    ("deliver it to 5 Rue Michelet, Saint-Étienne",         "5 / Rue Michelet / Saint-Étienne"),
-    ("please deliver to 12b Rue de la Paix, Lyon",          "12b / Rue de la Paix / Lyon"),
+    ("deliver it to 5 Ermou, Athens",                       "5 / Ermou / Athens"),
+    ("please deliver to 12b Akti Miaouli, Piraeus",         "12b / Akti Miaouli / Piraeus"),
     ("Karl-Liebknecht-Strasse 132, Leipzig",                "132 / Karl-Liebknecht-Strasse / Leipzig"),
-    ("my address is 7 Avenue de la Libération, Saint-Priest-en-Jarez", "7 / Avenue ... / Saint-Priest-en-Jarez"),
+    ("my address is 7 Leoforos Mesogeion, Agia Paraskevi",  "7 / Leoforos Mesogeion / Agia Paraskevi"),
     ("somewhere near the station",                          "nothing -- not an address"),
-    ("Rue Michelet",                                        "nothing -- no number, no city"),
-    ("5 Rue Michelet Saint-Étienne",                        "nothing -- the comma is missing (known limitation)"),
+    ("Ermou",                                               "nothing -- no number, no city"),
+    ("5 Ermou Athens",                                      "nothing -- the comma is missing (known limitation)"),
     # TODO: three cases of your own. Ideas: a flat number, a postcode, an
     #       address in a language you speak, a second address in the same
     #       sentence, a city written in lower case.

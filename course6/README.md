@@ -1,6 +1,6 @@
 # Course 6 — Engineering AI-Driven Software Processes
 
-Hands-on KGQA with LangGraph and LLMs — guest course at Université Jean Monnet Saint-Étienne, WS 2026/2027 (Prof. Dr. Andreas Both, HTWK Leipzig).
+Hands-on KGQA with LangGraph and LLMs — **the Athens edition**: guest course at the National and Kapodistrian University of Athens (NKUA), WS 2026/2027 (Prof. Dr. Andreas Both, HTWK Leipzig), with its running examples in Greece (`5 Ermou, Athens`). [`course5/`](../course5/) is the Saint-Étienne edition of the same course, with the French examples; the tasks and the versions of the Pizza API are the same in both.
 
 Six lectures, each followed by a 90-minute practical session. The students build one system across all six iterations: a pizza-ordering dialogue system that starts as a set of hand-written rules bound by explicit contracts, and then has its components replaced by LLM calls behind exactly those contracts. The recurring question of the course is not "does it answer?" but "how do you know it still does what you agreed it would?".
 
@@ -40,11 +40,24 @@ Work in your own repository rather than in this clone — fork this one, or copy
 
 ## The Pizza API
 
-The exercises order from a live service at <https://wse-research.org/pizza-api>, which serves its own interactive Swagger UI at that address. Its source is [`common/main.py`](../common/main.py) in this repository.
+The exercises order from a live service at <https://wse-research.org/pizza-api>. Its source is [`common/main.py`](../common/main.py) in this repository, and every address below serves its own interactive Swagger UI.
 
-The session also runs offline: `pizza_api_stub.py` mirrors that service endpoint for endpoint — same menu and ids, same delivery area, same error shapes — so a network failure costs nobody their session. That substitutability is the first contract the students meet. From Iteration 3 on the stub also serves `GET /city` from `exercise-03/data/cities.tsv.gz`, the same delivery area the service uses: every commune of France plus Leipzig, Halle and Dresden.
+**Every exercise uses its own version of the service**, and a version does not change once it is published: the service grows during the course — more pizzas, a larger delivery area, pizzas that sell out — and what a team built in Iteration 1 keeps working against the version it was built for. Each exercise names its version in the default of `PIZZA_API_BASE` (in `pizzabot/pizza_api.py` and `.env.example`); from Iteration 4 on, where the material is copied into a team's repository, `tests/conftest.py` sets it and the sheet asks the team to change the one line in `.env`. The address without a version is the newest one, and no exercise uses it.
 
-**Two pizzas are sold out every minute** (since 2026-09-23, service version 1.3.0, and in all three stubs): `GET /pizza` marks them `"available": false`, the same two for every request within that minute, drawn at random for the next, and `POST /order` refuses them with `409 Conflict`. Test drivers — every `conftest.py`, `validate_task5.py`, `adversarial.py` — set `PIZZA_API_ACCEPT_EVERYTHING=true`, and `pizzabot/pizza_api.py` then sends `X-Accept-Everything: true`, with which the service accepts a sold-out pizza anyway, so that a test that orders a fixed pizza does not fail in the minutes that pizza is drawn. **A clone from before 2026-09-23 lacks that header**, and its tests that place an order fail in roughly one minute out of eleven: `git pull` fixes it. An interactive dialog never sends the header — it meets the 409, and Iteration 5 turns that into a repair. `PIZZA_AVAILABILITY_SEED` makes the draw reproducible, for the service and for the stubs.
+| version | exercise | what it serves |
+| --- | --- | --- |
+| <https://wse-research.org/pizza-api/v1> | `exercise-01/` | the four endpoints of Lecture 1; the menu of ten pizzas (`id`, `name`); the nine cities of the course examples — Leipzig, Halle, Dresden, Saint-Étienne, Saint-Priest-en-Jarez, Lyon, Athens, Piraeus, Agia Paraskevi — and `400` for anything else; every pizza can always be ordered |
+| <https://wse-research.org/pizza-api/v2> | `exercise-02/` | the menu of twenty-two pizzas, which the LLM-backed recognizer reads into its prompt; the full delivery area and `GET /city`; every pizza can always be ordered |
+| <https://wse-research.org/pizza-api/v3> | `exercise-03/` | as v2 — `GET /city` is the endpoint the teams pick their benchmark cities from |
+| <https://wse-research.org/pizza-api/v4> | `exercise-04/` | as v3 |
+| <https://wse-research.org/pizza-api/v5> | `exercise-05/` | as v4, and **two pizzas are sold out every minute**: `GET /pizza` marks them `"available": false` (the same two for every request within that minute, drawn at random for the next) and `POST /order` refuses them with `409 Conflict` — the case the repair of Iteration 5 is built on |
+| <https://wse-research.org/pizza-api/v6> | `exercise-06/` | as v5 — the RAG branch does not call the service, and every test of Iterations 3 to 5 stays green against it |
+
+The full delivery area is every commune of France and every town and village of Greece, plus Leipzig, Halle and Dresden — about 43 000 names, compared without accents and without case; a Greek place is also accepted under its other spellings (`Athina`, `Αθήνα`). A city outside it has to come from elsewhere: the exercises use Barcelona.
+
+Test drivers — every `conftest.py`, `validate_task5.py`, `adversarial.py` — set `PIZZA_API_ACCEPT_EVERYTHING=true`, and `pizzabot/pizza_api.py` then sends `X-Accept-Everything: true`, with which v5 and v6 accept a sold-out pizza anyway, so that a test that orders a fixed pizza does not fail in the minutes that pizza is drawn; the earlier versions ignore the header. An interactive dialog never sends it — it meets the 409, and Iteration 5 turns that into a repair. `PIZZA_AVAILABILITY_SEED` makes the draw reproducible.
+
+The session also runs offline: `pizza_api_stub.py` mirrors the exercise's version endpoint for endpoint — same menu and ids, same error shapes — so a network failure costs nobody their session. That substitutability is the first contract the students meet. The stubs of Iterations 1 and 2 know the nine cities of the course examples; from Iteration 3 on the stub serves `GET /city` from `exercise-03/data/cities.tsv.gz`, the same delivery area the service uses. `common/tests/` holds every version, and every stub, to what its exercise needs.
 
 ## Sample solutions
 

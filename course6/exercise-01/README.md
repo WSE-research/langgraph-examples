@@ -1,6 +1,6 @@
 # Exercise 1 — from a goal to a process a team can build
 
-Iteration 1 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, Université Jean Monnet Saint-Étienne, WS 2026/2027.
+Iteration 1 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, National and Kapodistrian University of Athens, WS 2026/2027.
 
 **Today there is no AI in your system.** Every component you build is a rule you can read, run and predict. That is the point: you cannot tell whether an AI made your system better until you have a system whose behaviour you control. Iteration 2 replaces two of today's rules with an LLM — behind exactly the contracts you write today.
 
@@ -63,7 +63,7 @@ cp .env.example .env                            # the key for Task 8 goes in her
 
 This folder is the skeleton you grow over all six iterations. Work in your **own** repository, not in the clone: either fork `WSE-research/langgraph-examples` and work in `course6/exercise-01/`, or copy this folder into a fresh repository of your own — whichever your instructor asked for. Everything below assumes your working directory is this folder.
 
-The virtual environment has to be active in every terminal you use — the prompt shows `(.venv)`. Windows and accented characters: if the console throws a `UnicodeEncodeError` on `Saint-Étienne`, run `set PYTHONUTF8=1` (PowerShell: `$env:PYTHONUTF8=1`) once per terminal.
+The virtual environment has to be active in every terminal you use — the prompt shows `(.venv)`. Windows and Greek characters: if the console throws a `UnicodeEncodeError` on `Αθήνα`, run `set PYTHONUTF8=1` (PowerShell: `$env:PYTHONUTF8=1`) once per terminal.
 
 **3. Check the machine.**
 
@@ -71,7 +71,7 @@ The virtual environment has to be active in every terminal you use — the promp
 python check_setup.py
 ```
 
-Thirteen checks: the Python version, whether your console can print `Saint-Étienne`, the six packages, a two-node graph that really runs, a node that returns `{}` (the failure rule of every component you will write today), a Mermaid export, the Pizza API, and whether the LLM endpoint is configured. The last one is marked `[todo]` and stays open until Task 8; the script still finishes with `READY FOR THE SESSION`. Every failure prints the command that fixes it.
+Thirteen checks: the Python version, whether your console can print `Αθήνα` (Athens in Greek script), the six packages, a two-node graph that really runs, a node that returns `{}` (the failure rule of every component you will write today), a Mermaid export, the Pizza API, and whether the LLM endpoint is configured. The last one is marked `[todo]` and stays open until Task 8; the script still finishes with `READY FOR THE SESSION`. Every failure prints the command that fixes it.
 
 **If the Pizza API is not reachable** (university network, VPN, or the service is down), start the local stand-in in a second terminal and point the bot at it:
 
@@ -80,20 +80,22 @@ python pizza_api_stub.py                        # terminal 2, leave it running
 PIZZA_API_BASE=http://127.0.0.1:8000 python check_setup.py     # terminal 1
 ```
 
-The stub answers exactly like the university service: the same four endpoints, the same menu with the same ids, the same delivery area, the same error messages, byte for byte. The fact that you can replace one with the other is the first contract you meet today: `pizzabot/pizza_api.py` owns the contract, two different implementations satisfy it, and the process cannot tell them apart.
+The stub answers exactly like version v1 of the university service — the version this exercise uses: the same four endpoints, the same menu with the same ids, the same delivery area, the same error messages, byte for byte. The fact that you can replace one with the other is the first contract you meet today: `pizzabot/pizza_api.py` owns the contract, two different implementations satisfy it, and the process cannot tell them apart.
+
+**This exercise uses version v1 of the service, <https://wse-research.org/pizza-api/v1>**, and so does `.env.example`. Every exercise has its own version, and a version does not change once it is published: the service will grow during the course, and what you build today keeps working against the version it was built for. The address without a version is the newest one; do not use it for the exercise.
 
 **Look at the API before you use it.** It documents itself at its own URL:
 
 | | URL | what you get |
 | --- | --- | --- |
-| the university service | <https://wse-research.org/pizza-api> | the interactive Swagger UI: every endpoint, every payload, and a *Try it out* button that sends real requests |
-| the Swagger page itself | <https://wse-research.org/pizza-api/docs> | the same HTML documentation under its own address — use this one if the base URL ever answers `404` |
-| the machine-readable schema | <https://wse-research.org/pizza-api/openapi.json> | the OpenAPI document behind that page |
+| the university service, version v1 | <https://wse-research.org/pizza-api/v1> | the interactive Swagger UI: every endpoint, every payload, and a *Try it out* button that sends real requests |
+| the Swagger page itself | <https://wse-research.org/pizza-api/v1/docs> | the same HTML documentation under its own address — use this one if the base URL ever answers `404` |
+| the machine-readable schema | <https://wse-research.org/pizza-api/v1/openapi.json> | the OpenAPI document behind that page |
 | your local stub | <http://127.0.0.1:8000> | the same endpoint list as a plain HTML page (no CDN, so it works offline) |
 
 Spend five minutes with the *Try it out* button: order a pizza by hand, then read it back with `GET /order/{order_id}`. It will save you more time than that in Tasks 3 to 5.
 
-The delivery area is part of the contract too, and the API is the only place that knows it: it delivers to Leipzig, Halle, Dresden, Saint-Étienne, Saint-Priest-en-Jarez and Lyon, and answers `400` with a message for anything else. Your `address_recognition` component must handle that `400` answer without filling the address slot. The contract is in `pizzabot/task4_address.py`.
+The delivery area is part of the contract too, and the API is the only place that knows it: it delivers to Athens, Piraeus and Agia Paraskevi, to Leipzig, Halle and Dresden (and to Saint-Étienne, Saint-Priest-en-Jarez and Lyon, for the Saint-Étienne edition of this course), and answers `400` with a message for anything else. Every pizza on the menu can always be ordered in version v1. Your `address_recognition` component must handle that `400` answer without filling the address slot. The contract is in `pizzabot/task4_address.py`.
 
 **4. Commit.** Make your first commit now, with the untouched skeleton in it. The repository grows over all six iterations, and a first commit that already contains your changes hides which parts you wrote yourself.
 
@@ -233,7 +235,7 @@ If PNG rendering fails (it uses the public server `mermaid.ink`), that is not a 
 
 ## Task 3 — pizza recognition [19 min]
 
-**Files for this task:** the skeleton and its contract are in `pizzabot/task3_pizza.py`. That is the only file you edit here. It reads the menu through `pizzabot/pizza_api.py` (data from `GET /pizza` — try that endpoint yourself at <https://wse-research.org/pizza-api>, never hard-code the list), the state is declared in `pizzabot/state.py`, the logging helper is `pizzabot/trace.py`. Your validation template is `validate_task3.py`, your drawing goes into `docs/process-model.md` (sections 2 and 3).
+**Files for this task:** the skeleton and its contract are in `pizzabot/task3_pizza.py`. That is the only file you edit here. It reads the menu through `pizzabot/pizza_api.py` (data from `GET /pizza` — try that endpoint yourself at <https://wse-research.org/pizza-api/v1>, never hard-code the list), the state is declared in `pizzabot/state.py`, the logging helper is `pizzabot/trace.py`. Your validation template is `validate_task3.py`, your drawing goes into `docs/process-model.md` (sections 2 and 3).
 
 The contract is in `pizzabot/task3_pizza.py`. Do not change it — implement it.
 
@@ -257,7 +259,7 @@ Judge each row yourself. A row is a failure if the result is correct but the rul
 
 ## Task 4 — address recognition [16 min]
 
-**Files for this task:** the skeleton and its contract are in `pizzabot/task4_address.py`. The address check goes out through `pizzabot/pizza_api.py` (`POST /address/validate`, which knows the delivery area — try it with your own address at <https://wse-research.org/pizza-api>). Validation template: `validate_task4.py`. The cases your rules cannot handle belong in section 6 of `docs/process-model.md`.
+**Files for this task:** the skeleton and its contract are in `pizzabot/task4_address.py`. The address check goes out through `pizzabot/pizza_api.py` (`POST /address/validate`, which knows the delivery area — try it with your own address at <https://wse-research.org/pizza-api/v1>). Validation template: `validate_task4.py`. The cases your rules cannot handle belong in section 6 of `docs/process-model.md`.
 
 The contract is in `pizzabot/task4_address.py`. Its guarantee is the interesting part: **complete or nothing**. A half-recognised address is worse than none — it silently delivers a pizza to a place that does not exist.
 
@@ -266,14 +268,14 @@ The contract is in `pizzabot/task4_address.py`. Its guarantee is the interesting
 **4b — implement (7 min).** Two TODOs, and the first one is half done: `NUMBER_FIRST` is given, you assemble `NUMBER_LAST` from the same blocks, then write `find_address` — try both patterns, clean the result, return three fields or nothing.
 
 ```bash
-python -m pizzabot.task4_address "deliver it to 5 Rue Michelet, Saint-Étienne"
+python -m pizzabot.task4_address "deliver it to 5 Ermou, Athens"
 ```
 
 **4c — validate by hand (5 min).** `validate_task4.py`, again with three cases of your own. One case in the list is expected to fail (the missing comma). Do not fix it by adding a third pattern: write it into section 6 of `docs/process-model.md` instead. That list is the specification for Iteration 2.
 
-Make one of your three cases a real French address **with the postcode in the middle**: `5 rue Michelet 42000, Saint-Étienne`. Your rules will produce a complete, validated, contract-conform address with `house_number = 42000` — and a pizza would be delivered to a house number that does not exist. Nothing in the contract is broken; the answer is simply wrong. Write that row into section 6 and mark it as the third kind: *the rule applies and the answer is still wrong*. That is the kind Iteration 3 will have to measure.
+Make one of your three cases a real Greek address **with the postcode in the middle**: `5 Ermou 10563, Athens`. Your rules will produce a complete, validated, contract-conform address with `house_number = 10563` — and a pizza would be delivered to a house number that does not exist. Nothing in the contract is broken; the answer is simply wrong. Write that row into section 6 and mark it as the third kind: *the rule applies and the answer is still wrong*. That is the kind Iteration 3 will have to measure.
 
-The API compares city names without accents and without case, so `saint-etienne` works as well as `Saint-Étienne`. Your regular expression does not care either; your **expectations** should be written the way you type, so use whichever spelling your keyboard gives you.
+The API compares city names without accents and without case, so `athens` works as well as `Athens` — and it knows a Greek city by its other spellings too, so `Athina` and `Αθήνα` are Athens. Your regular expression does not care either; your **expectations** should be written the way you type, so use whichever spelling your keyboard gives you.
 
 ---
 
@@ -425,7 +427,7 @@ Nothing in this session is new. Every idea here has a paper, and most of them ar
 | symptom | cause and fix |
 | --- | --- |
 | `ModuleNotFoundError: No module named 'pizzabot'` | you are not in the repository root; run the scripts from the folder that contains `README.md` |
-| `PizzaApiError: ... did not return JSON` | `PIZZA_API_BASE` points at something that is not the Pizza API — open <https://wse-research.org/pizza-api> to see whether the service answers at all, or start the stub and use `http://127.0.0.1:8000` |
+| `PizzaApiError: ... did not return JSON` | `PIZZA_API_BASE` points at something that is not the Pizza API — open <https://wse-research.org/pizza-api/v1> to see whether the service answers at all, or start the stub and use `http://127.0.0.1:8000` |
 | the PNG export fails | `mermaid.ink` is unreachable from the university network; use the `.mmd` file, it is the artifact that counts |
 | `UnicodeEncodeError` on Windows | `set PYTHONUTF8=1` before running |
 | the node trace floods the terminal | `LOG_LEVEL=WARNING python run_dialog.py`, or put `LOG_LEVEL=WARNING` into `.env` |

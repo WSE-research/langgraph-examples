@@ -9,7 +9,7 @@ it writes a query.
     catalog.patterns("address_v2")          # ['{DELIVER} {ADDRESS:STREET}, ...']
     catalog.instances("PIZZA")              # [rdflib.URIRef('...Margherita'), ...]
     catalog.labels(pizza)                   # ['Margarita', 'Margherita', ...]
-    catalog.part(address, "CITY")           # rdflib.URIRef('...saintEtienne')
+    catalog.part(address, "CITY")           # rdflib.URIRef('...athens')
     catalog.expected(pizza)                 # 1
     catalog.expected(address)               # {'street': ..., 'city': ...}
     catalog.servable(pizza)                 # False -> the right answer is "nothing"

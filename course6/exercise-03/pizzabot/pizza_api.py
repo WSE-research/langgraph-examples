@@ -9,12 +9,12 @@ below, never `requests` directly. That is not tidiness for its own sake:
 
 Configuration (see .env.example)::
 
-    PIZZA_API_BASE=https://wse-research.org/pizza-api   # the university service
+    PIZZA_API_BASE=https://wse-research.org/pizza-api/v3   # the university service, v3
     PIZZA_API_BASE=http://127.0.0.1:8000                # the local stub
 
-The service documents itself: open https://wse-research.org/pizza-api in a
+The service documents itself: open https://wse-research.org/pizza-api/v3 in a
 browser and you get the interactive Swagger UI for exactly these endpoints,
-with a "Try it out" button; https://wse-research.org/pizza-api/openapi.json is
+with a "Try it out" button; https://wse-research.org/pizza-api/v3/openapi.json is
 the same thing machine-readable. The local stub answers its own URL
 (http://127.0.0.1:8000) with a plain HTML version of the same list.
 
@@ -26,10 +26,10 @@ Endpoints used:
     POST /order              -> {"order_id": "...", "status": "received"}
     GET  /order/{order_id}   -> the order as stored by the API
 
-`GET /city` is the one that arrived in Iteration 3 (service version 1.2.0): the
-delivery area is every commune of France plus Leipzig, Halle and Dresden --
-about 32 700 names -- so it answers a *page*, searched with `q` and sized with
-`limit`. That is what lets a team pick its own benchmark cities from the
+`GET /city` is the one Iteration 3 works with (version v3 of the service): the
+delivery area is every commune of France and every town and village of Greece,
+plus Leipzig, Halle and Dresden -- about 43 000 names -- so it answers a *page*,
+searched with `q` and sized with `limit`. That is what lets a team pick its own benchmark cities from the
 service instead of from a list somebody wrote for them.
 """
 
@@ -40,7 +40,7 @@ from typing import Optional
 
 import requests
 
-BASE = os.environ.get("PIZZA_API_BASE", "https://wse-research.org/pizza-api").rstrip("/")
+BASE = os.environ.get("PIZZA_API_BASE", "https://wse-research.org/pizza-api/v3").rstrip("/")
 TIMEOUT = float(os.environ.get("PIZZA_API_TIMEOUT", "10"))
 
 _MENU_CACHE: Optional[list[dict]] = None
@@ -69,12 +69,13 @@ def _get(path: str) -> requests.Response:
 def _accept_everything() -> dict:
     """Test drivers only: let POST /order through for a pizza that is sold out.
 
-    Since version 1.3.0 the service marks two pizzas sold out every minute and
-    answers an order for one of them with HTTP 409. A test that orders a fixed
-    pizza would then fail whenever its pizza happens to be drawn, so the test
-    drivers (conftest.py, validate_task5.py, ...) set
-    PIZZA_API_ACCEPT_EVERYTHING=true and this adds `X-Accept-Everything: true`.
-    Read on every call, never at import. A dialog with a guest never sets it.
+    From version v5 on, the service marks two pizzas sold out every minute and
+    answers an order for one of them with HTTP 409; version v3, which this
+    exercise uses, never does. The test drivers (conftest.py, validate_task5.py)
+    set PIZZA_API_ACCEPT_EVERYTHING=true all the same, and this adds
+    `X-Accept-Everything: true` -- so that the same code keeps working when your
+    repository meets a later version. Read on every call, never at import. A
+    dialog with a guest never sets it.
     """
     if os.environ.get("PIZZA_API_ACCEPT_EVERYTHING", "").strip().lower() == "true":
         return {"X-Accept-Everything": "true"}
@@ -138,7 +139,7 @@ def cities(q: str | None = None, limit: int = 100, offset: int = 0) -> list[dict
     service folds a city in `POST /address/validate`, so anything this returns
     is something that endpoint accepts.
 
-        cities(q="saint-eti", limit=5)      # the five biggest Saint-Étienne-ish names
+        cities(q="athina", limit=5)         # Athens first -- found by another spelling
         cities(limit=1000, offset=1000)     # the second page of a thousand
     """
     query = f"?limit={int(limit)}&offset={int(offset)}"
@@ -149,9 +150,9 @@ def cities(q: str | None = None, limit: int = 100, offset: int = 0) -> list[dict
     response = _get(f"/city{query}")
     if response.status_code == 404:
         raise PizzaApiError(
-            f"GET /city -> HTTP 404. This API does not know the endpoint: it is older "
-            f"than service version 1.2.0 (2026-09-18). Update it, or use the stub: "
-            f"python pizza_api_stub.py"
+            f"GET /city -> HTTP 404. This API does not know the endpoint: PIZZA_API_BASE "
+            f"should end in /pizza-api/v3, the version this exercise uses. Fix it, or use "
+            f"the stub: python pizza_api_stub.py"
         )
     if response.status_code != 200:
         raise PizzaApiError(f"GET /city -> HTTP {response.status_code}")

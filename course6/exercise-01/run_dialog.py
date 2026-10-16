@@ -23,7 +23,7 @@ from pizzabot.state import new_state
 SCRIPT = [
     "Hello",
     "I would like a Margherita",
-    "deliver it to 5 Rue Michelet, Saint-Étienne",
+    "deliver it to 5 Ermou, Athens",
 ]
 
 

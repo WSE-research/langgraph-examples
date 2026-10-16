@@ -34,7 +34,7 @@ Randell's recovery block (IEEE TSE 1975).
 
 Run just this component:
 
-    python -m pizzabot.address_llm "number 5 in the Rue Michelet here in Saint-Étienne"
+    python -m pizzabot.address_llm "number 5 on Ermou here in Athens"
 
 Task 3a  draw the component with its two checks and its fallback before you code.
 Task 3b  implement the two TODOs below.
@@ -54,7 +54,7 @@ from pizzabot.task4_address import recognize_address        # the fallback: the 
 
 PROMPT_VERSION = "address_v1"                                # prompts/address_v1.txt
 SYSTEM = llm_service.load_prompt(PROMPT_VERSION)
-HOUSE_NUMBER = re.compile(r"\d+\s?[a-z]?")                  # 5, 12b, "12 b" -- extend it for "5 bis"
+HOUSE_NUMBER = re.compile(r"\d+\s?[a-z]?")                  # 5, 12b, "12 b" -- extend it for "5Α" (a Greek letter)
 
 # The three domain checks, named -- compare_configs.py prints this on the service card.
 DOMAIN_CHECKS = ("house-number pattern", "values copied from the input", "POST /address/validate")
@@ -76,7 +76,7 @@ class AddressModel(BaseModel):
 
 
 def fold(text: str) -> str:
-    """GIVEN. Compare without accents and without case: "saint-etienne" is "Saint-Étienne".
+    """GIVEN. Compare without accents and without case: "agia paraskevi" is "Agía Paraskeví".
 
     The model may normalise an accent the user typed (or add one the user did
     not type); the API compares cities the same way, so the copy check must too.
@@ -92,11 +92,11 @@ def plausible(address: AddressModel, text: str) -> tuple[bool, str]:
 
     TODO 1: a) the house number matches HOUSE_NUMBER completely (re.fullmatch)
                and its digits occur in the utterance
-               -> "five", "42000, Saint-Étienne" and a number the model took
+               -> "five", "10563, Athens" and a number the model took
                   from the prompt's example are rejected
             b) street and city occur in the utterance -- compare fold(value)
                in fold(text), so that accents and case do not matter
-               -> the model copied them; it did not invent Lyon for Saint-Étienne
+               -> the model copied them; it did not invent Piraeus for Athens
             c) pizza_api.validate_address(street, house_number, city) says yes
                -> the delivery area is a domain rule that only the API knows
             Return (False, "<which check, in five words>") on the first failure,
@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
     from pizzabot.state import last_message, new_state
 
-    utterance = sys.argv[1] if len(sys.argv) > 1 else "number 5 in the Rue Michelet here in Saint-Étienne"
+    utterance = sys.argv[1] if len(sys.argv) > 1 else "number 5 on Ermou here in Athens"
     result = build_graph().invoke(new_state(utterance))
     log.plain()
     log.result(f"slots : {result['slots']}")

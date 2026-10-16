@@ -52,21 +52,22 @@ def check(name: str, ok: bool, detail: str = "", fix: str = "", deferred: bool =
 
 
 def check_console_unicode() -> None:
-    """Can this console print an accented city name?
+    """Can this console print a city name in Greek script?
 
-    Every example address in the exercise is 5 Rue Michelet, Saint-Étienne. On a
-    Windows console still set to a legacy code page, printing that raises
-    UnicodeEncodeError -- and without this check it would raise for the first
-    time in Task 5, an hour into the session instead of during preparation.
+    Every example address in the exercise is 5 Ermou, Athens -- and a guest in
+    Athens may well type it as Ερμού 5, Αθήνα. On a Windows console still set to
+    a legacy code page, printing that raises UnicodeEncodeError -- and without
+    this check it would raise for the first time in Task 5, an hour into the
+    session instead of during preparation.
     """
-    probe = "Saint-Étienne"
+    probe = "Αθήνα"
     encoding = sys.stdout.encoding or "utf-8"
     try:
         probe.encode(encoding)
         check(f"the console can print {probe}", True, detail=f"encoding: {encoding}")
     except UnicodeEncodeError:
         check(
-            "the console can print Saint-Etienne with its accent", False,
+            "the console can print Athens in Greek script (Athina)", False,
             detail=f"this console encodes {encoding}",
             fix=("cmd.exe    :  set PYTHONUTF8=1\n"
                  "            PowerShell :  $env:PYTHONUTF8=1\n"
@@ -224,8 +225,8 @@ def check_llm_json() -> None:
     from pizzabot import llm_service
 
     service = llm_service.LlmService()
-    system = "Answer with a JSON object with exactly the key city. Example: {\"city\": \"Lyon\"}"
-    result = service.extract(system, "I live in Saint-Étienne")
+    system = "Answer with a JSON object with exactly the key city. Example: {\"city\": \"Piraeus\"}"
+    result = service.extract(system, "I live in Athens")
     usage = service.usage
     if result is None:
         check("LLM service: one JSON extraction", False,

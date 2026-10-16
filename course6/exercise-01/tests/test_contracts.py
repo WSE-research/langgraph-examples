@@ -58,10 +58,10 @@ def test_unknown_food_is_not_invented(utterance):
 @pytest.mark.parametrize(
     "utterance, expected",
     [
-        ("deliver it to 5 Rue Michelet, Saint-Étienne",
-         {"street": "Rue Michelet", "house_number": "5", "city": "Saint-Étienne"}),
-        ("please deliver to 12b Rue de la Paix, Lyon",
-         {"street": "Rue de la Paix", "house_number": "12b", "city": "Lyon"}),
+        ("deliver it to 5 Ermou, Athens",
+         {"street": "Ermou", "house_number": "5", "city": "Athens"}),
+        ("please deliver to 12b Akti Miaouli, Piraeus",
+         {"street": "Akti Miaouli", "house_number": "12b", "city": "Piraeus"}),
         ("Karl-Liebknecht-Strasse 132, Leipzig",
          {"street": "Karl-Liebknecht-Strasse", "house_number": "132", "city": "Leipzig"}),
     ],
@@ -70,7 +70,7 @@ def test_complete_address_is_recognized(utterance, expected):
     assert find_address(utterance) == expected
 
 
-@pytest.mark.parametrize("utterance", ["somewhere near the station", "Rue Michelet", "12b"])
+@pytest.mark.parametrize("utterance", ["somewhere near the station", "Ermou", "12b"])
 def test_incomplete_address_is_rejected(utterance):
     """Guarantee: complete or nothing -- never a half address in the slot."""
     assert find_address(utterance) is None
@@ -80,7 +80,7 @@ def test_incomplete_address_is_rejected(utterance):
 
 # ------------------------------------------------------------------ Task 5 --
 def test_router_answers_the_question_it_asked():
-    state = new_state("5 Rue Michelet, Saint-Étienne")
+    state = new_state("5 Ermou, Athens")
     state["expected"] = "address"
     assert route(state) == "address_recognition"
 
@@ -108,7 +108,7 @@ def test_form_is_silent_when_the_frame_is_full():
     state["slots"] = {
         "pizza_name": "Margherita",
         "pizza_id": 1,
-        "address": {"street": "Rue Michelet", "house_number": "5", "city": "Saint-Étienne"},
+        "address": {"street": "Ermou", "house_number": "5", "city": "Athens"},
     }
     patch = order_form(state)
     assert patch == {"expected": None}          # no question, nothing else

@@ -1,6 +1,6 @@
 # Exercise 4 — dynamic data and flexible processes
 
-Iteration 4 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, Université Jean Monnet Saint-Étienne, WS 2026/2027.
+Iteration 4 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, National and Kapodistrian University of Athens, WS 2026/2027.
 
 **Today your bot stops knowing things and starts looking them up.** Three iterations long it has filled a form: which pizza, which address, place the order. It knew exactly one thing about the world — the list of names `GET /pizza` returns — and everything else was in the code. That is fine for a demo and false for every real application, where the domain knowledge is large, **changes without asking you**, and the user cannot possibly know what is in it.
 
@@ -70,7 +70,9 @@ pip install -r requirements.txt                        # rdflib is already in it
 | `data/wikidata-links.ttl` | the links themselves, in SKOS — `exactMatch`, `closeMatch`, `relatedMatch`, or explicitly *not found* |
 | `data/pizza-data.md` | **read this when a query surprises you**: every property with its meaning, every pizza with every fact it carries, every topping |
 
-**3. A number to keep in mind.** The graph knows **22** pizzas. `GET /pizza` lists 22 too — but marks **two** of them `"available": false`, a different two every minute. That is not a bug in the data — it is what every real system looks like: the knowledge base and the thing that takes orders are two systems, and they are never exactly in step. Task 4d makes it a **test**; Iteration 5 makes it a **dialog**.
+**3. A number to keep in mind.** The graph knows **22** pizzas. `GET /pizza` lists 22 too — today. That agreement is not guaranteed by anything: the knowledge base and the thing that takes orders are two systems, and they are never exactly in step (from Iteration 5 on, version v5 of the service also marks two pizzas a minute as sold out). Task 4d makes that a **test**; Iteration 5 makes it a **dialog**.
+
+**4. Point your repository at version v4 of the Pizza API.** In your repository's `.env`, change the service line to `PIZZA_API_BASE=https://wse-research.org/pizza-api/v4`. Every exercise has its own version of the service, and a version does not change once it is published; v4 serves exactly what v3 served. `tests/conftest.py` uses v4 on its own, but `run_dialog.py` and the frontend read `.env`.
 
 ---
 
@@ -116,9 +118,10 @@ Two edits, both in the frontend, **none in your code**.
 
 ```.env
 # --- the Pizza API: the menu, the delivery area, the orders --------------
-# The university service. If it does not answer, run your own stub in a
-# second terminal (`python pizza_api_stub.py`) and use http://127.0.0.1:8000.
-PIZZA_API_BASE=https://wse-research.org/pizza-api
+# The university service, version v4 -- the one this exercise uses. If it does
+# not answer, run your own stub in a second terminal (`python pizza_api_stub.py`)
+# and use http://127.0.0.1:8000.
+PIZZA_API_BASE=https://wse-research.org/pizza-api/v4
 PIZZA_API_TIMEOUT=10
 
 # --- the LLM service: ILaaS ---------------------------------------------
@@ -168,7 +171,7 @@ On the first visit the app asks what your pizzeria is called and which of the fi
 Not "the page loaded". Three, and the third is the one the task is about.
 
 1. **The floor plan is your process model.** **Kitchen view → Floor plan** was generated from *your* compiled graph on load: your nodes, your conditional edges, your entry point, the same model you exported in Iteration 2. If it is not, you are looking at a different graph than the one you think you built.
-2. **A turn does what you predicted.** Type `I would like a Margherita`, but say out loud which nodes will run *before* you press Enter; then read **Ticket** (what actually ran, in order, with timings) and **Order pad** (your state afterwards). Finish with `5 Rue Michelet, Saint-Étienne`: a receipt with an `order_id` means your `order_placement` really called `POST /order` from inside the browser.
+2. **A turn does what you predicted.** Type `I would like a Margherita`, but say out loud which nodes will run *before* you press Enter; then read **Ticket** (what actually ran, in order, with timings) and **Order pad** (your state afterwards). Finish with `5 Ermou, Athens`: a receipt with an `order_id` means your `order_placement` really called `POST /order` from inside the browser.
 3. **Your repository did not change.** `git status` clean, `pytest -q` still green. The UI is a client of your compiled graph; if anything in `pizzabot/` had to learn that a browser exists, the coupling is in the wrong place and every later iteration pays for it.
 
 Then switch the picker to *My bot — LLM* and send the sentence again: the chips on the station cards change, the floor plan does not. That is Iteration 2's claim, on one screen.
@@ -597,7 +600,7 @@ Turn the **Kitchen view** on. For each sentence: **say out loud what will happen
 | 2 | `What is on the Hawaiian?` | **Order pad**, in order: `question.type = toppings`, `linked` = one record with `iri: "Hawaiian"`, `query` = a SPARQL string **you can read**, `rows`, `topic = ["Hawaiian"]`. Five fields, four nodes, and you can point at which node wrote which. |
 | 3 | `Which pizzas are vegetarian?` then `and which of those are without milk?` | `topic` goes 10 → **2**. That shrinking field *is* the coreference resolution, visible as data. If it goes to 3, the follow-up was answered over the whole menu. |
 | 4 | `Who invented the Rucola?` | `query` present, `rows` **empty**, and a sentence that says so. An empty result travelling all the way to a spoken refusal, with every step on screen. |
-| 5 | `I would like a Margherita` then `5 Rue Michelet, Saint-Étienne` | the Iteration 1 path, untouched: `pizza_recognition`, `address_recognition`, `order_form`, `order_placement`, `confirmation`, and a receipt with an `order_id`. Three iterations still running unchanged underneath everything you built today. |
+| 5 | `I would like a Margherita` then `5 Ermou, Athens` | the Iteration 1 path, untouched: `pizza_recognition`, `address_recognition`, `order_form`, `order_placement`, `confirmation`, and a receipt with an `order_id`. Three iterations still running unchanged underneath everything you built today. |
 
 The four tabs, in one line each: **Ticket** — *did the process do what I think it did?* **Order pad** — `question → linked → query → rows → topic` is the whole QA process as five fields, and the first of them that is wrong names the node to open. **Stations** — your docstrings and the chip the frontend guessed from your source. **Floor plan** — switch the picker to `mine-llm` and compare: **the picture must be identical**, because you added a sub-graph, not a configuration.
 

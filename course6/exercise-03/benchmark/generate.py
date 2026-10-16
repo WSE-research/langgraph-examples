@@ -139,17 +139,17 @@ def generate(catalog: Catalog, benchmark: str, n: int = 20, seed: int = 42,
     Every row is a complete, self-contained test case::
 
         {"id": "address_v2-0003",
-         "input": "Bring it to R. Michelet, no 5, St. Etienne",
+         "input": "Bring it to Ermou St., no 5, Athina",
          "benchmark": "address_v2", "pattern": "{DELIVER} {ADDRESS:STREET}, ...",
          "exercises": ["address_recognition"],
-         "expected": {"address": {"street": "Rue Michelet", ...}},   # None = must recognise nothing
-         "accepted": {"address": {"street": ["R. Michelet", "Rue Michelet", ...], ...}},
+         "expected": {"address": {"street": "Ermou", ...}},   # None = must recognise nothing
+         "accepted": {"address": {"street": ["Ermou", "Ermou St.", ...], ...}},
          "servable": true, "source": "generated", "seed": 42}
 
     `expected` is the canonical value from the graph; `accepted` lists the
     wordings that count as the same answer, because a component copies what the
-    user wrote ("R. Michelet") and the graph stores what it means ("Rue
-    Michelet"). An evaluator that ignores `accepted` measures spelling.
+    user wrote ("Ermou St.") and the graph stores what it means ("Ermou"). An
+    evaluator that ignores `accepted` measures spelling.
     """
     warn = on_warning or _default_warning
     templates = catalog.patterns(benchmark)
@@ -201,9 +201,9 @@ def _render(catalog: Catalog, template: str, rnd: random.Random) -> tuple[str, d
 def _tidy(utterance: str) -> str:
     """What a chat window would have delivered: single spaces, no space before a comma.
 
-    A wording in the catalog may carry a stray space (`"Rue Michelet "` is in
-    there on purpose, as a data-hygiene case). Rendering it must not produce
-    `"Rue Michelet , 5"` -- nobody types that, so measuring it measures nothing.
+    A wording in the catalog may carry a stray space (`"Ermou "` is in there on
+    purpose, as a data-hygiene case). Rendering it must not produce `"Ermou , 5"`
+    -- nobody types that, so measuring it measures nothing.
     """
     return " ".join(utterance.split()).replace(" ,", ",").replace(" .", ".")
 
@@ -238,8 +238,8 @@ def _case(catalog: Catalog, benchmark: str, template: str, utterance: str,
 def _accepted(catalog: Catalog, individual) -> dict | None:
     """Every wording that counts as this individual -- per field, if it has parts.
 
-    A component copies what the user wrote, so "R. Michelet" and "Rue Michelet"
-    are the same answer. A scalar value (a pizza id) has no spellings and gets
+    A component copies what the user wrote, so "Ermou St." and "Ermou" are the
+    same answer. A scalar value (a pizza id) has no spellings and gets
     None: there is nothing to be lenient about.
     """
     if not isinstance(catalog.expected(individual), dict):

@@ -44,7 +44,7 @@ Configuration -- `.env`, see `.env.example` (the names used by the course's
 Run it on its own (Task 1)::
 
     python -m pizzabot.llm_service
-    python -m pizzabot.llm_service "Answer with JSON {\"city\": <city>}" "I live in Lyon"
+    python -m pizzabot.llm_service "Answer with JSON {\"city\": <city>}" "I live in Piraeus"
     python -m pizzabot.llm_service --model no-such-model          # 404: the defined failure, no retry
     python -m pizzabot.llm_service --max-tokens 5                 # cut off: the defined failure, no retry
 
@@ -319,7 +319,7 @@ if __name__ == "__main__":
     system_prompt = args[0] if len(args) > 0 else (
         "Extract the delivery address from the message. Answer with JSON keys "
         "street, house_number, city. If a part is missing, answer {}.")
-    user_text = args[1] if len(args) > 1 else "can I order the four-cheese one to number 5 in the Rue Michelet here in Saint-Étienne?"
+    user_text = args[1] if len(args) > 1 else "can I order the four-cheese one to number 5 on Ermou here in Athens?"
 
     svc = LlmService(model=model, max_tokens=max_tokens)
     log.plain(f"service : {svc.card_lines()}")

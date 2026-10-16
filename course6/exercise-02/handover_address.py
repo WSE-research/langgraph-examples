@@ -66,7 +66,7 @@ def find_address_theirs(text: str) -> dict | None:
 # --- step 3: their validation examples --------------------------------------
 # (utterance, what THEY say should happen -- copy their expectations, not yours)
 THEIR_CASES: list[tuple[str, str]] = [
-    ("deliver it to 5 Rue Michelet, Saint-Étienne", "5 / Rue Michelet / Saint-Étienne"),
+    ("deliver it to 5 Ermou, Athens", "5 / Ermou / Athens"),
     # paste the rest here
 ]
 
@@ -74,7 +74,7 @@ THEIR_CASES: list[tuple[str, str]] = [
 def looks_the_same(got: str | None, expectation: str) -> bool:
     """Compare loosely: their expectation is free text, not a specification.
 
-    "5 / Rue Michelet / Saint-Étienne" and "5/Rue Michelet/Saint-Etienne  " mean
+    "5 / Ermou / Athens" and "5/ermou/Athens  " mean
     the same thing, and a difference in spacing is not a contract difference.
     Anything this function is unsure about lands in the "look at it together"
     pile, which is where the interesting rows belong anyway.

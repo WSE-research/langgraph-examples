@@ -33,7 +33,7 @@ def test_instances_are_the_individuals_of_a_slot_class(catalog):
 def test_part_resolves_a_qualified_slot_without_knowing_the_property(catalog):
     address = PZ.a1
     assert catalog.part(address, "STREET") == PZ.st1
-    assert catalog.part(address, "CITY") == PZ.saintEtienne
+    assert catalog.part(address, "CITY") == PZ.athens
     assert catalog.part(address, "PIZZA") is None
 
 
@@ -56,7 +56,7 @@ def test_labels_are_the_wordings_and_name_is_the_canonical_form(catalog):
 def test_expected_is_the_api_id_for_a_pizza_and_a_record_for_an_address(catalog):
     assert catalog.expected(PZ.Margherita) == 1
     assert catalog.expected(PZ.a1) == {
-        "street": "Rue Michelet", "house_number": "5", "city": "Saint-Étienne",
+        "street": "Ermou", "house_number": "5", "city": "Athens",
     }
 
 

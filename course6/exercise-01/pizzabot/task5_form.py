@@ -70,7 +70,7 @@ REQUIRED = ["pizza_name", "address"]
 
 QUESTIONS = {
     "pizza_name": "Which pizza would you like? Our menu: {menu}.",
-    "address": "Where should we deliver? Street, house number and city, for example: 5 Rue Michelet, Saint-Étienne.",
+    "address": "Where should we deliver? Street, house number and city, for example: 5 Ermou, Athens.",
 }
 REPEAT = "Sorry, I did not get that. "
 

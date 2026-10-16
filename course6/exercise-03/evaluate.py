@@ -29,8 +29,8 @@ Both are written into the result file, next to the seed and the date, so no
 number in `results/` is ever orphaned from the run that produced it.
 
 Scoring is deliberately simple and deliberately lenient in exactly one way: a
-component *copies* what the user wrote ("R. Michelet"), the graph stores what it
-means ("Rue Michelet"), and both count as right. Every other difference is a
+component *copies* what the user wrote ("Ermou St."), the graph stores what it
+means ("Ermou"), and both count as right. Every other difference is a
 miss. See `score()` -- it is twelve lines, and you should read them before you
 believe any number this script prints.
 """
@@ -81,7 +81,7 @@ METHODS: dict[str, dict] = {
 
 
 def fold(text) -> str:
-    """Compare without accents, case or stray spaces: "St. Etienne" ~ "St. Étienne"."""
+    """Compare without accents, case or stray spaces: "Agia Paraskevi" ~ "Agía Paraskeví"."""
     stripped = unicodedata.normalize("NFKD", str(text))
     return " ".join("".join(c for c in stripped if not unicodedata.combining(c)).split()).casefold()
 

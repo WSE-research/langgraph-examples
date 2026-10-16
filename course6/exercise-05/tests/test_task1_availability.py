@@ -5,8 +5,8 @@ Run it::
     pytest -q tests/test_task1_availability.py
     pytest -q -m gate tests/test_task1_availability.py
 
-**These tests do not depend on the minute they run in.** Since version 1.3.0
-the Pizza API marks two pizzas `"available": false` every minute, at random. So
+**These tests do not depend on the minute they run in.** In version v5 the
+Pizza API marks two pizzas `"available": false` every minute, at random. So
 every test here first pins that draw (`the_kitchen_has_everything`: the live
 menu, every pizza available) and then makes exactly the pizza it needs sold out
 -- with `SOLD_OUT`, or with the service's own flag. One test does the opposite
@@ -125,7 +125,7 @@ def test_the_live_draw_is_honoured(monkeypatch):
         except Exception as error:                  # no network, API down
             pytest.skip(f"the Pizza API does not answer: {error}")
         if not before:
-            pytest.skip("GET /pizza has no sold-out pizza -- a service older than 1.3.0")
+            pytest.skip("GET /pizza has no sold-out pizza -- PIZZA_API_BASE is not version v5")
         answers = {name: availability.is_available(name) for name in before}
         after = {p["name"] for p in LIVE_MENU(True) if p.get("available") is False}
         if before == after:

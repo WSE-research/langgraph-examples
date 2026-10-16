@@ -9,12 +9,12 @@ below, never `requests` directly. That is not tidiness for its own sake:
 
 Configuration (see .env.example)::
 
-    PIZZA_API_BASE=https://wse-research.org/pizza-api   # the university service
+    PIZZA_API_BASE=https://wse-research.org/pizza-api/v2   # the university service, v2
     PIZZA_API_BASE=http://127.0.0.1:8000                # the local stub
 
-The service documents itself: open https://wse-research.org/pizza-api in a
+The service documents itself: open https://wse-research.org/pizza-api/v2 in a
 browser and you get the interactive Swagger UI for exactly these endpoints,
-with a "Try it out" button; https://wse-research.org/pizza-api/openapi.json is
+with a "Try it out" button; https://wse-research.org/pizza-api/v2/openapi.json is
 the same thing machine-readable. The local stub answers its own URL
 (http://127.0.0.1:8000) with a plain HTML version of the same list.
 
@@ -33,7 +33,7 @@ from typing import Optional
 
 import requests
 
-BASE = os.environ.get("PIZZA_API_BASE", "https://wse-research.org/pizza-api").rstrip("/")
+BASE = os.environ.get("PIZZA_API_BASE", "https://wse-research.org/pizza-api/v2").rstrip("/")
 TIMEOUT = float(os.environ.get("PIZZA_API_TIMEOUT", "10"))
 
 _MENU_CACHE: Optional[list[dict]] = None
@@ -62,12 +62,13 @@ def _get(path: str) -> requests.Response:
 def _accept_everything() -> dict:
     """Test drivers only: let POST /order through for a pizza that is sold out.
 
-    Since version 1.3.0 the service marks two pizzas sold out every minute and
-    answers an order for one of them with HTTP 409. A test that orders a fixed
-    pizza would then fail whenever its pizza happens to be drawn, so the test
-    drivers (conftest.py, validate_task5.py, ...) set
-    PIZZA_API_ACCEPT_EVERYTHING=true and this adds `X-Accept-Everything: true`.
-    Read on every call, never at import. A dialog with a guest never sets it.
+    From version v5 on, the service marks two pizzas sold out every minute and
+    answers an order for one of them with HTTP 409; version v2, which this
+    exercise uses, never does. The test drivers (conftest.py, validate_task5.py)
+    set PIZZA_API_ACCEPT_EVERYTHING=true all the same, and this adds
+    `X-Accept-Everything: true` -- so that the same code keeps working when your
+    repository meets a later version. Read on every call, never at import. A
+    dialog with a guest never sets it.
     """
     if os.environ.get("PIZZA_API_ACCEPT_EVERYTHING", "").strip().lower() == "true":
         return {"X-Accept-Everything": "true"}

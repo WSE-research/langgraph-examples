@@ -6,7 +6,7 @@ The Diavola is Calabrian in spirit and comes to us from Spilinga, a village on t
 
 Spilinga sits above the sea on the Monte Poro plateau and holds a festival for its chilli sausage every August. The recipe here is not the village's — theirs is spread on bread, not baked — but the balance of heat to fat is copied from it directly, and Mario has never claimed the idea was his.
 
-Spilinga is nine hours by road from here, and the sausage on this pizza is not from there: it is made in Lyon by a butcher from Reggio Calabria who cures to his grandmother's recipe and sells to four restaurants. Mario found him through a guest who overheard the kitchen arguing about a delivery, which is how half the suppliers in this book were found.
+Spilinga is a ferry crossing and a long drive from here, and the sausage on this pizza is not from there: it is made in Thessaloniki by a butcher from Reggio Calabria who cures to his grandmother's recipe and sells to four restaurants. Mario found him through a guest who overheard the kitchen arguing about a delivery, which is how half the suppliers in this book were found.
 
 ## What the creator had in mind
 

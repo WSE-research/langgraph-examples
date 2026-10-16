@@ -7,6 +7,6 @@ Task: read the customer's message and return the delivery address in it.
 Output: a JSON object with exactly the keys postcode, city.
 Constraint: copy the values from the message; never invent or complete a part.
 If any part is missing: answer {} -- the process will ask the customer.
-Example: "to 42000 Saint-Étienne" -> {"postcode": "42000", "city": "Saint-Étienne"}
-Example: "to Lyon, 69001" -> {"postcode": "69001", "city": "Lyon"}
-Example: "deliver to Saint-Étienne" -> {}
+Example: "to 10563 Athens" -> {"postcode": "10563", "city": "Athens"}
+Example: "to Piraeus, 18535" -> {"postcode": "18535", "city": "Piraeus"}
+Example: "deliver to Athens" -> {}

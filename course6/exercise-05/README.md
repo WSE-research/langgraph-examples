@@ -1,6 +1,6 @@
 # Exercise 5 — a process that repairs itself, and explains itself
 
-Iteration 5 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, Université Jean Monnet Saint-Étienne, WS 2026/2027.
+Iteration 5 of *Engineering AI-Driven Software Processes — Hands-on KGQA with LangGraph and LLMs*, National and Kapodistrian University of Athens, WS 2026/2027.
 
 **Everything today is an extension of what you built in Iteration 4.** No new repository, no new graph, no rewrite: you take the process that answers factoid questions correctly and give it the two things Lecture 5 says it still lacks.
 
@@ -49,7 +49,9 @@ cp tests/*.py        my-pizzabot/tests/
 cd my-pizzabot && python -m pizzabot.kb --selftest      # 19/19 green
 ```
 
-`tests/conftest.py` and `tests/bot_helpers.py` are the same two files as in Iteration 4; copying them again is harmless.
+`tests/bot_helpers.py` is the same file as in Iteration 4; `tests/conftest.py` differs in one line — it names version v5 of the Pizza API — so copy it again.
+
+**Point your repository at version v5 of the Pizza API.** In your repository's `.env`, change the service line to `PIZZA_API_BASE=https://wse-research.org/pizza-api/v5`. Version v5 is the first in which pizzas sell out — the case Task 1 is about. Every exercise has its own version, and a version does not change once it is published.
 
 ---
 
@@ -82,7 +84,7 @@ python -c "from pizzabot import pizza_api; m = pizza_api.menu(refresh=True); pri
 python -c "from pizzabot import kb; print(len(kb.all_pizzas()), 'in the graph')"                # 22
 ```
 
-Run the first line twice, a minute apart. `GET /pizza` lists all 22 pizzas, and since version 1.3.0 of the Pizza API every entry carries `"available": true` or `false`: **two pizzas are sold out every minute**, drawn at random, the same two for every request within that minute (the headers `X-Availability-Minute` and `X-Availability-Valid-Until` say which minute an answer belongs to). The graph says what a pizza *is* — it carries `pz:available` on the lecture slides, but the value that counts is the service's. The service says whether you can *have* it, now. Two systems, two answers, and neither is wrong.
+Run the first line twice, a minute apart. `GET /pizza` lists all 22 pizzas, and in version v5 of the Pizza API every entry carries `"available": true` or `false`: **two pizzas are sold out every minute**, drawn at random, the same two for every request within that minute (the headers `X-Availability-Minute` and `X-Availability-Valid-Until` say which minute an answer belongs to). The graph says what a pizza *is* — it carries `pz:available` on the lecture slides, but the value that counts is the service's. The service says whether you can *have* it, now. Two systems, two answers, and neither is wrong.
 
 This goes in a new `pizzabot/availability.py` and **not** in `kb.py`: `kb.py` talks to the graph and to nothing else, and the moment it imports `pizza_api` you have glued the knowledge base to the order service and you can no longer swap either one.
 
@@ -349,6 +351,8 @@ git clone https://github.com/WSE-research/pizzabot.git
 cd pizzabot && cp .env-example .env       # point the app entries at your own graph
 streamlit run streamlit_chat.py
 ```
+
+In that `.env`, set `PIZZA_API_BASE=https://wse-research.org/pizza-api/v5` — the version with sold-out pizzas, without which the repair of Task 1 never shows up by itself.
 
 The frontend is implementation-agnostic: it loads *your* graph, draws it from your node and edge definitions, and shows your bot's own explanation in the **What happened** tab when your implementation exposes `what_happened(target)` — which, since Task 2, it does.
 

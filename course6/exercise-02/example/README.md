@@ -18,7 +18,7 @@ cp .env.example .env                     # if you have not done it yet
 # then edit .env: OPENAI_API_KEY=<the key from the lecture hall>
 python example/simple_bot.py --interactive   # you type the sentences -- start here
 python example/simple_bot.py             # four sentences through both nodes
-python example/simple_bot.py "one Diavola to 42000 Saint-Étienne"
+python example/simple_bot.py "one Diavola to 10563 Athens"
 ```
 
 You should see the pizza recognised by the rule, the address recognised by the model, and a usage line at the end with the latency and the token counts. If it says "No key in .env", the key is missing or the line in `.env` is misspelled; `python check_setup.py` says which.

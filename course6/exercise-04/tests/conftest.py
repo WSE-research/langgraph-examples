@@ -23,10 +23,17 @@ Both configurations, same files, same cases::
 
 import os
 
-# The tests order fixed pizzas, and since Pizza API 1.3.0 two pizzas are sold out
-# every minute (POST /order answers 409). A test driver opts out of that draw with
-# the header X-Accept-Everything: true, which pizzabot/pizza_api.py sends when this
-# is set -- so a result does not depend on the minute the suite runs in.
+# The Pizza API version of Iteration 4: v4, the version this exercise was written
+# for -- unless PIZZA_API_BASE is already set (to the stub, say). Set here, before
+# `pizzabot` is imported, it also wins over the older version your `.env` may
+# still name: load_dotenv() never overrides a variable that is already set.
+os.environ.setdefault("PIZZA_API_BASE", "https://wse-research.org/pizza-api/v4")
+
+# Should a test order a pizza: version v4 never sells out, but from v5 on two
+# pizzas are sold out every minute (POST /order answers 409). A test driver opts
+# out of that draw with the header X-Accept-Everything: true, which
+# pizzabot/pizza_api.py sends when this is set -- so a result never depends on
+# the minute, whichever version it meets.
 os.environ.setdefault("PIZZA_API_ACCEPT_EVERYTHING", "true")
 
 import pytest
