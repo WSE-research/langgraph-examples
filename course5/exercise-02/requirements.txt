@@ -1,0 +1,18 @@
+# Exercise 2 -- the Iteration 1 stack plus the schema check. The LLM is reached
+# through the OpenAI-compatible client that Iteration 1 installed for Task 8.
+#
+#   python3 -m venv .venv
+#   source .venv/bin/activate        # Windows: .venv\Scripts\activate
+#   pip install -r requirements.txt
+#
+# Versions are pinned so that every machine in the room behaves the same way.
+# Verified together on 2026-09-12 with Python 3.11.
+
+langgraph==1.2.11          # the process framework: state, nodes, edges, compile
+langchain-core==1.6.2      # message types (AIMessage) used in the state
+requests==2.34.2           # the Pizza API client
+python-dotenv==1.2.3       # read .env, so no key ever lands in the repository
+openai==3.13.0             # the OpenAI-compatible ILaaS endpoint
+pydantic==2.13.5           # the schema check at the contract boundary (Tasks 2 and 3)
+grandalf==0.8              # optional: ASCII rendering of the graph, works offline
+pytest==9.1.1              # the component tests, now run in both configurations

@@ -1,0 +1,9 @@
+# The patterns of one benchmark. ?benchmark is bound by the caller.
+PREFIX tg: <http://example.org/testgen/>
+
+SELECT ?pattern ?template
+WHERE {
+  ?pattern a tg:Pattern ;
+           tg:benchmark ?benchmark ;
+           tg:template  ?template .
+}
