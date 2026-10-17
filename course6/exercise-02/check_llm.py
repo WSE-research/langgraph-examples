@@ -1,21 +1,25 @@
 """Task 8 -- is the LLM endpoint reachable, and does it answer?
 
     python check_llm.py                    # three checks against the endpoint
-    python check_llm.py --model gemma-4-31b
+    python check_llm.py --model <a name>   # try another model the endpoint offers
 
 Iteration 1 does not use an LLM: every component you build today is a rule.
 This check exists so that the *infrastructure* is proven working before
 Iteration 2 depends on it -- finding out that a key is wrong costs five minutes
 today and half a session next week.
 
-Configuration -- put it in .env (see .env.example)::
+Configuration -- put it in .env (see .env.example). All three values are
+provided on-site, independently of this repository::
 
-    OPENAI_API_BASE=https://llm.ilaas.fr/v1     # ILaaS inference service
-    OPENAI_API_KEY=<the key you were given>
-    MODEL_NAME=mistral-small-4-119b
+    OPENAI_API_BASE=<provided on-site>          # an OpenAI-compatible endpoint
+    OPENAI_API_KEY=<provided on-site>           # its access code
+    MODEL_NAME=<provided on-site>               # one of the models it offers
 
-Both services of ILaaS speak the OpenAI wire protocol, which is why the
-official `openai` package can talk to them: an OpenAI-compatible endpoint is a
+Without MODEL_NAME this script still lists the models the endpoint offers, and
+asks you to put the one you were given into .env -- it never picks one itself.
+
+The endpoint speaks the OpenAI wire protocol, which is why the official
+`openai` package can talk to it: an OpenAI-compatible endpoint is a
 *contract*, and several providers implement it. That is the same idea as the
 Pizza API stub -- and, in Iteration 2, the reason an LLM can step into a
 component without the process noticing.
@@ -33,8 +37,6 @@ import time
 
 from pizzabot import log          # the log layer: no script here calls print()
 
-DEFAULT_BASE = "https://llm.ilaas.fr/v1"
-DEFAULT_MODEL = "mistral-small-4-119b"
 
 # A question with exactly one short, checkable answer -- so the check is a check
 # and not a vibe.
@@ -42,8 +44,14 @@ QUESTION = "What is the capital of Greece? Answer with the city name only."
 EXPECTED = "athens"
 
 
+def setting(name: str) -> str:
+    """A setting, or "" when it is unset or still the `<placeholder>` of .env.example."""
+    value = (os.environ.get(name) or "").strip()
+    return "" if value.startswith("<") else value
+
+
 def config() -> tuple[str, str, str]:
-    """Read the endpoint configuration; ILaaS names work as a fallback."""
+    """Read the endpoint configuration from .env and the environment."""
     try:
         from dotenv import load_dotenv
 
@@ -51,9 +59,7 @@ def config() -> tuple[str, str, str]:
     except ImportError:
         log.warn("python-dotenv is not installed -- reading real environment variables only")
 
-    base = os.environ.get("OPENAI_API_BASE") or os.environ.get("ILAAS_INFERENCE_BASE_URL") or DEFAULT_BASE
-    key = os.environ.get("OPENAI_API_KEY") or os.environ.get("ILAAS_API_KEY") or ""
-    model = os.environ.get("MODEL_NAME") or os.environ.get("ILAAS_CHAT_MODEL") or DEFAULT_MODEL
+    base, key, model = setting("OPENAI_API_BASE"), setting("OPENAI_API_KEY"), setting("MODEL_NAME")
     if "--model" in sys.argv:
         model = sys.argv[sys.argv.index("--model") + 1]
     return base.rstrip("/"), key, model
@@ -61,14 +67,15 @@ def config() -> tuple[str, str, str]:
 
 def main() -> None:
     base, key, model = config()
-    log.plain(f"endpoint : {base}")
-    log.plain(f"model    : {model}")
+    log.plain(f"endpoint : {base or 'NOT SET'}")
+    log.plain(f"model    : {model or 'NOT SET'}")
     log.plain(f"key      : {'set (' + key[:4] + '...' + key[-2:] + ')' if key else 'NOT SET'}")
     log.plain()
 
-    if not key or key.strip().startswith("<"):
-        log.fail("no API key -- .env still has the placeholder of .env.example, or no .env at all")
-        log.hint("copy .env.example to .env and paste the key you were given")
+    unset = [name for name, value in (("OPENAI_API_BASE", base), ("OPENAI_API_KEY", key)) if not value]
+    if unset:
+        log.fail(f"not configured: {' and '.join(unset)} -- .env still has the placeholder of .env.example, or no .env at all")
+        log.hint("copy .env.example to .env and fill in the endpoint and its access code -- both are provided on-site")
         sys.exit(1)
 
     try:
@@ -89,6 +96,10 @@ def main() -> None:
         sys.exit(1)
     log.ok(f"the endpoint offers {len(models)} models", ", ".join(models))
 
+    if not model:
+        log.fail("MODEL_NAME is not set", "a model is chosen, never guessed")
+        log.hint("put the model name you were given into .env (MODEL_NAME=...) -- it is one of the names above")
+        sys.exit(1)
     if model not in models:
         log.warn(f"your MODEL_NAME {model!r} is not in that list -- pick one of the names above")
 

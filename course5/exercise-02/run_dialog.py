@@ -22,9 +22,7 @@ from pizzabot.state import new_state
 
 # The walkthrough from Lecture 1, Part C -- and from Lecture 2, Part C.
 SCRIPT = [
-    "Hello",
-    "I would like a Margherita",
-    "deliver it to 5 Ermou, Athens",
+    "I would like to order a Margherita, delivered to 5 Ermou, Athens",
 ]
 SCRIPT_LLM = [
     "Hello",
@@ -41,7 +39,8 @@ def main() -> None:
     graph = build_graph(config.implementations(configuration))
     log.step(f"configuration: {configuration}")
     if configuration == config.LLM and not llm_service.configured():
-        log.warn("no API key in .env -- every LLM call will fall back to the rule")
+        log.warn(f"the LLM endpoint is not configured ({', '.join(llm_service.missing())} missing in .env) "
+                 "-- every LLM call will fall back to the rule")
     state = new_state()
     scripted = iter(SCRIPT_LLM if configuration == config.LLM else SCRIPT) if "--script" in sys.argv else None
     spoken = 0
@@ -53,7 +52,7 @@ def main() -> None:
             except StopIteration:
                 log.plain()
                 log.warn("script exhausted -- the dialog did not finish"
-                         + ("; without a key the rule cannot parse the lecture "
+                         + ("; without the LLM endpoint the rule cannot parse the lecture "
                             "sentence, so the form keeps asking"
                             if configuration == config.LLM and not llm_service.configured() else ""))
                 break

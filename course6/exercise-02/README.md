@@ -12,7 +12,7 @@ Iteration 2 of *Engineering AI-Driven Software Processes — Hands-on KGQA with 
 2. `pizzabot/address_llm.py` and `pizzabot/pizza_llm.py` implemented; `python -m pizzabot.address_llm "…"` prints a `tier` line with a reason, and `compare_configs.py --address` shows `[llm]` in at least one row (under load the fallback may answer — that is the design working, not failing).
 3. `python run_dialog.py --llm --script` completes an order and prints an order id — and `python run_dialog.py --script` still does.
 4. `example/` extended: the address node returns four fields, `recognize_pizza_name` is the cascade exact → similar → model, and `python -m pytest -q example/example_tests.py` is green — a threshold on both value tests, and the tier test exact.
-5. `tests/test_recognizers.py` written: five cases per component, the two rule tests at 5 of 5, the two threshold tests above `THRESHOLD`, and no skip left in `pytest -q tests/test_recognizers.py -rs`.
+5. `tests/test_recognizers.py` written: five cases per component, the two rule tests at 5 of 5, the two threshold tests at or above `THRESHOLD`, and no skip left in `pytest -q tests/test_recognizers.py -rs`.
 6. `pytest -q` — green in **both** configurations: the last line says `static: 19 passed | llm: 19 passed | not parametrized: 31 passed` (69 in total with five cases per component), and `test_graph_uses_the_injected_implementation` passes (`pytest -v` shows the `[static-…]` and `[llm-…]` ids).
 7. `python demo_visualize.py --both` prints `IDENTICAL`; both `.mmd` files committed.
 8. `python adversarial.py` with the three utterances you received, in both configurations; every broken promise fixed in the component, with a test that keeps it fixed.
@@ -20,17 +20,17 @@ Iteration 2 of *Engineering AI-Driven Software Processes — Hands-on KGQA with 
 
 Nothing in this iteration is handed in as prose. The questions the tasks ask you are still the point — answer them in your team, out loud, and bring the two or three that surprised you to the closing round — but the deliverable is always running code, a test, or a number the scripts printed.
 
-The **preparation** below happens right after the lecture, before the break. The tasks are timed for the 90-minute session that follows; the minutes count from the start of your own work, after the briefing. Tasks 1–7 add up to 76 minutes; the briefing at the start and the closing round at the end take the rest, so there is no hidden reserve. If you fall behind, shorten Task 4 (the pizza component is the address component again, with one field) — never Task 7. Something red? The troubleshooting table is right after Task 7.
+The **preparation** below happens right after the lecture, before the break. The tasks are timed for the 90-minute session that follows; the minutes count from the start of your own work, after the briefing. Tasks 1–7 add up to 78 minutes; the briefing at the start and the closing round at the end take the rest, so there is no hidden reserve. If you fall behind, shorten Task 4 (the pizza component is the address component again, with one field) — never Task 7. Something red? The troubleshooting table is right after Task 7.
 
 | | task | minutes | you are done when |
 | --- | --- | --- | --- |
 | ☐ | 1 — the service on its own | 0–6 | `.env` works, and the three runs of the adapter behaved as the task predicts |
-| ☐ | 2 — the tests, before the implementation | 6–26 | the example extended three times and green; `pytest -q tests/test_recognizers.py -rs` — no skips left |
-| ☐ | 3 — address recognition, LLM-backed | 26–39 | `compare_configs.py --address` shows `[llm]` in the first column |
-| ☐ | 4 — pizza recognition, LLM-backed | 39–48 | `compare_configs.py --pizza` shows `[llm]` in the first column |
-| ☐ | 5 — one graph, two configurations | 48–58 | `pytest -q` green in both configurations, `--both` prints `IDENTICAL`, **commit** |
-| ☐ | 6 — the measured difference and the service card | 58–64 | `compare_configs.py` run for both components, and you can say the two numbers |
-| ☐ | 7 — the adversarial round | 64–76 | `adversarial.py` runs both configurations; every broken promise fixed in the component |
+| ☐ | 2 — the tests, before the implementation | 6–28 | the example extended three times and green; `pytest -q tests/test_recognizers.py -rs` — no skips left |
+| ☐ | 3 — address recognition, LLM-backed | 28–41 | `compare_configs.py --address` shows `[llm]` in the first column |
+| ☐ | 4 — pizza recognition, LLM-backed | 41–50 | `compare_configs.py --pizza` shows `[llm]` in the first column |
+| ☐ | 5 — one graph, two configurations | 50–60 | `pytest -q` green in both configurations, `--both` prints `IDENTICAL`, **commit** |
+| ☐ | 6 — the measured difference and the service card | 60–66 | `compare_configs.py` run for both components, and you can say the two numbers |
+| ☐ | 7 — the adversarial round | 66–78 | `adversarial.py` runs both configurations; every broken promise fixed in the component |
 
 ---
 
@@ -43,18 +43,18 @@ The **preparation** below happens right after the lecture, before the break. The
 | **complete** — `pytest -q` was green and `run_dialog.py --script` placed an order | clone this material somewhere *outside* your repository, copy the files in the two lists below into your repository, and keep everything else as it is. Your own tests in `tests/test_contracts.py` stay: the Iteration 2 tests are a new file |
 | **not complete** | start from this folder: it contains the complete static bot (the reference solution of Iteration 1), so an unfinished Iteration 1 does not block you today. Read `pizzabot/task4_address.py` before Task 3 — it is the rule your LLM component will call when the model fails |
 
-New files: `pizzabot/llm_service.py`, `pizzabot/config.py`, `pizzabot/log.py`, `pizzabot/address_llm.py`, `pizzabot/pizza_llm.py`, `prompts/`, `example/`, `tests/test_both_configurations.py`, `tests/test_recognizers.py`, `compare_configs.py`, `adversarial.py`.
-Changed files (safe to overwrite, you did not write them): `pizzabot/graph.py`, `pizzabot/trace.py`, `pizzabot/pizza_api.py`, `pizzabot/task3_pizza.py`, `pizzabot/task4_address.py`, `run_dialog.py`, `demo_visualize.py`, `check_setup.py`, `check_llm.py`, `validate_task3.py`, `validate_task4.py`, `validate_task5.py`, `handover_address.py`, `demo_hello_graph.py`, `pizza_api_stub.py`, `adversarial.py`, `conftest.py`, `requirements.txt`, `.env.example`, `README.md`. Most of them changed for one reason only: they no longer call `print()` (see the glossary row **log layer**). The process model itself does not change today, and nothing in this iteration is handed in as prose — leave your `docs/process-model.md` from Iteration 1 as it is.
+New files: `pizzabot/llm_service.py`, `pizzabot/config.py`, `pizzabot/log.py`, `pizzabot/address_llm.py`, `pizzabot/pizza_llm.py`, `prompts/`, `example/`, `tests/test_both_configurations.py`, `tests/test_recognizers.py`, `compare_configs.py`, `adversarial.py`, `data/cities.tsv.gz` (the delivery area of v2, so that the local stub answers like the service).
+Changed files (safe to overwrite, you did not write them): `pizzabot/graph.py`, `pizzabot/trace.py`, `pizzabot/pizza_api.py`, `run_dialog.py`, `demo_visualize.py`, `check_setup.py`, `check_llm.py`, `validate_task3.py`, `validate_task4.py`, `validate_task5.py`, `handover_address.py`, `demo_hello_graph.py`, `pizza_api_stub.py`, `conftest.py`, `requirements.txt`, `.env.example`, `README.md`. Most of them changed for one reason only: they no longer call `print()` (see the glossary row **log layer**). Your own `pizzabot/task3_pizza.py`, `pizzabot/task4_address.py` and `pizzabot/task5_form.py` stay: they are your Iteration 1 work, and the fallback of today's components. Ours differ from yours only in the `__main__` block at the end, which now logs instead of printing — copy that block over if you like. The process model itself does not change today, and nothing in this iteration is handed in as prose — leave your `docs/process-model.md` from Iteration 1 as it is.
 
 ```bash
 git clone https://github.com/WSE-research/langgraph-examples.git     # both rows (row 1: outside your repository)
 cd langgraph-examples/course6/exercise-02                            # row 2 only; row 1: cd into your own repository after copying
 python3 -m venv .venv && source .venv/bin/activate                   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt                                      # both rows: adds pydantic
-cp .env.example .env                                                 # both rows, then paste the key from Iteration 1, Task 8
+cp .env.example .env                                                 # both rows, then the three LLM lines (provided on-site)
 ```
 
-**2. The key.** `.env` needs `OPENAI_API_KEY` — the ILaaS key you were given in Iteration 1 (Task 8). `OPENAI_API_BASE` and `MODEL_NAME` are already right in `.env.example`. Never commit `.env`; it is in `.gitignore`. Task 1a goes through the file line by line; here you only need the key pasted, so that the check in step 3 can reach the model.
+**2. The LLM endpoint.** `.env` needs three values that are provided on-site, independently of this repository: the endpoint (`OPENAI_API_BASE`), its access code (`OPENAI_API_KEY`) and the model name (`MODEL_NAME`) — the ones that worked in Iteration 1, Task 8. `.env.example` has a placeholder for each and no default, so nothing is sent to a service nobody chose. Never commit `.env`; it is in `.gitignore`. Task 1a goes through the file line by line; here you only need the three values pasted, so that the check in step 3 can reach the model.
 
 **3. Check the machine.**
 
@@ -64,7 +64,7 @@ python check_setup.py
 
 Nineteen checks: the Iteration 1 ones, plus `pydantic`, the two prompt files and both configurations. The one that matters today is the last: one real JSON extraction through the LLM service. It prints the latency, the token counts, and whether the answer came inside triple-backtick fences. The endpoint check that was marked `[todo]` in Iteration 1 must now be `[ok]`. If the Pizza API is not reachable, the local stub still works: `python pizza_api_stub.py` in a second terminal and `PIZZA_API_BASE=http://127.0.0.1:8000` in `.env`.
 
-**This exercise uses version v2 of the Pizza API, `PIZZA_API_BASE=https://wse-research.org/pizza-api/v2`** — that is the line in `.env.example`. If you carried your `.env` over from Iteration 1, change `/v1` to `/v2` in it: v2 serves the full menu of twenty-two pizzas, which the LLM-backed recognizer reads into its prompt, and the full delivery area. Every exercise has its own version, and a version does not change once it is published.
+**This exercise uses version v2 of the Pizza API, and the version is in the adapter, not in `.env`.** This iteration's `pizzabot/pizza_api.py` uses <https://wse-research.org/pizza-api/v2> by itself: take it from this folder — it replaces the adapter of Iteration 1, which you never edited — and delete any `PIZZA_API_BASE` line an earlier iteration left in your `.env`. `PIZZA_API_BASE` is for the local stub only; a line that names another version of the service is ignored, and the adapter says so on its first request. v2 serves the full menu of twenty-two pizzas, which the LLM-backed recognizer reads into its prompt, and the full delivery area. Every exercise has its own version, and a version does not change once it is published.
 
 Then run the test suite once, now, with nothing implemented yet:
 
@@ -98,7 +98,7 @@ Eleven words this sheet and the code use constantly, on top of the Iteration 1 g
 | **seam** | the one place where an implementation can be swapped without editing the code around it (Feathers 2004) — here the dictionary in `pizzabot/config.py` that `build_graph` receives. |
 | **output schema** | the shape the model's answer must have (which keys, which types). Checked on our side with `pydantic`, whatever the model promised. Not to be confused with the *state type* of Iteration 1. |
 | **domain check** | a rule that checks the *meaning* of a schema-valid answer: the pizza is on the menu, the house number is a number, the address is in the delivery area. The delivery area is the service's, not yours: in version v2 of the service it is every commune of France and every town and village of Greece, plus Leipzig, Halle and Dresden, and `GET /city` lists it — so a city outside it has to be one from elsewhere (the tests use Barcelona). |
-| **tier** | who answered: `[llm]` (the service answered and passed every check) or `[static]` (a check failed or the service failed, and the Iteration 1 rule decided). Recorded in the trace by `trace.tier()`. In the lecture's numbering `llm` is tier 1 and `static` is tier 3; the repair prompt (tier 2) is not built today — it is the last item under "If you still have time". Not the French *tiers*. |
+| **tier** | who answered: `[llm]` (the service answered and passed every check) or `[static]` (a check failed or the service failed, and the Iteration 1 rule decided). Recorded in the trace by `trace.tier()`. In the lecture's numbering `llm` is tier 1 and `static` is tier 3; the repair prompt (tier 2) is not built today — it is the last item under "If you still have time". |
 | **fallback** | the Iteration 1 rule, called whenever the LLM path gives up. It is not dead code: it is the guaranteed minimum quality of the component. |
 | **threshold** | the rate a method has to reach over its test cases to count as working: `rate >= THRESHOLD`. Needed by every method whose answer is *approximate* — an LLM call, but a similarity function just as much — because such a method has no guaranteed right answer per case. A decision with a date and an owner, not a constant. |
 | **log layer** | `pizzabot/log.py`: the one place in this repository that writes to the screen. Nothing calls `print()`. Every line is written with the **role** it plays — `log.step`, `log.ok`, `log.fail`, `log.warn`, `log.result`, `log.say` — and the role decides the colour. Two channels: *report* (results, always shown) and *trace* (the node log, silenced by `LOG_LEVEL=WARNING`). |
@@ -130,23 +130,26 @@ copy .env.example .env              # Windows, cmd.exe
 Copy-Item .env.example .env         # Windows, PowerShell
 ```
 
-Then open `.env` and change **one line** — `OPENAI_API_KEY`. Paste the ILaaS key you were given in Iteration 1, Task 8, raw: no quotes, no spaces, no angle brackets left over.
+Then open `.env` and change **three lines** — `OPENAI_API_BASE`, `OPENAI_API_KEY` and `MODEL_NAME`. Paste the endpoint, the access code and the model name you were given on-site, raw: no quotes, no spaces, no angle brackets left over.
 
 ```diff
-- OPENAI_API_KEY=<the key you were given in the exercise session>
+- OPENAI_API_BASE=<provided on-site>
++ OPENAI_API_BASE=https://llm.example.org/v1
+- OPENAI_API_KEY=<provided on-site>
 + OPENAI_API_KEY=1234abcd-....
+- MODEL_NAME=<provided on-site>
++ MODEL_NAME=the-model-you-were-given
 ```
 
 Every other line in the file is already correct for this exercise. The ones worth knowing before you run anything:
 
 | variable | why it is set the way it is |
 | --- | --- |
-| `OPENAI_API_BASE=https://llm.ilaas.fr/v1` | the ILaaS inference gateway. It speaks the OpenAI protocol, which is why the OpenAI client library works against it unchanged — the variable is called `OPENAI_` because that is the name the *client* reads, not because anything here talks to OpenAI. |
-| `MODEL_NAME=mistral-small-4-119b` | pinned on purpose. A different model is a different implementation and has to be re-measured (Task 6); `.env.example` lists the alternatives that were verified to work. |
+| `OPENAI_API_BASE` | the LLM endpoint provided on-site. It speaks the OpenAI protocol, which is why the OpenAI client library works against it unchanged — the variable is called `OPENAI_` because that is the name the *client* reads, not because anything here talks to OpenAI. |
+| `MODEL_NAME` | provided with the endpoint, and pinned on purpose: a different model is a different implementation and has to be re-measured (Task 6). `python check_llm.py` lists the models the endpoint offers. Without it the LLM configuration counts as not configured — nothing picks a model for you. |
 | `LLM_TIMEOUT`, `LLM_RETRIES` | the two numbers that turn "the service hung" into the defined failure `None` rather than a hanging process. Task 1's second and third run make them visible. |
-| `PIZZA_API_BASE` | unchanged from Iteration 1; the commented line right below it switches to the local stub. |
+| `PIZZA_API_BASE` (commented out) | for the local stub only — the version of the Pizza API is in `pizzabot/pizza_api.py` (v2), not in `.env`; delete the line Iteration 1's `.env` had |
 | `BOT_CONFIG=static` | the default configuration. Leave it — Task 5 switches it from the command line. |
-| the commented `ILAAS_RAG_*` block | a *second* ILaaS service with a *second* key, for retrieval. Nothing today uses it; it is named so that your `.env` is already the right shape in Iteration 5. |
 
 Check it before you go on:
 
@@ -154,7 +157,7 @@ Check it before you go on:
 python check_llm.py                 # reaches the endpoint and reports latency and tokens
 ```
 
-If it reports no key, the usual cause is that `.env` still holds the template: the code treats any value starting with `<` as "no key", so an unfilled template fails immediately and says so, instead of turning into an HTTP 401 three tasks later. `python -c "import os; print(bool(os.environ.get('OPENAI_API_KEY')))"` does **not** prove anything — the variable lives in `.env`, not in your shell.
+If it reports a missing setting, the usual cause is that `.env` still holds the template: the code treats any value starting with `<` as missing, so an unfilled template fails immediately and names the line, instead of turning into an HTTP 401 three tasks later. `python -c "import os; print(bool(os.environ.get('OPENAI_API_KEY')))"` does **not** prove anything — the variable lives in `.env`, not in your shell.
 
 > **Why the repository ships a `.env.example` at all.** The same argument as the Pizza API stub in Iteration 1: an interface is worth nothing if nobody can tell what it needs. A committed example of the configuration is the difference between a repository that a new team member can run in two minutes and one that needs you on the phone. Never commit `.env`; always commit `.env.example`, and update it in the same commit that adds a variable to the code.
 
@@ -184,7 +187,7 @@ Answer these four questions in your team, out loud, before you move on — a sen
 
 ---
 
-## Task 2 — the tests, before the implementation [20 min]
+## Task 2 — the tests, before the implementation [22 min]
 
 **Files for this task:** `example/` (a working two-node example, given — read its `README.md`), `prompts/example_address_v1.txt` and `prompts/example_pizza_v1.txt`, and `tests/test_recognizers.py` (a skeleton you fill in at the end of the task).
 
@@ -192,7 +195,7 @@ Every method gets a unit test, and the test cases are **data**: a list of pairs,
 
 The second idea is the one people get wrong. A method whose answer is **exact** — for every input there is one right answer and the method produces it, every time — is tested with an equality, on every case. A method whose answer is **approximate** is tested with a **rate** against a threshold, because "it is right most of the time" is a number, not a feeling. The dividing line is exactness, not rule versus model: 2c turns a rule into an approximate method, and it needs a threshold for exactly the same reason the model does.
 
-**2a — run the example and read its two tests (4 min).** `example/simple_bot.py` is Iteration 2 in three files: a rule-based node that finds a menu name, an LLM-backed node that extracts an address, and nothing else. The key is the one handed out in the lecture hall; it goes into `.env` as `OPENAI_API_KEY` (never into a file you commit).
+**2a — run the example and read its two tests (4 min).** `example/simple_bot.py` is Iteration 2 in three files: a rule-based node that finds a menu name, an LLM-backed node that extracts an address, and nothing else. It needs the three LLM lines of `.env` from Task 1a (never put them into a file you commit).
 
 **First, order a pizza yourself.** Before you read a line of the example or change anything, prove that your machine really talks to the model. Start the bot and type the orders in by hand:
 
@@ -220,7 +223,7 @@ The pizza comes from the **rule** (the name is on the menu, spelled as the menu 
 
 Type these two as well. A bot that answers "nothing" to them is a bot that is working: refusing is a contract-conforming outcome, not a failure. If either of them *does* return a value, you have found something worth reporting — say so at the closing round.
 
-**If any of the four lines does not look like the table, stop here and fix it before going on.** Everything in the rest of this iteration assumes they behave like this. The three things that go wrong, in the order they happen: no key in `.env` (the bot says so and exits — go back to Task 1a), the endpoint unreachable (`python check_llm.py` says which), or a missing package (`python check_setup.py` names it). If the two `pizza` lines are right while *every* `address` line is empty, the rule works and the model does not — that is the key or the endpoint, never the code.
+**If any of the four lines does not look like the table, stop here and fix it before going on.** Everything in the rest of this iteration assumes they behave like this. The three things that go wrong, in the order they happen: the LLM lines of `.env` not filled in (the bot says which and exits — go back to Task 1a), the endpoint unreachable (`python check_llm.py` says which), or a missing package (`python check_setup.py` names it). If the two `pizza` lines are right while *every* `address` line is empty, the rule works and the model does not — that is the key or the endpoint, never the code.
 
 Now run it without `--interactive`, and run the tests:
 
@@ -235,7 +238,7 @@ Now read `example/example_tests.py`, top to bottom. Five cases for the rule and 
 
 **2b — the address gains a street and a house number (4 min).** Today the example's address is a postcode and a city. Make it four fields. In this order:
 
-1. **The cases first.** The three complete addresses gain a street and a house number — in the sentence *and* in the expected value. And one sentence changes sides: `"deliver it to 10563 Athens"` was a complete address this morning and is an incomplete one now, so its expected value becomes `{}`. Nothing about the model changed; the specification did, and the cases are where a specification is written down.
+1. **The cases first.** Two of the three complete addresses gain a street and a house number — in the sentence *and* in the expected value. The third, `"deliver it to 10563 Athens"`, stays as it is and changes sides: it was a complete address this morning and is an incomplete one now, so its expected value becomes `{}`. Nothing about the model changed; the specification did, and the cases are where a specification is written down.
 2. `ADDRESS_FIELDS` in `simple_bot.py` — one line. The schema check and the domain check are written over that tuple, so neither needs an edit. If you find yourself editing them, look again.
 3. The prompt. Copy `prompts/example_address_v1.txt` to `example_address_v2.txt`, change the `Output:` line and the examples, and point `ADDRESS_PROMPT` at the new name. A prompt is configuration: a new field list is a new version, and a version lives in the file name.
 
@@ -324,7 +327,7 @@ python compare_configs.py --address
 
 Rows marked `*` are the ones where the two implementations disagree. Both may keep the contract; which one is *right* is a question this course does not answer until Iteration 3. If a row broke a promise (a half address, an invented city), fix the check in the component now and add the row as a test.
 
-Two Greek cases are in the list: `5 Ermou 10563, Athens` — your rule stores the postcode 10563 as the house number (contract kept, delivery wrong), the model stores 5; that row is the first entry of Iteration 3's dataset. And `5Α Ermou, Athens` — a Greek house number takes a Greek letter (Α is the Greek capital alpha, not a Latin A): your rule finds nothing, because its number pattern knows no Greek letter; the model answers `5Α`, which is right, and the skeleton's house-number pattern rejects it, so the rule decides — and it has nothing. The pattern is yours: extend it, and notice that the fallback is not a neutral floor — when the model is rejected, whatever the rule says wins, even when it says nothing.
+Two Greek cases are in the list: `28is Oktovriou 5, Athens` — the row Iteration 1 asked you to find: your rule drops `28is` and stores the street `Oktovriou` (contract kept, delivery wrong), while the model can copy the whole street name; rows like this are what Iteration 3 measures. And `5Α Ermou, Athens` — a Greek house number takes a Greek letter (Α is the Greek capital alpha, not a Latin A): your rule finds nothing, because its number pattern knows no Greek letter; the model answers `5Α`, which is right, and the skeleton's house-number pattern rejects it, so the rule decides — and it has nothing. The pattern is yours: extend it, and notice that the fallback is not a neutral floor — when the model is rejected, whatever the rule says wins, even when it says nothing.
 
 ---
 
@@ -334,7 +337,7 @@ Two Greek cases are in the list: `5 Ermou 10563, Athens` — your rule stores th
 
 Same shape as Task 3, one field instead of three, so the schema check is one line and the domain check is membership: the name the model answers must be on the menu, spelled as the menu spells it. The menu goes *into the prompt* — the model chooses, it does not invent — and the membership check stays, because "less likely to invent" is not a guarantee.
 
-**4a — draw (2 min):** where does the menu enter, and where is it checked? Two arrows into the box from the Pizza API, or one? Section 10.
+**4a — draw (2 min):** where does the menu enter, and where is it checked? Two arrows into the box from the Pizza API, or one? Paper is enough, as in 3a.
 
 **4b — implement (5 min):** two TODOs. Note the case `{}`: the model says "no menu item fits". Fall back to the rule in that case too: the rule is the guaranteed minimum, and it always runs last.
 
@@ -354,7 +357,7 @@ python -m pizzabot.pizza_llm "One Pizza Napoli please"           # tier: static,
 **5a — the seam (3 min).** `build_graph` still imports the two recognizers itself. Replace the two `add_node` lines by the loop in the TODO, so that the graph wires whatever dictionary it is given, and delete the two imports. Then:
 
 ```bash
-python run_dialog.py --script            # the Iteration 1 walkthrough, unchanged
+python run_dialog.py --script            # the Iteration 1 walkthrough (slide 1.41), unchanged
 python run_dialog.py --llm --script      # "can I order the four-cheese one to number 5 on Ermou here in Athens?"
 ```
 
@@ -369,7 +372,7 @@ pytest -v -k llm | head -5              # the [llm-...] test ids; -k static show
 
 The last line pytest prints says `static: 19 passed | llm: 19 passed | not parametrized: 31 passed` — the last group is the twelve tests you wrote in Task 2 plus the nineteen that are not parametrized over the configurations. In the preparation, with the empty LLM skeletons and the four unwritten tests skipped, fifty-six of the fifty-seven that ran passed already, because the skeleton falls back to the rule and the rule keeps every contract. Only `test_graph_uses_the_injected_implementation` failed — it fails until Task 5a is done. What does that tell you about what the contract tests can and cannot see? (They cannot see whether the model ever answered. That is what the first column of `compare_configs.py` is for today, and what Iteration 3's metric is for.)
 
-Read `conftest.py` and the top of `tests/test_both_configurations.py`: nothing in the recognizer tests says which implementation is under test. They take the component from the `implementation` fixture, which pytest fills once per configuration. If a test had to know which implementation runs, the contract would have leaked into the test. The assertions are the same statements as in your Iteration 1 tests; only the entry point moved from the pure helper to the node. Without a key in `.env` the LLM half is *skipped*, not failed — `pytest -q -rs` shows why. Failure injection shows the same thing without a key: `LLM_TIMEOUT=0.01 LLM_RETRIES=0 pytest -q` — every call times out, every component falls back, every test passes.
+Read `conftest.py` and the top of `tests/test_both_configurations.py`: nothing in the recognizer tests says which implementation is under test. They take the component from the `implementation` fixture, which pytest fills once per configuration. If a test had to know which implementation runs, the contract would have leaked into the test. The assertions are the same statements as in your Iteration 1 tests; only the entry point moved from the pure helper to the node. Without the LLM endpoint in `.env` the LLM half is *skipped*, not failed — `pytest -q -rs` shows why. Failure injection shows the same thing without unplugging anything: `LLM_TIMEOUT=0.01 LLM_RETRIES=0 pytest -q` — every call times out, every component falls back, and every contract test passes. Only your two threshold tests from Task 2e go red, because the service answered nothing — which is exactly what they are there for.
 
 **5c — the picture (3 min).** Export the process model from both configurations and let the script compare them:
 
@@ -427,7 +430,6 @@ The script prints one row per utterance for both configurations — read them on
 * **A third configuration.** A dictionary with the static pizza rule and the LLM address component — one line in `pizzabot/config.py`. Which tests does it pass? All of them, and what does that prove?
 * **Prompt v2.** Copy `prompts/address_v1.txt` to `address_v2.txt`, change one thing, point `PROMPT_VERSION` at it, and run `compare_configs.py` again. A prompt change is a configuration change, and this is what "re-measure" means.
 * **Add "can I get" to the router's intent phrases** — and notice that you just changed Iteration 1 code. Was the router's contract wrong, or its implementation?
-* **The other client.** `ilaas_connector.py` from the course's `ilaas-connector` folder (handed out with the lecture material, not in this repository) talks to the same endpoint and already handles its known problems. Swap it in behind `LlmService.extract` without touching any node.
 * **`json_schema` mode.** Change `response_format` in the adapter to `{"type": "json_schema", "json_schema": {...}}` with the schema from Lecture 2 and count the fenced answers again — and check whether the values moved: constrained decoding can change answers, not only their shape (Tam et al., EMNLP 2024, arXiv:2408.02442).
 * **The repair prompt (the lecture's tier 2).** Before falling back on a schema failure, ask the model once more with "Your last answer did not have the shape asked for" appended to the prompt — slide 2.34 shows the function. Measure how often it helps; on 2026-09-12 it would have helped zero times in sixty calls.
 * **Let a machine write the hostile utterances.** The three promises of `adversarial.py` are properties; [Hypothesis](https://hypothesis.readthedocs.io/) can generate thousands of utterances against them.
@@ -439,16 +441,16 @@ The script prints one row per utterance for both configurations — read them on
 
 | symptom | cause and fix |
 | --- | --- |
-| every row of `compare_configs.py` says `[static]` | nothing implemented yet (the trace says `not implemented`) — or no key, or the wrong key: `python check_setup.py`, the last check does one real extraction and says what went wrong |
-| `check_llm.py` or `check_setup.py` says 401 | the key in `.env` is wrong or has a trailing space; keys were handed out in Iteration 1 |
+| every row of `compare_configs.py` says `[static]` | nothing implemented yet (the trace says `not implemented`) — or the LLM endpoint is not configured, or the access code is wrong: `python check_setup.py`, the last check does one real extraction and says what went wrong |
+| `check_llm.py` or `check_setup.py` says 401 | the access code in `.env` is wrong or has a trailing space; it is provided on-site |
 | `NotFoundError ... Unknown model` | `MODEL_NAME` is not offered by the endpoint; `python check_llm.py` lists the models that are |
-| the trace says `answer was fenced` | normal for the default model; the adapter stripped the fences. Count it: it belongs on the service card |
+| the trace says `answer was fenced` | normal for some models; the adapter stripped the fences. Count it: it belongs on the service card |
 | the trace says `answer is not JSON ... finish_reason=length` | `max_tokens` too small for the answer; 200 is enough for an address |
 | the LLM component always falls back with "does not occur in the utterance" | your copy check compares with case or accents; use the given `fold()` on both sides — the API does not care either |
 | the component appears twice in the trace | the fallback: the rule logs its own block after the `tier` line |
 | `pytest -q` takes minutes | the endpoint is loaded; `LLM_TIMEOUT=5 LLM_RETRIES=0` in `.env` keeps the suite short — the fallback makes it green either way |
-| `run_dialog.py --llm --script` prints `script exhausted` | no key: the rule cannot parse the lecture sentence, so the form keeps asking — the fallback's floor, demonstrated |
-| `pytest -q` ends with `llm: 19 skipped` | no key configured (the template value does not count); `pytest -rs` prints the reason. Fill in `.env` |
+| `run_dialog.py --llm --script` prints `script exhausted` | no LLM endpoint configured: the rule cannot parse the lecture sentence, so the form keeps asking — the fallback's floor, demonstrated |
+| `pytest -q` ends with `llm: 19 skipped` | the LLM endpoint is not configured (a template value does not count); `pytest -rs` names the missing line. Fill in `.env` |
 | `test_graph_uses_the_injected_implementation` fails | Task 5a is not done: `build_graph` still wires the imported rules instead of the dictionary |
 | `run_dialog.py --llm` sends a good sentence to `help` | the router is still the Iteration 1 rule; the sentence has no intent phrase and no menu name. Routing did not change today |
 | a call takes 20 s and then falls back | `LLM_TIMEOUT` in `.env`; the shared endpoint is slow when the whole room calls it at once — the fallback is doing its job |
@@ -482,4 +484,4 @@ The script prints one row per utterance for both configurations — read them on
 | ran the same tests against two implementations, and killed a mutant | pytest, *Parametrizing fixtures*: <https://docs.pytest.org/en/stable/how-to/fixtures.html#parametrizing-fixtures>; DeMillo, R. A., Lipton, R. J., & Sayward, F. G. (1978), [doi:10.1109/C-M.1978.218136](https://doi.org/10.1109/C-M.1978.218136) |
 | left hand-written rules where they stop converging | Church, K. W., & Mercer, R. L. (1993), *Introduction to the Special Issue on Computational Linguistics Using Large Corpora*, Computational Linguistics 19(1): <https://aclanthology.org/J93-1001/>; the LLM step is the NLU component of the frame-based system you built: Jurafsky & Martin, SLP3, App. K |
 
-**The measured facts on the slides** (fenced JSON, latency, the injection that passed the model, "Pizza Napoli" with and without the menu) were all measured against ILaaS on 2026-09-12 with `mistral-small-4-119b` and `qwen-3.6-35b-instruct`; so was the pizza prompt that answered Margherita to "I am hungry" in 2 of 10 runs at temperature 0 before it got its never-guess rule (Ouyang et al., TOSEM 2025, arXiv:2308.02828, on why temperature 0 is not determinism). Your numbers will differ. That is the point of writing them down with a date.
+**The measured facts on the slides** (fenced JSON, latency, the injection that passed the model, "Pizza Napoli" with and without the menu) were all measured on 2026-09-12 with two open-weight models, `mistral-small-4-119b` and `qwen-3.6-35b-instruct`, behind an OpenAI-compatible endpoint; so was the pizza prompt that answered Margherita to "I am hungry" in 2 of 10 runs at temperature 0 before it got its never-guess rule (Ouyang et al., TOSEM 2025, arXiv:2308.02828, on why temperature 0 is not determinism). Your numbers will differ. That is the point of writing them down with a date.

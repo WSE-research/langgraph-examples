@@ -1,0 +1,328 @@
+"""The Pizza API behind one small component -- the only door to the outside.
+
+Every HTTP call this process makes lives in this file. Nodes call the functions
+below, never `requests` directly. That is not tidiness for its own sake:
+
+  * the process stays testable -- a test replaces this module, not the network;
+  * an outage has exactly one place to be handled;
+  * the switch between the university API and the local stub is one variable.
+
+The version is in this file, not in .env: VERSION below is the version of the
+Pizza API this iteration was written for, and every iteration ships its own
+copy of the adapter -- take it with the iteration's material (you never edit
+it), and delete any PIZZA_API_BASE line an earlier iteration left in .env.
+PIZZA_API_BASE is for the local stub only::
+
+    # no PIZZA_API_BASE at all                          -> the university service, v4
+    PIZZA_API_BASE=http://127.0.0.1:8000                # the local stub
+
+A PIZZA_API_BASE that names another version of the university service, or the
+unversioned one, is ignored, and the first request says so.
+
+The service documents itself: open https://wse-research.org/pizza-api/v4 in a
+browser and you get the interactive Swagger UI for exactly these endpoints,
+with a "Try it out" button; https://wse-research.org/pizza-api/v4/openapi.json is
+the same thing machine-readable. The local stub answers its own URL
+(http://127.0.0.1:8000) with a plain HTML version of the same list.
+
+Endpoints used:
+
+    GET  /pizza              -> [{"id": 1, "name": "Margherita", ...}, ...]
+    GET  /city               -> [{"name": "Paris", "country": "FR", "population": ...}, ...]
+    POST /address/validate   -> 200 if the address exists, 4xx otherwise
+    POST /order              -> {"order_id": "...", "status": "received"}
+    GET  /order/{order_id}   -> the order as stored by the API
+
+`GET /city` arrived with Iteration 3 (version v3 of the service) and stays: the
+delivery area is every commune of France and every town and village of Greece,
+plus Leipzig, Halle and Dresden -- about 43 000 names -- so it answers a *page*,
+searched with `q` and sized with `limit`. That is what lets a team pick its own benchmark cities from the
+service instead of from a list somebody wrote for them.
+"""
+
+from __future__ import annotations
+
+import os
+import re
+from typing import Optional
+
+import requests
+
+# The version of the Pizza API this iteration was written for. It lives here,
+# in the adapter of the iteration -- not in .env: every iteration ships its own
+# copy of this file, so taking the iteration's material is what switches the
+# version. PIZZA_API_BASE is for the local stub only.
+VERSION = "v4"
+DEFAULT = "https://wse-research.org/pizza-api/v4"
+TIMEOUT = float(os.environ.get("PIZZA_API_TIMEOUT", "10"))
+
+# A PIZZA_API_BASE that names the university service -- any other version, or
+# no version at all (the newest) -- is a line an earlier iteration left in .env.
+_UNIVERSITY = re.compile(r"wse-research\.org/pizza-api(?:/(v\d+))?/?$")
+
+
+def _base() -> tuple[str, str]:
+    """The base URL, and the warning to give when .env names another version."""
+    configured = (os.environ.get("PIZZA_API_BASE") or "").strip().rstrip("/")
+    if not configured:
+        return DEFAULT, ""
+    found = _UNIVERSITY.search(configured)
+    if found and found.group(1) != VERSION:
+        named = f"version {found.group(1)}" if found.group(1) else "the unversioned (newest) service"
+        return DEFAULT, (f"PIZZA_API_BASE in .env names {named} of the Pizza API; this iteration's "
+                         f"adapter uses {VERSION} and ignores the line -- delete it from .env "
+                         f"(PIZZA_API_BASE is for the local stub only)")
+    return configured, ""
+
+
+BASE, _IGNORED = _base()
+_WARNED = False
+
+
+def _warn_once() -> None:
+    """Say once per process that a PIZZA_API_BASE line was ignored -- never silently."""
+    global _WARNED
+    if _IGNORED and not _WARNED:
+        _WARNED = True
+        from pizzabot import log        # here, not at the top: pizza_api is imported very early
+
+        log.warn(_IGNORED)
+
+_MENU_CACHE: Optional[list[dict]] = None
+
+
+class PizzaApiError(RuntimeError):
+    """The API did not behave as its contract promises.
+
+    Defined failure behaviour is part of a contract: a component that cannot
+    keep its guarantee says so loudly instead of returning something wrong.
+    """
+
+
+def _get(path: str) -> requests.Response:
+    _warn_once()
+    try:
+        response = requests.get(f"{BASE}{path}", timeout=TIMEOUT)
+    except requests.RequestException as error:
+        raise PizzaApiError(
+            f"GET {BASE}{path} failed: {error}\n"
+            f"Is PIZZA_API_BASE correct? For the offline stub run: "
+            f"python pizza_api_stub.py"
+        ) from error
+    return response
+
+
+def _accept_everything() -> dict:
+    """Test drivers only: let POST /order through for a pizza that is sold out.
+
+    From version v5 on, the service marks two pizzas sold out every minute and
+    answers an order for one of them with HTTP 409; version v4, which this
+    exercise uses, never does. The test drivers (conftest.py, validate_task5.py)
+    set PIZZA_API_ACCEPT_EVERYTHING=true all the same, and this adds
+    `X-Accept-Everything: true` -- so that the same code keeps working when your
+    repository meets a later version. Read on every call, never at import. A
+    dialog with a guest never sets it.
+    """
+    if os.environ.get("PIZZA_API_ACCEPT_EVERYTHING", "").strip().lower() == "true":
+        return {"X-Accept-Everything": "true"}
+    return {}
+
+
+def _post(path: str, payload: dict) -> requests.Response:
+    _warn_once()
+    try:
+        response = requests.post(f"{BASE}{path}", json=payload, headers=_accept_everything(),
+                                 timeout=TIMEOUT)
+    except requests.RequestException as error:
+        raise PizzaApiError(
+            f"POST {BASE}{path} failed: {error}\n"
+            f"Is PIZZA_API_BASE correct? For the offline stub run: "
+            f"python pizza_api_stub.py"
+        ) from error
+    return response
+
+
+def menu(refresh: bool = False) -> list[dict]:
+    """GET /pizza -- the menu is data, not code.
+
+    Cached for the lifetime of the process: the menu does not change while one
+    dialog runs, and a node should not cause an HTTP request per word it looks
+    at. Pass `refresh=True` to force a reload.
+    """
+    global _MENU_CACHE
+    if _MENU_CACHE is None or refresh:
+        response = _get("/pizza")
+        if response.status_code != 200:
+            raise PizzaApiError(f"GET /pizza -> HTTP {response.status_code}")
+        try:
+            _MENU_CACHE = response.json()
+        except ValueError as error:
+            raise PizzaApiError(
+                f"GET /pizza did not return JSON but "
+                f"{response.headers.get('content-type')!r}. "
+                f"The API at {BASE} is probably not the Pizza API."
+            ) from error
+    return _MENU_CACHE
+
+
+def menu_names() -> list[str]:
+    """Just the names, in menu order."""
+    return [item["name"] for item in menu()]
+
+
+def pizza_id_for(name: str) -> Optional[int]:
+    """The id the order endpoint wants, for a name that is on the menu."""
+    for item in menu():
+        if item["name"].lower() == name.lower():
+            return item["id"]
+    return None
+
+
+def cities(q: str | None = None, limit: int = 100, offset: int = 0) -> list[dict]:
+    """GET /city -- the delivery area, a page at a time.
+
+    Returns `[{"name": ..., "country": ..., "population": ...}, ...]`, largest
+    first. `q` searches the name accent- and case-insensitively, exactly as the
+    service folds a city in `POST /address/validate`, so anything this returns
+    is something that endpoint accepts.
+
+        cities(q="athina", limit=5)         # Athens first -- found by another spelling
+        cities(limit=1000, offset=1000)     # the second page of a thousand
+    """
+    query = f"?limit={int(limit)}&offset={int(offset)}"
+    if q:
+        from urllib.parse import quote
+
+        query += f"&q={quote(q)}"
+    response = _get(f"/city{query}")
+    if response.status_code == 404:
+        raise PizzaApiError(
+            f"GET /city -> HTTP 404. The API at {BASE} does not know the endpoint: the "
+            f"university service has it from v3 on, the stubs from Exercise 3 on. Delete "
+            f"PIZZA_API_BASE from .env, or start the stub of Exercise 3: python pizza_api_stub.py"
+        )
+    if response.status_code != 200:
+        raise PizzaApiError(f"GET /city -> HTTP {response.status_code}")
+    return response.json()
+
+
+def city_names(q: str | None = None, limit: int = 100) -> list[str]:
+    """Just the names, largest city first."""
+    return [city["name"] for city in cities(q=q, limit=limit)]
+
+
+def delivers_to(city: str) -> bool:
+    """Is this city in the delivery area? (the name alone, no street, no number)
+
+    Asked through the same door as everything else. Used by `benchmark/fetch.py`
+    to refuse to write a city into the knowledge graph that the service has
+    never heard of -- a benchmark full of places nobody delivers to measures the
+    error message, not the bot.
+    """
+    from unicodedata import combining, normalize
+
+    def fold(text: str) -> str:
+        stripped = normalize("NFKD", text or "")
+        stripped = "".join(ch for ch in stripped if not combining(ch))
+        return " ".join(stripped.replace("-", " ").split()).casefold()
+
+    return any(fold(found["name"]) == fold(city) for found in cities(q=city, limit=1000))
+
+
+def validate_address(street: str, house_number: str, city: str) -> bool:
+    """POST /address/validate -- True if the API delivers to this address.
+
+    "The service says no" and "the service is broken" are different failures and
+    must not look the same: a 400 is an answer (the service does not deliver to
+    this address -- outside the delivery area, or a street or house number it
+    rejects); a 5xx is an outage, and any other status -- a 404 from a
+    wrong PIZZA_API_BASE, say -- is not an answer about the address either. A
+    component that treats those as a rejection silently tells the user their
+    address is wrong.
+    """
+    response = _post(
+        "/address/validate",
+        {"street": street, "house_number": house_number, "city": city},
+    )
+    if response.status_code == 200:
+        return True
+    if response.status_code == 400:
+        return False
+    if response.status_code >= 500:
+        raise PizzaApiError(
+            f"POST /address/validate -> HTTP {response.status_code}: the service is "
+            f"not answering properly. This is an outage, not a rejected address."
+        )
+    raise PizzaApiError(
+        f"POST /address/validate -> HTTP {response.status_code}: not an answer about "
+        f"the address. Is PIZZA_API_BASE the version this exercise uses ({BASE})?"
+    )
+
+
+def place_order(pizza_id: int, address: dict) -> dict:
+    """POST /order -- the only side effect this process has on the world.
+
+    Guarantee: returns a dict with "order_id" and status "received", or raises.
+    """
+    payload = {
+        "pizza_id": pizza_id,
+        "street": address["street"],
+        "house_number": address["house_number"],
+        "city": address["city"],
+    }
+    response = _post("/order", payload)
+    if response.status_code == 409:
+        raise PizzaApiError(f"POST /order -> HTTP 409, sold out right now: {response.text[:200]}")
+    if response.status_code != 200:
+        raise PizzaApiError(f"POST /order -> HTTP {response.status_code}: {response.text[:200]}")
+    body = response.json()
+    if body.get("status") != "received":
+        raise PizzaApiError(f"POST /order -> unexpected status {body.get('status')!r}")
+    return body
+
+
+def get_order(order_id: str) -> dict:
+    """GET /order/{id} -- read a placed order back, e.g. in your validation runs."""
+    response = _get(f"/order/{order_id}")
+    if response.status_code != 200:
+        raise PizzaApiError(f"GET /order/{order_id} -> HTTP {response.status_code}")
+    return response.json()
+
+
+def explain_and_exit(error: PizzaApiError) -> "NoReturn":  # noqa: F821
+    """Log one readable screen instead of a 25-line traceback, then stop.
+
+    Called from the `__main__` blocks of the scripts you run. A traceback tells
+    you where the program was; this tells you what to do next.
+    """
+    from pizzabot import log        # here, not at the top: pizza_api is imported very early
+
+    log.plain()
+    log.rule(width=72, char="=")
+    log.fail("The Pizza API did not answer.")
+    log.detail(f"tried : {BASE}", indent="  ")
+    detail = str(error).splitlines()[0]
+    log.detail(f"said  : {detail[:60] + '...' if len(detail) > 63 else detail}", indent="  ")
+    log.plain()
+    log.step("  In a SECOND terminal, start the offline stub and leave it open:")
+    log.hint("python pizza_api_stub.py", indent="      ")
+    log.plain()
+    log.step("  Then, back in THIS terminal, point the bot at it:")
+    log.hint("export PIZZA_API_BASE=http://127.0.0.1:8000      macOS, Linux", indent="      ")
+    log.hint('$env:PIZZA_API_BASE="http://127.0.0.1:8000"      PowerShell', indent="      ")
+    log.hint("set PIZZA_API_BASE=http://127.0.0.1:8000         cmd.exe", indent="      ")
+    log.plain()
+    log.detail("Or put that line into .env, which every script reads.", indent="  ")
+    log.rule(width=72, char="=")
+    raise SystemExit(2)
+
+
+def ping() -> tuple[bool, str]:
+    """Is the configured API reachable and does it speak JSON? (checked by check_setup.py)"""
+    try:
+        items = menu(refresh=True)
+    except PizzaApiError as error:
+        return False, str(error).splitlines()[0]
+    if not items or "name" not in items[0]:
+        return False, f"GET /pizza returned {items!r:.80s}"
+    return True, f"{len(items)} pizzas, e.g. {', '.join(menu_names()[:3])}"

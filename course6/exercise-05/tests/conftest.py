@@ -17,17 +17,11 @@ can fail for the right reason.
 
 Both configurations, same files, same cases::
 
-    pytest -q                        # static -- no key needed
+    pytest -q                        # static -- no LLM endpoint needed
     BOT_CONFIG=llm pytest -q         # the LLM-backed implementations
 """
 
 import os
-
-# The Pizza API version of Iteration 5: v5, the version this exercise was written
-# for -- unless PIZZA_API_BASE is already set (to the stub, say). Set here, before
-# `pizzabot` is imported, it also wins over the older version your `.env` may
-# still name: load_dotenv() never overrides a variable that is already set.
-os.environ.setdefault("PIZZA_API_BASE", "https://wse-research.org/pizza-api/v5")
 
 # The tests order fixed pizzas, and in version v5 two pizzas are sold out every
 # minute (POST /order answers 409). A test driver opts out of that draw with the
@@ -36,6 +30,26 @@ os.environ.setdefault("PIZZA_API_BASE", "https://wse-research.org/pizza-api/v5")
 os.environ.setdefault("PIZZA_API_ACCEPT_EVERYTHING", "true")
 
 import pytest
+
+# The Pizza API version is in the adapter, not in .env: this iteration ships
+# pizzabot/pizza_api.py with VERSION = "v5", and copying it is what switches the
+# version. A repository that still has the adapter of an earlier iteration would
+# quietly test against the wrong service -- so the suite stops before the first
+# test and says what to copy. A later adapter is fine: every later version serves
+# what this one serves (Iteration 6 keeps these tests green against v6). A
+# PIZZA_API_BASE left in .env from an earlier iteration is no danger either: the
+# adapter ignores it and says so.
+from pizzabot import pizza_api  # noqa: E402
+
+_VERSION = str(getattr(pizza_api, "VERSION", "v0"))
+
+
+def pytest_configure(config):
+    """Stop before the first test -- whichever test file is run -- with the adapter of an earlier iteration."""
+    if not _VERSION[1:].isdigit() or int(_VERSION[1:]) < 5:
+        older = _VERSION if _VERSION != "v0" else "an earlier iteration"
+        pytest.exit(f"pizzabot/pizza_api.py is the adapter of {older}, not of Iteration 5: "
+                    f"copy it from exercise-05/pizzabot/pizza_api.py", returncode=4)
 
 
 @pytest.fixture(scope="session")

@@ -14,7 +14,7 @@ Which section belongs to which task:
 | 5. differences between 3 and 4 | Task 6 |
 | 6. cases our rules cannot handle | Tasks 3c and 4c |
 | 7. contract hand-over | Task 7 |
-| 8. our baseline | Task 6, and again in Iteration 3 |
+| 8. our baseline | if time is left today (end of the sheet), at the latest in Iteration 3 |
 
 ## 0. Three answers about the demo graph (Task 1)
 
@@ -72,7 +72,7 @@ Run `python demo_visualize.py --pizza`, then paste the content of `docs/pizza-pr
 
 ## 5. Differences between 3 and 4
 
-Every difference is a bug in exactly one of the two: either you drew something the code does not do, or the code does something nobody designed.
+The wiring in `pizzabot/graph.py` is given, so a difference means that your picture of the process is not the process you were given: either you drew something the code does not do, or the code does something you did not expect. Correct the drawing; if you think the code is wrong, write it down as a change request for Iteration 2.
 
 | # | what differs | which one is wrong | what we changed |
 | --- | --- | --- | --- |
@@ -82,7 +82,7 @@ Every difference is a bug in exactly one of the two: either you drew something t
 
 The utterances where a static rule gives up. This list is not a failure report, it is the specification for Iteration 2 -- these are the cases an LLM will be asked to take over, and the measurement in Iteration 3 will use exactly them.
 
-Three kinds, and the difference matters: *(a) the type lacks a field* (a postcode has nowhere to go), *(b) the pattern is too narrow* (a comma is missing), *(c) the rule applies and the answer is still wrong* (`10563`, the postcode, accepted as a house number). Iteration 3 measures the third kind.
+Three kinds, and the difference matters: *(a) the type lacks a field* (a postcode has nowhere to go), *(b) the pattern is too narrow* (a comma is missing), *(c) the rule applies and the answer is still wrong* (`28is Oktovriou 5, Athens` accepted as street `Oktovriou`). Iteration 3 measures the third kind.
 
 | # | utterance | what should happen | what happens now | why the rule fails | kind (a/b/c) |
 | --- | --- | --- | --- | --- | --- |
@@ -92,7 +92,7 @@ Three kinds, and the difference matters: *(a) the type lacks a field* (a postcod
 
 We implemented the `address_recognition` contract of team ____________, and team ____________ implemented ours.
 
-| # | row that came out differently | which part failed us? (reads / writes / rules / guarantee / failure) | was the contract silent, or did we read it differently? | the sentence that would have prevented it |
+| # | row that came out differently | which part failed us? (reads / writes / calls / rules / guarantee / failure) | was the contract silent, or did we read it differently? | the sentence that would have prevented it |
 | --- | --- | --- | --- | --- |
 | 1 | | | | |
 | 2 | | | | |
@@ -101,11 +101,10 @@ The sentences from the last column, added to our own contract:
 
 *
 
-## 8. Our baseline (Task 6)
+## 8. Our baseline (if time is left)
 
 The number Iteration 3 will compare against. Count the rows in your own validation cases that the bot gets right today.
 
 | date | cases | correct | notes |
 | --- | --- | --- | --- |
 | | | | |
-

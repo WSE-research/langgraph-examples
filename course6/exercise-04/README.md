@@ -50,8 +50,8 @@ Tasks 3 and 4 each end with their own test file, given and parameterized over ca
 
 | your Iteration 3 repository | do this |
 | --- | --- |
-| **complete** — `pytest -q` green, `quality-report.md` committed | clone this material *outside* your repository, then copy `data/` into it. Keep your own `pizzabot/` — it is the one that grows today. |
-| **not complete** | start from the Iteration 3 material in the `exercise-03/` folder beside this one, copy `data/` from here into it, and carry on. An unfinished Iteration 3 does not cost you Iteration 4. |
+| **complete** — `pytest -q` green, `quality-report.md` committed | clone this material *outside* your repository, then copy `data/` and `pizzabot/pizza_api.py` (this iteration's adapter, v4) into it. Keep the rest of your own `pizzabot/` — it is the one that grows today. |
+| **not complete** | start from the Iteration 3 material in the `exercise-03/` folder beside this one, copy `data/` and `pizzabot/pizza_api.py` from here into it, and carry on. An unfinished Iteration 3 does not cost you Iteration 4. |
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
@@ -62,6 +62,7 @@ pip install -r requirements.txt                        # rdflib is already in it
 
 | file | what it is |
 | --- | --- |
+| `pizzabot/pizza_api.py` | **the Pizza API adapter of this iteration** (v4) — copy it over yours; you never edited it, and it is what switches your bot to v4 |
 | `kb.py` | **the only module with SPARQL in it** — copy it to `pizzabot/kb.py`. Nine queries, a function per question, and a `--selftest` that proves all nine still answer what they should |
 | `tests/` | **the test files of Tasks 3 and 4**, plus `conftest.py` and `bot_helpers.py` — copy all four into your `tests/`. Nothing to merge: pytest reads your Iteration 3 `conftest.py` at the repository root and this one under `tests/`, and uses the fixtures of both |
 | `factoid_benchmark.py` | **Task 5**: 79 cases generated from the graph, four metrics, `factoid-report.md` and `factoid-history.jsonl`. Copy it to your repository root, beside `evaluate.py` |
@@ -72,7 +73,7 @@ pip install -r requirements.txt                        # rdflib is already in it
 
 **3. A number to keep in mind.** The graph knows **22** pizzas. `GET /pizza` lists 22 too — today. That agreement is not guaranteed by anything: the knowledge base and the thing that takes orders are two systems, and they are never exactly in step (from Iteration 5 on, version v5 of the service also marks two pizzas a minute as sold out). Task 4d makes that a **test**; Iteration 5 makes it a **dialog**.
 
-**4. Point your repository at version v4 of the Pizza API.** In your repository's `.env`, change the service line to `PIZZA_API_BASE=https://wse-research.org/pizza-api/v4`. Every exercise has its own version of the service, and a version does not change once it is published; v4 serves exactly what v3 served. `tests/conftest.py` uses v4 on its own, but `run_dialog.py` and the frontend read `.env`.
+**4. Take the adapter of version v4.** **This exercise uses version v4 of the Pizza API, and the version is in the adapter, not in `.env`.** This iteration's `pizzabot/pizza_api.py` uses <https://wse-research.org/pizza-api/v4> by itself: take it from this folder — it replaces the adapter of Iteration 3, which you never edited — and delete any `PIZZA_API_BASE` line an earlier iteration left in your `.env`. `PIZZA_API_BASE` is for the local stub only; a line that names another version of the service is ignored, and the adapter says so on its first request. v4 serves exactly what v3 served. `tests/conftest.py` stops before the first test while `pizzabot/pizza_api.py` is older than this iteration's.
 
 ---
 
@@ -118,20 +119,19 @@ Two edits, both in the frontend, **none in your code**.
 
 ```.env
 # --- the Pizza API: the menu, the delivery area, the orders --------------
-# The university service, version v4 -- the one this exercise uses. If it does
-# not answer, run your own stub in a second terminal (`python pizza_api_stub.py`)
-# and use http://127.0.0.1:8000.
-PIZZA_API_BASE=https://wse-research.org/pizza-api/v4
+# No PIZZA_API_BASE: your bot's adapter (pizzabot/pizza_api.py of this
+# iteration) uses version v4 by itself. Only if the service does not answer:
+# run your own stub in a second terminal (`python pizza_api_stub.py`) and add
+# PIZZA_API_BASE=http://127.0.0.1:8000 here.
 PIZZA_API_TIMEOUT=10
 
-# --- the LLM service: ILaaS ---------------------------------------------
-# An inference service of French universities, speaking the OpenAI protocol,
-# which is the only reason the variables are called OPENAI_*. Nothing here
-# talks to OpenAI. The key is the one from Iteration 1, pasted raw -- no
-# quotes, no angle brackets. Keep the model you measured with in Iteration 3.
-OPENAI_API_BASE=https://llm.ilaas.fr/v1
-OPENAI_API_KEY=<the key you were given in the exercise session>
-MODEL_NAME=mistral-small-4-119b
+# --- the LLM endpoint ---------------------------------------------------
+# The endpoint, its access code and the model name are provided on-site,
+# independently of this repository -- the same three values as in your
+# repository's .env. Keep the model you measured with in Iteration 3.
+OPENAI_API_BASE=<provided on-site>
+OPENAI_API_KEY=<provided on-site>
+MODEL_NAME=<provided on-site>
 
 # --- your repository, and which implementation is loaded by default ------
 # MYBOT_PATH is the directory that CONTAINS your pizzabot/ package, absolute.
@@ -425,6 +425,7 @@ A compiled graph **is** a runnable, so it can be a node directly. Open the **Flo
 
 ```bash
 cp tests/conftest.py tests/bot_helpers.py tests/test_task*.py  my-pizzabot/tests/
+cp pizzabot/pizza_api.py                                        my-pizzabot/pizzabot/
 cd my-pizzabot
 pytest -q tests/test_task3_qa.py            # does each of the four nodes do its job?
 pytest -q -m gate tests/test_task3_qa.py    # did YOU do the task?

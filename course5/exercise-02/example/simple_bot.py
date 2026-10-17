@@ -10,7 +10,7 @@ fallback, no configurations. Two nodes, one state, one prompt file.
                                        the answer, and today the address is
                                        only a postcode and a city
 
-Run it (the key from the lecture hall has to be in ../.env)::
+Run it (the LLM endpoint has to be configured in ../.env, see Task 1a)::
 
     python example/simple_bot.py --interactive     # you type the sentences
     python example/simple_bot.py                   # four sentences chosen here
@@ -57,10 +57,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from langgraph.graph import END, START, StateGraph  # noqa: E402
 
-from pizzabot import llm_service, log# noqa: E402
+from pizzabot import llm_service, log  # noqa: E402
 
-# The menu, hard-coded here so that the example needs no Pizza API.
-MENU = ["Margherita", "Quattro Formaggi", "Diavola", "Regina", "Calzone"]
+# The menu, hard-coded here so that the example needs no Pizza API -- five of
+# the pizzas of the service (v2), spelled and capitalised as it spells them.
+MENU = ["Margherita", "Quattro Formaggi", "Diavola", "Funghi", "Calzone"]
 
 # The fields the address consists of -- Task 2b adds "street" and "house_number".
 ADDRESS_FIELDS = ("postcode", "city")
@@ -208,8 +209,9 @@ def main(argv: list[str]) -> int:
         "deliver to Athens",              # no postcode -> complete or nothing
     ]
     if not llm_service.configured():
-        log.fail("no key in .env", "the address node cannot answer")
-        log.hint("paste the key from the lecture hall into .env (OPENAI_API_KEY)")
+        log.fail(f"the LLM endpoint is not configured: {', '.join(llm_service.missing())} missing in .env",
+                 "the address node cannot answer")
+        log.hint("fill in the three LLM lines of .env -- they are provided on-site (Task 1a)")
         return 1
 
     graph = build_graph()

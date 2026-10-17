@@ -10,16 +10,19 @@ only what the call promises. That promise is the contract of this module:
     output      a dict parsed from the model's JSON answer -- or None
     rules       1. one call per extract(), at temperature 0, with a token limit
                    and a timeout; the model is asked for a JSON object
-                2. transient faults -- a timeout, an HTTP 5xx, an error body
-                   inside an HTTP 200 -- are retried up to RETRIES times, with a
-                   growing pause in between. Faults that cannot change are NOT
-                   retried: a 4xx (unknown model, bad key) and an answer that
-                   was cut off at max_tokens. Nothing with a side effect is
+                2. transient faults -- a timeout, a rate limit (HTTP 429), an
+                   HTTP 5xx, an error body inside an HTTP 200 -- are retried up
+                   to RETRIES times, with a growing pause in between. Faults
+                   that cannot change are NOT retried: any other 4xx (unknown
+                   model, bad key) and an answer that was cut off at
+                   max_tokens. This is the only retry layer: the client
+                   library's own retries are switched off, so RETRIES and
+                   TIMEOUT are the whole budget. Nothing with a side effect is
                    ever retried (POST /order is not this module's business).
                 3. the answer is parsed on our side: a code fence around the
                    JSON is removed first, because "JSON mode" is a request, not
-                   a guarantee (measured on ILaaS 2026-09-12: the default model
-                   fences about every second answer)
+                   a guarantee (measured 2026-09-12: one of the two models
+                   used fenced about every second answer)
     guarantee   extract() returns a dict or None and never raises; a dict is
                 whatever the model said -- SCHEMA-VALID IS NOT CHECKED HERE,
                 that is the component's job (Tasks 2 and 3)
@@ -32,14 +35,21 @@ It!" (2018), ch. 5; Brooker, "Exponential backoff and jitter" (2015). Why the
 boundary is strict about what it accepts from the model: RFC 9413 -- the
 reverse of Postel's law for a producer that may be wrong.
 
-Configuration -- `.env`, see `.env.example` (the names used by the course's
-`ilaas-connector` package, ILAAS_*, are accepted as well)::
+Configuration -- `.env`, see `.env.example`. The endpoint, its access code and
+the model name are provided on-site, independently of this repository; there
+is no default for any of the three, so that nothing is ever sent to a service
+-- or billed to a model -- that nobody chose::
 
-    OPENAI_API_BASE=https://llm.ilaas.fr/v1     # the ILaaS inference service
-    OPENAI_API_KEY=<the key you were given>
-    MODEL_NAME=mistral-small-4-119b             # pinned; re-measure when you change it
+    OPENAI_API_BASE=<provided on-site>          # an OpenAI-compatible endpoint
+    OPENAI_API_KEY=<provided on-site>           # its access code
+    MODEL_NAME=<provided on-site>               # pinned; re-measure when you change it
     LLM_TIMEOUT=20                              # seconds per attempt
     LLM_RETRIES=2                               # extra attempts after the first
+
+A value that is unset or still the `<placeholder>` of .env.example counts as
+missing; with one of the three missing, the LLM configuration is "not
+configured": extract() returns None at once, the components fall back to the
+rules, and the LLM tests are skipped with the name of the missing setting.
 
 Run it on its own (Task 1)::
 
@@ -70,8 +80,8 @@ from pizzabot import log, trace
 for _name in ("httpx", "httpx2", "httpcore", "openai"):
     logging.getLogger(_name).setLevel(logging.WARNING)
 
-DEFAULT_BASE = "https://llm.ilaas.fr/v1"
-DEFAULT_MODEL = "mistral-small-4-119b"
+# The three settings of the endpoint -- all provided on-site, none has a default.
+SETTINGS = ("OPENAI_API_BASE", "OPENAI_API_KEY", "MODEL_NAME")
 
 # ```json ... ``` around the answer: some models add it even when asked for JSON.
 FENCE = re.compile(r"^\s*```(?:json)?\s*|\s*```\s*$")
@@ -90,13 +100,22 @@ def load_prompt(name: str) -> str:
     return "\n".join(lines).strip()
 
 
-def configured() -> bool:
-    """Is a key set? Without one the LLM configuration is not available.
+def setting(name: str) -> str:
+    """One setting from the environment, or "" when it is unset or still the
+    `<placeholder>` of .env.example."""
+    value = (os.environ.get(name) or "").strip()
+    return "" if value.startswith("<") else value
 
-    The template value from .env.example (`<the key ...>`) does not count.
-    """
-    key = os.environ.get("OPENAI_API_KEY") or os.environ.get("ILAAS_API_KEY") or ""
-    return bool(key.strip()) and not key.strip().startswith("<")
+
+def missing() -> list[str]:
+    """The settings of the LLM endpoint that are not filled in yet."""
+    return [name for name in SETTINGS if not setting(name)]
+
+
+def configured() -> bool:
+    """Endpoint, access code and model all set? Otherwise the LLM configuration
+    is not available -- and nothing guesses a model on the student's behalf."""
+    return not missing()
 
 
 def parse_json(text: Optional[str]) -> Any:
@@ -111,11 +130,13 @@ def parse_json(text: Optional[str]) -> Any:
 class Usage:
     """What the service cost so far -- the data Iteration 3 computes a metric from.
 
-    `attempts` counts every request sent, `answers` every reply that arrived,
-    `failures` every extract() that ended in None. Latencies are recorded per
-    attempt, timeouts included, so the median is not flattered.
+    `calls` counts the extract() calls, `attempts` every request sent,
+    `answers` every reply that arrived, `failures` every extract() that ended in
+    None. Latencies are recorded per attempt, timeouts included, so the median
+    is not flattered.
     """
 
+    calls: int = 0
     attempts: int = 0
     answers: int = 0
     failures: int = 0
@@ -123,11 +144,6 @@ class Usage:
     prompt_tokens: int = 0
     completion_tokens: int = 0
     latencies: list[float] = field(default_factory=list)
-
-    @property
-    def calls(self) -> int:
-        """Number of extract() calls (answers plus failures)."""
-        return self.answers + self.failures
 
     def per_call(self) -> tuple[int, int]:
         """Average tokens in and out per answered call, for the service card."""
@@ -162,10 +178,9 @@ class LlmService:
         retries: int | None = None,
     ) -> None:
         env = os.environ
-        self.base_url = (base_url or env.get("OPENAI_API_BASE")
-                         or env.get("ILAAS_INFERENCE_BASE_URL") or DEFAULT_BASE).rstrip("/")
-        self.api_key = api_key or env.get("OPENAI_API_KEY") or env.get("ILAAS_API_KEY") or ""
-        self.model = model or env.get("MODEL_NAME") or env.get("ILAAS_CHAT_MODEL") or DEFAULT_MODEL
+        self.base_url = (base_url or setting("OPENAI_API_BASE")).rstrip("/")
+        self.api_key = api_key or setting("OPENAI_API_KEY")
+        self.model = model or setting("MODEL_NAME")
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.timeout = float(env.get("LLM_TIMEOUT", "20")) if timeout is None else timeout
@@ -176,8 +191,10 @@ class LlmService:
     # -- the one public method ------------------------------------------------
     def extract(self, system: str, user: str) -> dict | None:
         """Ask for a JSON object. None means: the service could not answer."""
-        if not self.api_key or self.api_key.strip().startswith("<"):
-            trace.service("no API key configured -> None (see .env.example)")
+        self.usage.calls += 1
+        unset = [name for name, value in zip(SETTINGS, (self.base_url, self.api_key, self.model)) if not value]
+        if unset:
+            trace.service(f"not configured: {', '.join(unset)} missing in .env -> None (see .env.example)")
             self.usage.attempts += 1
             self.usage.failures += 1
             return None
@@ -200,7 +217,7 @@ class LlmService:
                 seconds = time.time() - started
                 self.usage.latencies.append(seconds)
                 if getattr(reply, "object", "") == "error":     # HTTP 200 with an error body
-                    trace.service(f"attempt {attempt}: the gateway answered 200 with an error body -> retry")
+                    trace.service(f"attempt {attempt}: the gateway answered 200 with an error body -> {self._next(attempt)}")
                     self._pause(attempt)
                     continue
                 choice = reply.choices[0]                       # we asked for one answer
@@ -220,7 +237,7 @@ class LlmService:
                               + (", cut off at max_tokens" if cut_off else ""))
                 value = parse_json(content)
                 if not isinstance(value, dict):
-                    trace.service(f"attempt {attempt}: JSON, but not an object ({type(value).__name__}) -> retry")
+                    trace.service(f"attempt {attempt}: JSON, but not an object ({type(value).__name__}) -> {self._next(attempt)}")
                     self._pause(attempt)
                     continue
                 trace.service(f"answer: {json.dumps(value, ensure_ascii=False)[:70]}")
@@ -230,15 +247,15 @@ class LlmService:
                     trace.service(f"attempt {attempt}: cut off at max_tokens={self.max_tokens}, "
                                   f"not JSON -> no retry, that cannot change")
                     break
-                trace.service(f"attempt {attempt}: answer is not JSON ({error}) -> retry")
+                trace.service(f"attempt {attempt}: answer is not JSON ({error}) -> {self._next(attempt)}")
                 self._pause(attempt)
             except Exception as error:  # noqa: BLE001 -- timeout, 4xx/5xx, network
                 self.usage.latencies.append(time.time() - started)
                 status = getattr(error, "status_code", None)
-                if status is not None and 400 <= status < 500:
+                if status is not None and 400 <= status < 500 and status not in (408, 429):
                     trace.service(f"attempt {attempt}: HTTP {status} {type(error).__name__} -> no retry, that cannot change")
                     break
-                trace.service(f"attempt {attempt}: {type(error).__name__}: {str(error)[:80]} -> retry")
+                trace.service(f"attempt {attempt}: {type(error).__name__}: {str(error)[:80]} -> {self._next(attempt)}")
                 self._pause(attempt)
         self.usage.failures += 1
         trace.service("gave up -> None (the caller falls back)")
@@ -253,8 +270,8 @@ class LlmService:
         of its run.
         """
         return {
-            "provider": self.base_url,
-            "model": self.model,
+            "provider": self.base_url or "(not configured)",
+            "model": self.model or "(not configured)",
             "temperature": self.temperature,
             "max_tokens": self.max_tokens,
             "timeout_s": self.timeout,
@@ -264,13 +281,17 @@ class LlmService:
 
     def card_lines(self) -> str:
         """The description as four labelled lines, for the terminal."""
-        return (f"provider  {self.base_url}\n"
-                f"          model     {self.model}\n"
+        return (f"provider  {self.base_url or '(not configured)'}\n"
+                f"          model     {self.model or '(not configured)'}\n"
                 f"          settings  temperature {self.temperature}, max_tokens {self.max_tokens}, "
                 f"timeout {self.timeout:g} s, retries {self.retries}\n"
                 f"          format    json_object (fences stripped on our side)")
 
     # -- internals ------------------------------------------------------------
+    def _next(self, attempt: int) -> str:
+        """What happens after a transient fault: another attempt, or the end."""
+        return "retry" if attempt <= self.retries else "no attempts left"
+
     def _pause(self, attempt: int) -> None:
         """A growing pause before the next attempt -- the quota is shared by the room."""
         if attempt <= self.retries:
@@ -280,7 +301,10 @@ class LlmService:
         if self._client is None:
             from openai import OpenAI      # imported here so the static configuration never needs it
 
-            self._client = OpenAI(base_url=self.base_url, api_key=self.api_key)
+            # max_retries=0: the client library would otherwise retry timeouts,
+            # 429 and 5xx twice on its own, invisibly -- every attempt above
+            # would be up to three requests, and the budget three times larger.
+            self._client = OpenAI(base_url=self.base_url, api_key=self.api_key, max_retries=0)
             # The client library logs every request at INFO ("HTTP Request: POST ...");
             # its loggers exist only from here on, so silence them again now.
             for name in ("httpx", "httpx2", "httpcore", "openai", "openai._base_client"):

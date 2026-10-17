@@ -1,8 +1,8 @@
 """The evaluator: run the bot against cases drawn from the knowledge graph, and say what changed.
 
-    python evaluate.py --model mistral-small-4-119b -n 10
-    python evaluate.py --model mistral-small-4-119b -n 25 --seed 7
-    python evaluate.py --config static -n 25                 # the baseline, no model, no key
+    python evaluate.py -n 10                                 # the model in MODEL_NAME
+    python evaluate.py --model <a model the endpoint offers> -n 25 --seed 7
+    python evaluate.py --config static -n 25                 # the baseline, no model, no LLM endpoint
 
 What it does, in the order it does it:
 
@@ -379,8 +379,8 @@ def parse_arguments(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Evaluate one configuration of the bot against cases generated from the knowledge graph.",
         epilog="Every run is written to results/ and compared with the one before it.")
-    parser.add_argument("--model", default=os.environ.get("MODEL_NAME", "mistral-small-4-119b"),
-                        help="the LLM id to measure (default: MODEL_NAME from .env). "
+    parser.add_argument("--model", default=None,
+                        help="the LLM id to measure (default: MODEL_NAME from .env, provided on-site). "
                              "A different model is a different implementation -- re-measure it.")
     parser.add_argument("-n", "--cases", type=int, default=10,
                         help="how many test-case instances PER METHOD (default: 10)")
@@ -404,6 +404,17 @@ def main(argv: list[str] | None = None) -> int:
     # The model id has to be in the environment BEFORE the service is built:
     # `pizzabot.llm_service` reads MODEL_NAME when it first constructs itself.
     if arguments.config == "llm":
+        import pizzabot  # noqa: F401 -- importing the package reads .env, so MODEL_NAME there counts
+        named = (os.environ.get("MODEL_NAME") or "").strip()
+        arguments.model = arguments.model or ("" if named.startswith("<") else named)
+        if not arguments.model:
+            from pizzabot import log
+
+            log.fail("no model to measure: MODEL_NAME is not set in .env and --model was not given",
+                     "a model is chosen, never guessed")
+            log.hint("put the model you were given on-site into .env (python check_llm.py lists the "
+                     "endpoint's models), or measure the baseline: python evaluate.py --config static")
+            return 2
         os.environ["MODEL_NAME"] = arguments.model
     os.environ.setdefault("LOG_LEVEL", "WARNING")            # the node trace would drown the report
 

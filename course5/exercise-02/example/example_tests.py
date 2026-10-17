@@ -23,9 +23,10 @@ same reason. Exactness is the criterion, not who wrote the method.
 
 What you change, and where:
 
-    Task 2b   ADDRESS_CASES: every expected value gains a street and a house
-              number, and two cases have to be rewritten, because "10563
-              Athens" is no longer a complete address.
+    Task 2b   ADDRESS_CASES: two of the three complete addresses gain a
+              street and a house number, in the sentence and in the expected
+              value; "deliver it to 10563 Athens" stays and now expects {},
+              because a postcode and a city are no longer a complete address.
     Task 2c   PIZZA_CASES: "one Margaritha please" now expects "Margherita",
               more near-miss cases join it, and the test becomes a rate against
               PIZZA_THRESHOLD.
@@ -75,7 +76,7 @@ ADDRESS_THRESHOLD = 0.8
 
 needs_key = pytest.mark.skipif(
     not llm_service.configured(),
-    reason="the address node needs OPENAI_API_KEY in .env -- the key from the lecture hall",
+    reason="the address node needs the LLM endpoint in .env (OPENAI_API_BASE, OPENAI_API_KEY, MODEL_NAME)",
 )
 
 

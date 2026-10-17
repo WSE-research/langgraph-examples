@@ -125,7 +125,7 @@ def test_the_live_draw_is_honoured(monkeypatch):
         except Exception as error:                  # no network, API down
             pytest.skip(f"the Pizza API does not answer: {error}")
         if not before:
-            pytest.skip("GET /pizza has no sold-out pizza -- PIZZA_API_BASE is not version v5")
+            pytest.skip("GET /pizza has no sold-out pizza -- PIZZA_API_BASE points at a stub, not at version v5")
         answers = {name: availability.is_available(name) for name in before}
         after = {p["name"] for p in LIVE_MENU(True) if p.get("available") is False}
         if before == after:
