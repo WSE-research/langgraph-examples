@@ -11,17 +11,17 @@ A working LLM-backed process in three files, small enough to read before the cof
 
 ## Run it
 
-The key is the one handed out in the lecture hall. Paste it into `.env` in the repository root (never into a file you commit — `.env` is in `.gitignore`):
+The LLM endpoint, its access code and the model name are the ones provided on-site (Task 1a of the sheet). They go into `.env` in the repository root (never into a file you commit — `.env` is in `.gitignore`):
 
 ```bash
 cp .env.example .env                     # if you have not done it yet
-# then edit .env: OPENAI_API_KEY=<the key from the lecture hall>
+# then fill in OPENAI_API_BASE, OPENAI_API_KEY and MODEL_NAME in .env
 python example/simple_bot.py --interactive   # you type the sentences -- start here
 python example/simple_bot.py             # four sentences through both nodes
 python example/simple_bot.py "one Diavola to 10563 Athens"
 ```
 
-You should see the pizza recognised by the rule, the address recognised by the model, and a usage line at the end with the latency and the token counts. If it says "No key in .env", the key is missing or the line in `.env` is misspelled; `python check_setup.py` says which.
+You should see the pizza recognised by the rule, the address recognised by the model, and a usage line at the end with the latency and the token counts. If it says the LLM endpoint is not configured, one of the three lines is missing or misspelled in `.env`; `python check_setup.py` says which.
 
 ## Test it
 

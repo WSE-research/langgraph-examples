@@ -18,13 +18,20 @@ payload (source: WSE-research/langgraph-examples, common/main.py):
     GET  /pizza              -> [{"id": 1, "name": "Margherita"}, ...]   (22 pizzas)
     POST /address/validate   -> 200 {"message": "Address is valid", "address": {...}}
                                 400 {"detail": "We don't deliver to ..."}
+                                422 a missing field, as the service's FastAPI says it
     POST /order              -> 200 {"order_id": "...", "status": "received"}
     GET  /order/<order_id>   -> 200 {"order_id", "status", "pizza_id", "address"}
 
-Same menu, same ids, same error shapes, and every city of the course examples --
-so a run against the stub and a run against https://wse-research.org/pizza-api/v2
-behave alike on every case of this exercise. Every pizza can always be ordered,
-in v2 as here: pizzas that sell out arrive with version v5 of the service.
+Same menu, same ids, same delivery area, same error messages -- so a run against
+the stub and a run against https://wse-research.org/pizza-api/v2 behave alike.
+The delivery area is the data file the service uses, `data/cities.tsv.gz`:
+every commune of France, every town and village of Greece, plus Leipzig, Halle
+and Dresden, compared without accents and case, a Greek place also under its
+other spellings; without the file the stub falls back to the nine cities of the
+course examples and says so. The one thing of v2 the stub does not serve is
+GET /city -- this exercise never calls it; it arrives with Exercise 3. Every
+pizza can always be ordered, in v2 as here: pizzas that sell out arrive with
+version v5 of the service.
 
 Standard library only -- nothing to install. Orders live in memory and are gone
 when you stop the server; that is fine, the order id is all the process needs.
@@ -37,7 +44,9 @@ is the same idea that lets an LLM replace a rule in Iteration 2.
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
+import os
 import unicodedata
 import uuid
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -127,6 +136,56 @@ VALID_CITIES_NORMALIZED = {normalize_city(city) for city in VALID_CITIES}
 VALID_CITIES_NORMALIZED |= {normalize_city(spelling)
                             for spellings in OTHER_SPELLINGS.values() for spelling in spellings}
 
+# The delivery area of v2 itself: the data file the service reads (name, country,
+# population, other spellings separated by "|"). VALID_CITIES above are the nine
+# of the course examples -- the page below names them, and they are the fallback
+# when the file is missing.
+CITY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "cities.tsv.gz")
+AREA = "every commune of France, every town and village of Greece, plus Leipzig, Halle and Dresden"
+
+
+def load_area() -> tuple[set[str], int]:
+    """The folded names and spellings of the delivery area, and how many places it has."""
+    if not os.path.exists(CITY_FILE):
+        log.warn(f"{CITY_FILE} not found -- serving the nine cities of the course examples")
+        return VALID_CITIES_NORMALIZED, len(VALID_CITIES)
+    accepted, places = set(), 0
+    with gzip.open(CITY_FILE, "rt", encoding="utf-8") as handle:
+        for line in handle:
+            name, _country, _population, *rest = line.rstrip("\n").split("\t")
+            places += 1
+            accepted.add(normalize_city(name))
+            accepted.update(normalize_city(s) for s in (rest[0].split("|") if rest and rest[0] else []))
+    return accepted, places
+
+
+ACCEPTED, PLACES = load_area()
+
+
+def refusal(city: str) -> str:
+    """The 400 message of v2, word for word."""
+    if PLACES == len(VALID_CITIES):                       # the fallback without the data file
+        return f"We don't deliver to {city}. Available cities: {', '.join(VALID_CITIES)}"
+    return (f"We don't deliver to {city}. We deliver to {PLACES} places -- {AREA}. "
+            f"Look yours up with GET /city?q={city[:40]}")
+
+
+def missing_fields(body: dict, fields: tuple[str, ...]) -> list[dict]:
+    """The 422 detail FastAPI gives for missing fields, in the order of the service's model."""
+    return [{"type": "missing", "loc": ["body", field], "msg": "Field required", "input": body}
+            for field in fields if field not in body]
+
+
+def address_error(city: str, street: str, house_number: str) -> str | None:
+    """The three checks of POST /address/validate, in the service's order."""
+    if normalize_city(city) not in ACCEPTED:
+        return refusal(city)
+    if len(street) < 2:
+        return "Invalid street name"
+    if not house_number:
+        return "House number is required"
+    return None
+
 
 # The page served at the stub's own URL. The university service answers there
 # with its Swagger UI (https://wse-research.org/pizza-api/v2); the stub cannot -- a
@@ -154,7 +213,7 @@ INDEX_HTML = """<!doctype html>
 <h1>Pizza API <small>(local stub)</small></h1>
 <p class="note">This is the offline stand-in that ships with Exercise 2. It answers like version v2 of the
 university service at <a href="https://wse-research.org/pizza-api/v2">https://wse-research.org/pizza-api/v2</a>
-&mdash; same endpoints, same menu and ids, every city of the course examples &mdash; but it runs on your
+&mdash; same endpoints, same menu and ids, same delivery area, same error messages &mdash; but it runs on your
 machine and keeps its orders in memory. The real service shows its interactive Swagger UI at its own URL;
 this page is the static equivalent, so that it also works with no network at all.
 It is served by <code>pizza_api_stub.py</code> in your terminal &mdash; closing that terminal stops it.</p>
@@ -171,7 +230,7 @@ It is served by <code>pizza_api_stub.py</code> in your terminal &mdash; closing 
 <p>{menu}</p>
 
 <h2>Delivery area</h2>
-<p>{cities} &mdash; compared without accents and without case, so <code>athens</code> and
+<p>{area} &mdash; {cities} among them &mdash; compared without accents and without case, so <code>athens</code> and
 <code>ATHENS</code> are the same place, and so are <code>Athina</code> and <code>Αθήνα</code>. Anything else is answered with
 <code>400 &quot;We don&#39;t deliver to ...&quot;</code>.</p>
 
@@ -211,14 +270,16 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(payload)
 
-    def _read_json(self) -> dict:
+    def _read_json(self) -> dict | None:
+        """The request body, or None when it is not a JSON object (the service: 422)."""
         length = int(self.headers.get("Content-Length") or 0)
         if not length:
             return {}
         try:
-            return json.loads(self.rfile.read(length) or b"{}")
+            body = json.loads(self.rfile.read(length) or b"{}")
         except json.JSONDecodeError:
-            return {}
+            return None
+        return body if isinstance(body, dict) else None
 
     def _send_html(self, status: int, html: str) -> None:
         payload = html.encode("utf-8")
@@ -244,35 +305,41 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         body = self._read_json()
+        if body is None and self.path.rstrip("/") in ("/address/validate", "/order"):
+            self._send(422, {"detail": [{"type": "json_invalid", "loc": ["body", 0],
+                                         "msg": "JSON decode error", "input": {},
+                                         "ctx": {"error": "Expecting value"}}]})
+            return
 
         if self.path.rstrip("/") == "/address/validate":
+            missing = missing_fields(body, ("city", "street", "house_number"))
+            if missing:
+                self._send(422, {"detail": missing})
+                return
             city = str(body.get("city", ""))
             street = str(body.get("street", ""))
             house_number = str(body.get("house_number", ""))
-            if normalize_city(city) not in VALID_CITIES_NORMALIZED:
-                self._send(400, {"detail": f"We don't deliver to {city}. "
-                                           f"Available cities: {', '.join(VALID_CITIES)}"})
-            elif len(street) < 2:
-                self._send(400, {"detail": "Invalid street name"})
-            elif not house_number:
-                self._send(400, {"detail": "House number is required"})
+            error = address_error(city, street, house_number)
+            if error:
+                self._send(400, {"detail": error})
             else:
                 self._send(200, {"message": "Address is valid",
                                  "address": {"city": city, "street": street,
                                              "house_number": house_number}})
 
         elif self.path.rstrip("/") == "/order":
+            missing = missing_fields(body, ("pizza_id", "city", "street", "house_number"))
+            if missing:
+                self._send(422, {"detail": missing})
+                return
             pizza = next((p for p in MENU if p["id"] == body.get("pizza_id")), None)
             if pizza is None:
                 self._send(404, {"detail": "Pizza not found"})
                 return
             city = str(body.get("city", ""))
-            if normalize_city(city) not in VALID_CITIES_NORMALIZED:
-                self._send(400, {"detail": f"We don't deliver to {city}. "
-                                           f"Available cities: {', '.join(VALID_CITIES)}"})
-                return
-            if not all(body.get(field) for field in ("street", "house_number", "city")):
-                self._send(400, {"detail": "street, house_number and city are required"})
+            error = address_error(city, str(body.get("street", "")), str(body.get("house_number", "")))
+            if error:
+                self._send(400, {"detail": error})
                 return
             order_id = str(uuid.uuid4())
             ORDERS[order_id] = {
@@ -304,6 +371,7 @@ def main() -> None:
     INDEX_HTML = INDEX_HTML.format(
         menu=", ".join(f"<code>{p['id']}</code> {p['name']}" for p in MENU),
         cities=", ".join(VALID_CITIES),
+        area=(f"{PLACES} places: {AREA}" if PLACES != len(VALID_CITIES) else "the nine cities of the course examples"),
         base=f"http://{args.host}:{args.port}",
     )
 

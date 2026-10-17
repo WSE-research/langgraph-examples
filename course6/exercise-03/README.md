@@ -12,7 +12,7 @@ Iteration 3 of *Engineering AI-Driven Software Processes — Hands-on KGQA with 
 
 What this repository has to contain when the session ends:
 
-1. `python check_setup.py` — every check green (the LLM check may be red if your key does not work; then measure `--config static` and say so in the report).
+1. `python check_setup.py` — every check green (the LLM check may be red if the endpoint does not answer; then measure `--config static` and say so in the report).
 2. `pytest -q` — green. `pytest -q -m gate` — green as well, which is the part that says *you* did the tasks.
 3. `tests/test_manual_cases.py` filled: five cases per method, at least one refusal each.
 4. The knowledge graph extended: **+10 cities and +3 pizzas picked from the endpoint** (`benchmark/data/picked.ttl`, each carrying `tg:source`), **+10 streets with their house numbers and addresses** written by you, **+3 descriptive pizza wordings** — reviewable as a diff, with every city defined exactly once.
@@ -36,7 +36,7 @@ What this repository has to contain when the session ends:
 
 | your Iteration 2 repository | do this |
 | --- | --- |
-| **complete** — `pytest -q` was green in both configurations and `run_dialog.py --llm --script` placed an order | clone this material *outside* your repository, then copy `benchmark/`, `tests/`, `evaluate.py`, `check_setup.py`, `conftest.py`, `pytest.ini` and `requirements.txt` into your repository. Keep your own `pizzabot/` — it is the one being measured. |
+| **complete** — `pytest -q` was green in both configurations and `run_dialog.py --llm --script` placed an order | clone this material *outside* your repository, then copy `benchmark/`, `tests/`, `evaluate.py`, `check_setup.py`, `conftest.py`, `pytest.ini` and `requirements.txt` into your repository. Keep your own `pizzabot/` — it is the one being measured — except `pizzabot/pizza_api.py` and `pizzabot/llm_service.py`: take this iteration's two adapters (the Pizza API one names v3, see below); you never edited either. |
 | **not complete** | start from this folder. It ships the **complete Iteration 2 reference implementation** in `pizzabot/` (both recognizers, both configurations, the service adapter, the prompts), so an unfinished Iteration 2 does not cost you Iteration 3. Read `pizzabot/address_llm.py` and `pizzabot/pizza_llm.py` before Task 2 — they are what your numbers will be about. |
 
 ```bash
@@ -44,10 +44,10 @@ git clone https://github.com/WSE-research/langgraph-examples.git     # row 1: ou
 cd langgraph-examples/course6/exercise-03                            # row 2 only
 python3 -m venv .venv && source .venv/bin/activate                   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt                                      # adds exactly one package: rdflib
-cp .env.example .env                                                 # then paste your ILaaS key
+cp .env.example .env                                                 # then the three LLM lines (provided on-site)
 ```
 
-**2. The key.** `.env` needs `OPENAI_API_KEY` — the same ILaaS key as in Iteration 2 — and `MODEL_NAME`, which the evaluator will record with every number it writes. Never commit `.env`; it is in `.gitignore`.
+**2. The LLM endpoint.** `.env` needs the three values provided on-site, the same as in Iteration 2: the endpoint (`OPENAI_API_BASE`), its access code (`OPENAI_API_KEY`) and the model name (`MODEL_NAME`), which the evaluator records with every number it writes. Never commit `.env`; it is in `.gitignore`.
 
 **3. Check the machine.**
 
@@ -64,7 +64,7 @@ python pizza_api_stub.py                      # second terminal
 # and in .env:  PIZZA_API_BASE=http://127.0.0.1:8000
 ```
 
-**This exercise uses version v3 of the Pizza API, `PIZZA_API_BASE=https://wse-research.org/pizza-api/v3`** — the line in `.env.example`. If you carried your `.env` over from Iteration 2, change `/v2` to `/v3` in it. Every exercise has its own version, and a version does not change once it is published, so the numbers you measure today can be measured again next month.
+**This exercise uses version v3 of the Pizza API, and the version is in the adapter, not in `.env`.** This iteration's `pizzabot/pizza_api.py` uses <https://wse-research.org/pizza-api/v3> by itself: take it from this folder — it replaces the adapter of Iteration 2, which you never edited — and delete any `PIZZA_API_BASE` line an earlier iteration left in your `.env`. `PIZZA_API_BASE` is for the local stub only; a line that names another version of the service is ignored, and the adapter says so on its first request. Every exercise has its own version, and a version does not change once it is published, so the numbers you measure today can be measured again next month.
 
 **4. Run the suite once, now, with nothing done yet.**
 
@@ -145,7 +145,7 @@ The warning names two numbers: what you asked for, and what the catalog can prod
 python evaluate.py --config static -n 10 --seed 42
 ```
 
-This is the baseline: the Iteration 1 rules, no model, no key, ten cases per method. Read the table from the right: `p50 s` is small but not zero — every address case calls `POST /address/validate`, so the delivery area is checked over the network — the interval is wide (ten cases), and `address_recognition` is low — the rule was written for two word orders and the generator draws four.
+This is the baseline: the Iteration 1 rules, no model, no LLM endpoint, ten cases per method. Read the table from the right: `p50 s` is small but not zero — every address case calls `POST /address/validate`, so the delivery area is checked over the network — the interval is wide (ten cases), and `address_recognition` is low — the rule was written for two word orders and the generator draws four.
 
 **Check:** `results/last-run.json`, `results/history.jsonl` and `quality-report.md` now exist, and the last line of the console output says `GATE FAIL` with a number in it. A gate that fails on the first run is the normal case; it is the *baseline* you improve on.
 
@@ -278,9 +278,9 @@ Every run draws `n` cases **per method** from your extended graph, scores them, 
 ### 4a — three runs, one model: what more cases buy [8 min]
 
 ```bash
-python evaluate.py --model mistral-small-4-119b -n 5  --seed 42
-python evaluate.py --model mistral-small-4-119b -n 15 --seed 42
-python evaluate.py --model mistral-small-4-119b -n 30 --seed 42
+python evaluate.py -n 5  --seed 42           # the model in MODEL_NAME, the one you were given
+python evaluate.py -n 15 --seed 42
+python evaluate.py -n 30 --seed 42
 ```
 
 **Watch the interval, not the accuracy.** Three of five is 0.60 with an interval something like [0.23, 0.88] — a number that permits almost any opinion. The same rate over thirty cases still says 0.60, and says it between 0.42 and 0.75. You did not make the bot better; you made the statement about it stronger, and that is the entire argument for generating test cases.
@@ -292,11 +292,11 @@ python evaluate.py --model mistral-small-4-119b -n 30 --seed 42
 Now hold everything else still. **Same `-n`, same `--seed`, same knowledge graph** — so the generator draws exactly the same sentences — and change only the model:
 
 ```bash
-python evaluate.py --model mistral-small-4-119b   -n 15 --seed 42     # you already have this one
-python evaluate.py --model qwen-3.6-35b-instruct  -n 15 --seed 42
+python evaluate.py -n 15 --seed 42                          # you already have this one
+python evaluate.py --model <a second model> -n 15 --seed 42
 ```
 
-`.env.example` lists the models the room has been given: `mistral-small-4-119b` (the default), `qwen-3.6-35b-instruct` (clean JSON, fastest), `gemma-4-31b`, `llama-3.1-8b`. Take a third if you have time — the runs are cheap and the table is more interesting with three rows.
+`python check_llm.py` lists the models the endpoint offers; take a second one from that list (or the one named on-site for the comparison). Take a third if you have time — the runs are cheap and the table is more interesting with three rows.
 
 This is the one comparison in the session where the delta block says something exact. With `-n` and `--seed` unchanged the two runs saw **the same sentences**, so the harness can tell you not only that the rate moved but *which cases changed their mind*:
 
@@ -319,7 +319,7 @@ Three things to write down while the two runs go past:
 ### The other flags [2 min]
 
 ```bash
-python evaluate.py --config static -n 30                       # the baseline: no model, no key, no network
+python evaluate.py --config static -n 30                       # the baseline: no model, no LLM endpoint, no network
 python evaluate.py --data benchmark/data/catalog.ttl -n 10     # a specific knowledge graph file
 python evaluate.py --method address_recognition -n 50          # one method only, when time is short
 python evaluate.py --threshold 0.9 -n 30                       # the gate -- decide this BEFORE the run
@@ -361,7 +361,7 @@ One screen, three things: the gate line of your report; the two capacity numbers
 | `pytest -q -m gate` red | you have not finished Task 2 or Task 3 | the message says which count is missing and how many |
 | every LLM run takes minutes | `-n` times three methods times one call each (the third method makes two) | start with `-n 5`, and use `--method` while you are still reading output |
 | the LLM configuration scores exactly like the static one | the service is failing and the fallback is answering every time | `python check_llm.py`; a tier line saying `static` on every case means no model answer arrived |
-| `GET /city -> HTTP 404` | `PIZZA_API_BASE` points at a version without the endpoint (v1) | `PIZZA_API_BASE=https://wse-research.org/pizza-api/v3`, or `python pizza_api_stub.py`, which serves the same area offline |
+| `GET /city -> HTTP 404` | `PIZZA_API_BASE` in `.env` points at a stub without the endpoint (the one of Exercise 2), or `pizzabot/pizza_api.py` is still the adapter of Iteration 2 | delete the line, take this folder's adapter, or start this folder's `python pizza_api_stub.py`, which serves the same area offline |
 | `benchmark.fetch` refuses a city you are sure exists | the service lists it under another spelling (`Athens`, not `Athina`; `Agia Paraskevi`, not `Ag. Paraskevi`) — the tool says which | `python -m benchmark.fetch cities --search <first letters>` and copy the spelling it prints |
 | `results/last-run.json` not found after a run | you ran the script from another directory | run it from the folder that contains `evaluate.py` |
 | the numbers move although nothing changed | the LLM configuration is nondeterministic | that is the finding of item 6 of the lecture's definition of done — record it, do not hide it |

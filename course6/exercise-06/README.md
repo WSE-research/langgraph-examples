@@ -21,8 +21,8 @@ Iteration 6 of *Engineering AI-Driven Software Processes — Hands-on KGQA with 
 
 * your repository as Iteration 5 left it: the QA sub-graph, the annotation helper (`annotate`), `what_happened(target)`, and the tests;
 * `stories/` from this folder — 22 Markdown files, one per pizza, 600–900 words each;
-* the ILaaS **RAG** key in `.env` (`ILAAS_RAG_URL`, `ILAAS_RAG_KEY`) — a different service and a different key from the inference endpoint you have used since Iteration 2;
-* `PIZZA_API_BASE=https://wse-research.org/pizza-api/v6` in `.env` — the Pizza API version of this iteration. It serves exactly what v5 served, so every test of Iterations 3 to 5 stays green against it; the RAG branch itself never calls the service;
+* the **RAG service**, provided on-site, independently of this repository, like the LLM endpoint: its address, its access code and its chat model in `.env` as `RAG_API_BASE`, `RAG_API_KEY` and `RAG_CHAT_MODEL` — a different service and a different access code from the inference endpoint (`OPENAI_API_BASE`, `OPENAI_API_KEY`, `MODEL_NAME`) you have used since Iteration 2 — and its Python client, the module `rag_client` with the class `RagClient`, which is handed out with the service and is not part of this repository;
+* `pizzabot/pizza_api.py` from this folder — the Pizza API adapter of this iteration, which uses <https://wse-research.org/pizza-api/v6> by itself. Copy it over yours (you never edited it) and delete any `PIZZA_API_BASE` line an earlier iteration left in `.env`: the version is in the adapter, not in `.env`. v6 serves exactly what v5 served, so every test of Iterations 3 to 5 stays green against it; the RAG branch itself never calls the service;
 * **read `stories/README.md` first.** Those texts are invented — which is what makes this exercise measurable: nothing in them can be answered from what a model already knows. The nine sections every file has are the other half of the point; they are what a chunking decision either keeps or destroys.
 
 **Three rules that apply to every task below, and that are not repeated in each one:**
@@ -42,9 +42,9 @@ Iteration 6 of *Engineering AI-Driven Software Processes — Hands-on KGQA with 
 1. **Create the collection.** Private, unique name, your team number in it:
 
    ```python
-   from ilaas_connector import IlaasRag
+   from rag_client import RagClient
 
-   rag = IlaasRag.from_env()
+   rag = RagClient.from_env()          # reads RAG_API_BASE, RAG_API_KEY and RAG_CHAT_MODEL from .env
    collection = rag.create_collection("pizzabot-stories-team07",   # your team number
                                       visibility="private")
    ```

@@ -8,7 +8,7 @@ HTTP path. Both are session-scoped: the graph is parsed once per run.
 sits behind each component name. It follows `BOT_CONFIG`, so the same test file
 measures both configurations without being edited::
 
-    pytest -q                      # static -- the Iteration 1 rules, no key needed
+    pytest -q                      # static -- the Iteration 1 rules, no LLM endpoint needed
     BOT_CONFIG=llm pytest -q       # the LLM-backed implementations
 """
 

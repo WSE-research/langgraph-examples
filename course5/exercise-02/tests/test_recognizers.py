@@ -58,7 +58,7 @@ from pizzabot.task4_address import recognize_address
 
 needs_key = pytest.mark.skipif(
     not llm_service.configured(),
-    reason="the LLM-backed methods need OPENAI_API_KEY in .env (Iteration 1, Task 8)",
+    reason="the LLM-backed methods need OPENAI_API_BASE, OPENAI_API_KEY and MODEL_NAME in .env (provided on-site)",
 )
 
 
@@ -102,6 +102,11 @@ PIZZA_CASES: list[tuple[str, str]] = [
 # TODO 2: the bar for the LLM-backed methods. 0.8 means "four of the five".
 # It is a decision: put the date and your name in a comment right here.
 THRESHOLD = 0.8
+
+# ... and how many of the five the *service* must answer itself, not the
+# fallback rule (TODO 4). Two means: at least the typical cases. Also a
+# decision, with a date and a name.
+ANSWERED = 2
 
 
 # -------------------------------------------------------------- the helpers --

@@ -38,6 +38,10 @@ def skip_without(state: dict, field: str):
 
 
 def offline() -> bool:
-    """True when no LLM key is configured; the static path is measured anyway."""
-    key = os.environ.get("OPENAI_API_KEY", "")
-    return not key or key.startswith("<")
+    """True when the LLM endpoint is not configured; the static path is measured anyway.
+
+    The same rule as `pizzabot.llm_service.configured()`: endpoint, access code and
+    model name, all provided on-site; a value still starting with "<" is missing.
+    """
+    values = [(os.environ.get(name) or "").strip() for name in ("OPENAI_API_BASE", "OPENAI_API_KEY", "MODEL_NAME")]
+    return not all(value and not value.startswith("<") for value in values)

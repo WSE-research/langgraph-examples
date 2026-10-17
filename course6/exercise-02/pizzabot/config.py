@@ -7,10 +7,11 @@ Two configurations of one process:
     STATIC   the Iteration 1 rules, unchanged
     LLM      the Iteration 2 service calls, with the rules as their fallback
 
-`build_graph(STATIC)` and `build_graph(LLM)` produce two runnable processes
-from one model, and the exported diagram is identical for both -- that picture
-is the proof that the process did not change (Task 5). Mixed configurations are
-just another dictionary: replace a single entry.
+`build_graph(implementations(STATIC))` and `build_graph(implementations(LLM))`
+produce two runnable processes from one model, and the exported diagram is
+identical for both -- that picture is the proof that the process did not change
+(Task 5). Mixed configurations are just another dictionary: replace a single
+entry.
 
 Select one from the command line or `.env`::
 
@@ -63,7 +64,7 @@ def implementations(name: str | None = None) -> dict[str, Callable]:
     """The implementation dictionary for a configuration name.
 
     `name` may be None: then `BOT_CONFIG` from the environment decides, and the
-    default is "static" -- the process must keep working with no key at all.
+    default is "static" -- the process must keep working with no LLM endpoint at all.
     """
     chosen = (name or os.environ.get("BOT_CONFIG") or STATIC).lower()
     if chosen not in CONFIGS:

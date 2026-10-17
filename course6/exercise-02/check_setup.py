@@ -185,16 +185,21 @@ def check_pizza_api() -> None:
 
 
 def check_llm_config() -> bool:
-    """Is the endpoint configured? Iteration 2 cannot start without it."""
-    base = os.environ.get("OPENAI_API_BASE") or os.environ.get("ILAAS_INFERENCE_BASE_URL")
-    key = os.environ.get("OPENAI_API_KEY") or os.environ.get("ILAAS_API_KEY")
-    if key and key.strip().startswith("<"):     # the placeholder of .env.example is not a key
-        key = None
+    """Is the endpoint configured? Iteration 2 cannot start without it.
+
+    Endpoint, access code and model are all provided on-site; a value that is
+    unset or still the `<placeholder>` of .env.example counts as missing.
+    """
+    from pizzabot import llm_service
+
+    missing = llm_service.missing()
     return check(
         "LLM endpoint configured",
-        bool(base and key),
-        detail=f"base={base or '(unset)'} key={'set' if key else '(unset)'}",
-        fix="copy .env.example to .env and paste the key you were given in Iteration 1",
+        not missing,
+        detail=(f"base={llm_service.setting('OPENAI_API_BASE')} model={llm_service.setting('MODEL_NAME')} key=set"
+                if not missing else f"missing in .env: {', '.join(missing)}"),
+        fix="the endpoint, its access code and the model name are provided on-site: put them into .env\n"
+            "            (see .env.example), then run python check_llm.py",
     )
 
 
@@ -240,7 +245,8 @@ def check_llm_json() -> None:
     check("LLM service: one JSON extraction", ok,
           detail=f"{result} in {seconds:.1f} s, {usage.prompt_tokens} tokens in / {usage.completion_tokens} out"
                  + (", answer was fenced (stripped)" if usage.fenced else ""),
-          fix="the model answered but not with the key we asked for -- try MODEL_NAME=qwen-3.6-35b-instruct")
+          fix="the model answered but not with the key we asked for -- try another model the endpoint offers\n"
+              "            (python check_llm.py lists them)")
 
 
 def main() -> None:
@@ -264,7 +270,7 @@ def main() -> None:
     if check_llm_config():
         check_llm_json()
     else:
-        check("LLM service: one JSON extraction", False, detail="skipped: no key (see the line above)")
+        check("LLM service: one JSON extraction", False, detail="skipped: the endpoint is not configured (see the line above)")
 
     passed = [name for state, name in RESULTS if state == "ok"]
     deferred = [name for state, name in RESULTS if state == "todo"]

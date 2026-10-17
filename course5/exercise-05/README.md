@@ -46,12 +46,13 @@ If any of that is missing, take the Iteration 4 reference implementation rather 
 cp -r data/          my-pizzabot/data/          # only if you do not have it already
 cp kb.py             my-pizzabot/pizzabot/kb.py # ditto
 cp tests/*.py        my-pizzabot/tests/
+cp pizzabot/pizza_api.py my-pizzabot/pizzabot/  # this iteration's adapter: v5
 cd my-pizzabot && python -m pizzabot.kb --selftest      # 19/19 green
 ```
 
-`tests/bot_helpers.py` is the same file as in Iteration 4; `tests/conftest.py` differs in one line — it names version v5 of the Pizza API — so copy it again.
+`tests/bot_helpers.py` is the same file as in Iteration 4; `tests/conftest.py` stops the run while `pizzabot/pizza_api.py` is older than the adapter of this iteration — so copy both again.
 
-**Point your repository at version v5 of the Pizza API.** In your repository's `.env`, change the service line to `PIZZA_API_BASE=https://wse-research.org/pizza-api/v5`. Version v5 is the first in which pizzas sell out — the case Task 1 is about. Every exercise has its own version, and a version does not change once it is published.
+**This exercise uses version v5 of the Pizza API, and the version is in the adapter, not in `.env`.** This iteration's `pizzabot/pizza_api.py` uses <https://wse-research.org/pizza-api/v5> by itself: take it from this folder — it replaces the adapter of Iteration 4, which you never edited — and delete any `PIZZA_API_BASE` line an earlier iteration left in your `.env`. `PIZZA_API_BASE` is for the local stub only; a line that names another version of the service is ignored, and the adapter says so on its first request. Version v5 is the first in which pizzas sell out — the case Task 1 is about. Every exercise has its own version, and a version does not change once it is published.
 
 ---
 
@@ -352,7 +353,7 @@ cd pizzabot && cp .env-example .env       # point the app entries at your own gr
 streamlit run streamlit_chat.py
 ```
 
-In that `.env`, set `PIZZA_API_BASE=https://wse-research.org/pizza-api/v5` — the version with sold-out pizzas, without which the repair of Task 1 never shows up by itself.
+Your bot's adapter picks version v5 — the version with sold-out pizzas, without which the repair of Task 1 never shows up by itself. If that `.env` has a `PIZZA_API_BASE` line, delete it: it is for a local stub only, and your adapter ignores one that names another version.
 
 The frontend is implementation-agnostic: it loads *your* graph, draws it from your node and edge definitions, and shows your bot's own explanation in the **What happened** tab when your implementation exposes `what_happened(target)` — which, since Task 2, it does.
 

@@ -45,7 +45,7 @@ ADDRESS_CASES: list[tuple[str, str]] = [
     ("5 Ermou Athens",                                                "rule: nothing (comma); llm: complete?"),
     ("I live at 5 Ermou in Athens",                                   "rule: nothing ('in'); llm: complete?"),
     ("number 5 on Ermou here in Athens",                              "rule: nothing; llm: complete?"),
-    ("5 Ermou 10563, Athens",                                         "rule: 10563 as the number (contract kept, wrong); llm: 5?"),
+    ("28is Oktovriou 5, Athens",                                      "rule: street Oktovriou (contract kept, wrong); llm: 28is Oktovriou?"),
     ("5Α Ermou, Athens",                                              "rule: nothing (Α is a Greek letter); llm: 5Α -- your pattern decides"),
     # cases where the contract must hold whatever the model thinks:
     ("deliver to Piraeus",                                            "nothing -- no street, no number"),
@@ -112,7 +112,8 @@ def main() -> None:
     which = {"--address": ["address"], "--pizza": ["pizza"]}
     selected = [c for flag, comps in which.items() if flag in sys.argv for c in comps] or ["address", "pizza"]
     if not llm_service.configured():
-        log.fail("no API key in .env", "the LLM column would be all fallbacks")
+        log.fail(f"the LLM endpoint is not configured: {', '.join(llm_service.missing())} missing in .env",
+                 "the LLM column would be all fallbacks")
         log.hint("fill in .env first (see .env.example)")
         sys.exit(1)
 

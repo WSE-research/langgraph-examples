@@ -7,10 +7,17 @@ below, never `requests` directly. That is not tidiness for its own sake:
   * an outage has exactly one place to be handled;
   * the switch between the university API and the local stub is one variable.
 
-Configuration (see .env.example)::
+The version is in this file, not in .env: VERSION below is the version of the
+Pizza API this iteration was written for, and every iteration ships its own
+copy of the adapter -- take it with the iteration's material (you never edit
+it), and delete any PIZZA_API_BASE line an earlier iteration left in .env.
+PIZZA_API_BASE is for the local stub only::
 
-    PIZZA_API_BASE=https://wse-research.org/pizza-api/v3   # the university service, v3
+    # no PIZZA_API_BASE at all                          -> the university service, v3
     PIZZA_API_BASE=http://127.0.0.1:8000                # the local stub
+
+A PIZZA_API_BASE that names another version of the university service, or the
+unversioned one, is ignored, and the first request says so.
 
 The service documents itself: open https://wse-research.org/pizza-api/v3 in a
 browser and you get the interactive Swagger UI for exactly these endpoints,
@@ -36,12 +43,50 @@ service instead of from a list somebody wrote for them.
 from __future__ import annotations
 
 import os
+import re
 from typing import Optional
 
 import requests
 
-BASE = os.environ.get("PIZZA_API_BASE", "https://wse-research.org/pizza-api/v3").rstrip("/")
+# The version of the Pizza API this iteration was written for. It lives here,
+# in the adapter of the iteration -- not in .env: every iteration ships its own
+# copy of this file, so taking the iteration's material is what switches the
+# version. PIZZA_API_BASE is for the local stub only.
+VERSION = "v3"
+DEFAULT = "https://wse-research.org/pizza-api/v3"
 TIMEOUT = float(os.environ.get("PIZZA_API_TIMEOUT", "10"))
+
+# A PIZZA_API_BASE that names the university service -- any other version, or
+# no version at all (the newest) -- is a line an earlier iteration left in .env.
+_UNIVERSITY = re.compile(r"wse-research\.org/pizza-api(?:/(v\d+))?/?$")
+
+
+def _base() -> tuple[str, str]:
+    """The base URL, and the warning to give when .env names another version."""
+    configured = (os.environ.get("PIZZA_API_BASE") or "").strip().rstrip("/")
+    if not configured:
+        return DEFAULT, ""
+    found = _UNIVERSITY.search(configured)
+    if found and found.group(1) != VERSION:
+        named = f"version {found.group(1)}" if found.group(1) else "the unversioned (newest) service"
+        return DEFAULT, (f"PIZZA_API_BASE in .env names {named} of the Pizza API; this iteration's "
+                         f"adapter uses {VERSION} and ignores the line -- delete it from .env "
+                         f"(PIZZA_API_BASE is for the local stub only)")
+    return configured, ""
+
+
+BASE, _IGNORED = _base()
+_WARNED = False
+
+
+def _warn_once() -> None:
+    """Say once per process that a PIZZA_API_BASE line was ignored -- never silently."""
+    global _WARNED
+    if _IGNORED and not _WARNED:
+        _WARNED = True
+        from pizzabot import log        # here, not at the top: pizza_api is imported very early
+
+        log.warn(_IGNORED)
 
 _MENU_CACHE: Optional[list[dict]] = None
 
@@ -55,6 +100,7 @@ class PizzaApiError(RuntimeError):
 
 
 def _get(path: str) -> requests.Response:
+    _warn_once()
     try:
         response = requests.get(f"{BASE}{path}", timeout=TIMEOUT)
     except requests.RequestException as error:
@@ -83,6 +129,7 @@ def _accept_everything() -> dict:
 
 
 def _post(path: str, payload: dict) -> requests.Response:
+    _warn_once()
     try:
         response = requests.post(f"{BASE}{path}", json=payload, headers=_accept_everything(),
                                  timeout=TIMEOUT)
@@ -150,9 +197,9 @@ def cities(q: str | None = None, limit: int = 100, offset: int = 0) -> list[dict
     response = _get(f"/city{query}")
     if response.status_code == 404:
         raise PizzaApiError(
-            f"GET /city -> HTTP 404. This API does not know the endpoint: PIZZA_API_BASE "
-            f"should end in /pizza-api/v3, the version this exercise uses. Fix it, or use "
-            f"the stub: python pizza_api_stub.py"
+            f"GET /city -> HTTP 404. The API at {BASE} does not know the endpoint: the "
+            f"university service has it from v3 on, the stubs from Exercise 3 on. Delete "
+            f"PIZZA_API_BASE from .env, or start the stub of Exercise 3: python pizza_api_stub.py"
         )
     if response.status_code != 200:
         raise PizzaApiError(f"GET /city -> HTTP {response.status_code}")
@@ -186,8 +233,9 @@ def validate_address(street: str, house_number: str, city: str) -> bool:
     """POST /address/validate -- True if the API delivers to this address.
 
     "The service says no" and "the service is broken" are different failures and
-    must not look the same: a 400 is an answer (this address is outside the
-    delivery area); a 5xx is an outage, and any other status -- a 404 from a
+    must not look the same: a 400 is an answer (the service does not deliver to
+    this address -- outside the delivery area, or a street or house number it
+    rejects); a 5xx is an outage, and any other status -- a 404 from a
     wrong PIZZA_API_BASE, say -- is not an answer about the address either. A
     component that treats those as a rejection silently tells the user their
     address is wrong.

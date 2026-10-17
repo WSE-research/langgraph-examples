@@ -84,10 +84,9 @@ def test_the_stub_accepts_and_refuses_what_the_version_does(client, stub, city):
                             {"city": city, "street": "Ermou", "house_number": "5"})
     service = validate(client, stub["key"], city)
     assert status == service.status_code, (city, body)
-    if status == 400 and stub["n"] in (1, 3):
-        # Exercises 1 and 3: the same message, word for word. The Exercise 2
-        # stub knows only the nine example cities of the full area of v2, and
-        # its refusal says so -- a documented difference.
+    if status == 400 and stub["n"] in (1, 2, 3):
+        # The same refusal, word for word: the Exercise 2 stub loads the full
+        # delivery area of v2 from its own copy of data/cities.tsv.gz.
         assert json.loads(body)["detail"] == service.json()["detail"]
 
 

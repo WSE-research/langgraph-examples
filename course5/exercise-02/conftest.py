@@ -11,7 +11,7 @@ is the point: if a test had to know which implementation runs, the contract
 would have leaked into the test. (pytest docs: "Parametrizing fixtures",
 https://docs.pytest.org/en/stable/how-to/fixtures.html#parametrizing-fixtures)
 
-Without a key in `.env` the LLM half is skipped, not failed: the static
+Without the LLM endpoint in `.env` the LLM half is skipped, not failed: the static
 configuration must stay green on a machine that has no access to the model.
 The summary line printed after the dots says how the two halves did.
 """
@@ -36,7 +36,7 @@ from pizzabot import config, llm_service
 def configuration(request) -> str:
     """The name of the configuration under test: "static" or "llm"."""
     if request.param == config.LLM and not llm_service.configured():
-        pytest.skip("the LLM configuration needs OPENAI_API_KEY in .env (Task 8 of Iteration 1)")
+        pytest.skip(f"the LLM configuration needs {', '.join(llm_service.missing())} in .env (provided on-site)")
     return request.param
 
 
@@ -64,6 +64,6 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):  # noqa: ARG0
 
     line = " | ".join([fmt("static"), fmt("llm"), fmt("other").replace("other", "not parametrized")])
     if counts["llm"].get("skipped") and not counts["llm"].get("passed"):
-        line += "   (llm skipped: no key in .env)"
+        line += "   (llm skipped: the LLM endpoint is not configured in .env)"
     terminalreporter.write_sep("-", "configurations")
     terminalreporter.write_line(line)
