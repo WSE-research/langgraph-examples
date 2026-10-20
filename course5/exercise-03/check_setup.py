@@ -273,8 +273,8 @@ def check_llm_json() -> None:
                  + (", answer was fenced (stripped)" if usage.fenced else ""),
           fix="the model answered but not with the key we asked for -- try another model the endpoint offers\n"
               "            (python check_llm.py lists them)")
-    log.hint(f"one call took {seconds:.1f} s. `python evaluate.py -n 10` makes 40 of them "
-             f"(10 per method, and the third method calls two components): "
+    log.hint(f"one call took {seconds:.1f} s. `python evaluate.py -n 40` makes 160 of them "
+             f"(40 per method, and the third method calls two components), four at a time: "
              f"budget roughly {seconds * 40:.0f} s per run.")
 
 

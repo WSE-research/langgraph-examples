@@ -1,4 +1,4 @@
-"""The fetcher: the benchmark catalog, behind an easy API.
+"""The catalog API: the benchmark catalog, behind a few methods.
 
 The data is a knowledge graph (`benchmark/data/*.ttl`) served in-process by
 RDFlib -- no triplestore, no server, no network, so the tests run offline and
@@ -14,7 +14,9 @@ it writes a query.
     catalog.expected(address)               # {'street': ..., 'city': ...}
     catalog.servable(pizza)                 # False -> the right answer is "nothing"
 
-Extending the data means editing Turtle, never this file.
+Extending the data means editing Turtle, never this file. (Not to be confused
+with `benchmark/fetch.py`, the tool that picks cities and pizzas from the
+Pizza API into `picked.ttl`.)
 """
 
 from __future__ import annotations
@@ -50,7 +52,11 @@ class Catalog:
             raise FileNotFoundError(f"no Turtle file found in {source}")
         self.g = Graph()
         for path in self.sources:
-            self.g.parse(str(path), format="turtle")
+            try:
+                self.g.parse(str(path), format="turtle")
+            except Exception as error:  # rdflib raises BadSyntax, without the file name
+                raise ValueError(f"{path}: not valid Turtle -- {error}. Look for a ';' or ',' "
+                                 f"where a statement should end with '.', or a missing quote.") from None
         # The graph is read-only, so every answer can be remembered. Without
         # this, a generator drawing a few thousand sentences would run the same
         # three SPARQL queries a few thousand times -- the data has not changed

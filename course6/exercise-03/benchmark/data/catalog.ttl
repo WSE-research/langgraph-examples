@@ -15,8 +15,8 @@
 
 ########################################################################
 # The menu -- ten of the twenty-two pizzas of GET /pizza, with the ids the API
-# uses (Task 3 picks more). tests/test_dataset.py checks these against the known
-# menu.
+# uses (Task 3 picks more), and one pizza we do not sell. tests/test_dataset.py
+# checks these against the known menu.
 #
 # :onMenu says whether the service sells this pizza. A pizza with :onMenu false
 # carries NO :pizzaId -- it is a thing customers ask for and we do not have, and
@@ -53,6 +53,13 @@
 
 :Calzone a :PIZZA ; :pizzaId 10 ; :name "Calzone" ; :onMenu true ;
     rdfs:label "Calzone", "calzone", "Calzonne" .
+
+# The refusal case of the menu: customers ask for it, GET /pizza does not list
+# it. No :pizzaId, :onMenu false -- so every sentence drawn with it expects
+# "nothing recognised", and pizza_v2 measures the failure clause of the
+# contract as well as the happy path.
+:PizzaNapoli a :PIZZA ; :name "Pizza Napoli" ; :onMenu false ;
+    rdfs:label "Pizza Napoli", "pizza napoli", "Pizza Napolli" .
 
 ########################################################################
 # Addresses. An address is STRUCTURED: :a1 owns its street, its number and
@@ -134,13 +141,19 @@
 # A Greek city has more than one Latin spelling: "Athina" is the
 # transliteration of Αθήνα, "Athens" the English name -- the service accepts
 # both, and the Greek script too, but the canonical value a component must
-# write is the service's name, "Athens". "Ath." and "Ag. Paraskevi" are
-# abbreviations nobody accepts.
+# write is the service's name, "Athens".
+#
+# Every wording of a deliverable city is a spelling POST /address/validate
+# ACCEPTS. Abbreviations such as "Ath.", "Ag. Paraskevi" or "Halle (Saale)" are
+# refused by the service -- so for a sentence with one of them the contract
+# says "write nothing", and a case expecting the Athens address would be a
+# wrong gold standard. tests/test_dataset.py checks every wording against the
+# service.
 :athens a :CITY ; :name "Athens" ; :deliverable true ;
-    rdfs:label "Athens", "athens", "ATHENS", "Athina", "Αθήνα", "Ath." .
+    rdfs:label "Athens", "athens", "ATHENS", "Athina", "Αθήνα" .
 
 :agiaParaskevi a :CITY ; :name "Agia Paraskevi" ; :deliverable true ;
-    rdfs:label "Agia Paraskevi", "Ayia Paraskevi", "Ag. Paraskevi" .
+    rdfs:label "Agia Paraskevi", "Ayia Paraskevi" .
 
 :piraeus a :CITY ; :name "Piraeus" ; :deliverable true ;
     rdfs:label "Piraeus", "piraeus", "PIRAEUS" .
@@ -149,7 +162,7 @@
     rdfs:label "Leipzig", "leipzig" .
 
 :halle a :CITY ; :name "Halle" ; :deliverable true ;
-    rdfs:label "Halle", "halle", "Halle (Saale)" .
+    rdfs:label "Halle", "halle", "HALLE" .
 
 :dresden a :CITY ; :name "Dresden" ; :deliverable true ;
     rdfs:label "Dresden", "dresden" .

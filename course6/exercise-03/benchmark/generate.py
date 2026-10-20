@@ -32,8 +32,10 @@ without them:
   outcome is `None`: the component must recognise *nothing*. `catalog.servable()`
   decides, from the flags in the graph (`:onMenu`, `:deliverable`).
 
-The generator produces **inputs only**. An expected value is drawn together with
-its surface form -- never invented, never asked of a model.
+The generator produces the expected value **by construction**: it is drawn
+together with its surface form -- never invented, never asked of a model. (An
+LLM paraphraser is the opposite: it produces inputs only, and the expected value
+of a paraphrase is copied from its seed sentence.)
 
 Command line::
 

@@ -1,12 +1,12 @@
-"""Task 8 -- is the LLM endpoint reachable, and does it answer?
+"""Is the LLM endpoint reachable, and does it answer?
 
     python check_llm.py                    # three checks against the endpoint
     python check_llm.py --model <a name>   # try another model the endpoint offers
 
-Iteration 1 does not use an LLM: every component you build today is a rule.
-This check exists so that the *infrastructure* is proven working before
-Iteration 2 depends on it -- finding out that a key is wrong costs five minutes
-today and half a session next week.
+In Iteration 3 this is also the list of models to compare (Task 4, R4): the
+endpoint names the ones it offers, and `evaluate.py --model <name>` measures
+one of them. Run it before you measure anything -- finding out that a key is
+wrong costs five minutes before the session and half of it during.
 
 Configuration -- put it in .env (see .env.example). All three values are
 provided on-site, independently of this repository::
@@ -153,8 +153,8 @@ def main() -> None:
         log.detail(f"tokens used by the first call: {usage.prompt_tokens} in, "
                    f"{usage.completion_tokens} out", indent="")
     log.plain()
-    log.result("endpoint check finished -- note the model name that worked, "
-               "you need it in Iteration 2.")
+    log.result("endpoint check finished -- the models above are the ones evaluate.py --model "
+               "can measure; every number it writes records the model it came from.")
 
 
 if __name__ == "__main__":

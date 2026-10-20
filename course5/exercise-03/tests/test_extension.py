@@ -14,7 +14,7 @@ What is required, counted against the data as it was handed to you:
 | what | was | must be | where it comes from |
 | --- | --- | --- | --- |
 | cities | 8 | at least 18 -- **ten more, picked from `GET /city`** | `python -m benchmark.fetch cities "Patras" ...` |
-| pizzas | 10 | at least 13 -- **three more, picked from `GET /pizza`** | `python -m benchmark.fetch pizzas "Capricciosa" ...` |
+| pizzas | 11 (ten on the menu, one we do not sell) | at least 14 -- **three more, picked from `GET /pizza`** | `python -m benchmark.fetch pizzas "Capricciosa" ...` |
 | streets | 8 | at least 18 -- ten more, **written by you** | Turtle, by hand: the service has no streets |
 | house numbers | 8 | at least 18 -- one per street, **written by you** | the same |
 | descriptive pizza wordings | 8 | at least 11 -- three more, **written by you** | one `rdfs:label` each |
@@ -41,11 +41,11 @@ from benchmark.generate import capacity
 
 pytestmark = pytest.mark.gate
 
-#: The data as it was handed out, on 2026-09-18. Every number below is "this
+#: The data as it was handed out, on 2026-10-20. Every number below is "this
 #: many were there before you started" -- the tests ask for growth, not for a
 #: particular content, because what you add is your team's decision.
-BASELINE = {"PIZZA": 10, "CITY": 8, "STREET": 8, "ADDRESS": 8, "descriptive": 8}
-BASELINE_CAPACITY = {"address_v2": 2448, "pizza_v2": 960, "order_v2": 195840}
+BASELINE = {"PIZZA": 11, "CITY": 8, "STREET": 8, "ADDRESS": 8, "descriptive": 8}
+BASELINE_CAPACITY = {"address_v2": 2148, "pizza_v2": 1032, "order_v2": 184728}
 
 REQUIRED = {"PIZZA": 3, "CITY": 10, "STREET": 10, "descriptive": 3}
 
@@ -139,8 +139,8 @@ def test_three_more_descriptive_pizza_wordings(catalog):
     wanted = BASELINE["descriptive"] + REQUIRED["descriptive"]
     assert len(found) >= wanted, (
         f"{len(found)} descriptive wording(s), {wanted} needed. A misspelling does not count -- "
-        f"a name that says what the pizza IS does: 'the four cheese one', 'pizza with mushrooms', "
-        f"'the spicy one'. Found so far: {sorted(found)}")
+        f"a name that says what the pizza IS does: 'four cheese pizza', 'pizza with mushrooms', "
+        f"'spicy salami pizza'. Found so far: {sorted(found)}")
 
 
 def test_every_address_has_its_own_house_number(catalog):

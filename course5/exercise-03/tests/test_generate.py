@@ -67,7 +67,7 @@ def test_a_city_we_do_not_deliver_to_expects_nothing(catalog):
 def test_a_pizza_that_is_not_on_the_menu_expects_nothing(catalog):
     off_menu = [p for p in catalog.instances("PIZZA") if not catalog.servable(p)]
     if not off_menu:
-        pytest.skip("no off-menu pizza in the catalog yet (Task 3 adds them)")
+        pytest.skip("no pizza with :onMenu false in the catalog -- the handed-out one is :PizzaNapoli")
     rows = [row for row in generate(catalog, "pizza_v2", n=80, seed=9) if not row["servable"]]
     assert rows, "off-menu pizzas exist but none was drawn in 80 cases"
     assert all(row["expected"]["pizza_id"] is None for row in rows)

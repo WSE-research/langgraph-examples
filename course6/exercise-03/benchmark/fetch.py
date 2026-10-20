@@ -158,9 +158,14 @@ def pick_cities(names: list[str]) -> int:
                 log.hint(f'pick it by the service\'s own name: '
                          f'python -m benchmark.fetch cities "{similar[0]["name"]}"')
             else:
-                log.fail(f"{name}: the service does not deliver there")
-                log.hint(f"search for the right spelling: "
-                         f"python -m benchmark.fetch cities --search {name[:12]}")
+                # Nothing of that name and nothing like it: outside the delivery
+                # area -- or an abbreviation ("Ag. Paraskevi") that no search
+                # can expand. Searching for the longest word finds the second.
+                longest = max(name.replace(".", " ").split(), key=len, default=name)
+                log.fail(f"{name}: the service lists no such city and finds none like it -- "
+                         f"outside the delivery area, or abbreviated")
+                log.hint(f"search for a part of it: "
+                         f"python -m benchmark.fetch cities --search {longest[:6]}")
             skipped.append(name)
             continue
         city = found[0]

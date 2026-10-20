@@ -13,37 +13,39 @@ and `None` is a legitimate expected value: it means **the component must
 recognise nothing**. At least one of your five per method has to be such a case.
 A test suite in which nothing is ever refused measures half a contract.
 
+Write the expected value from the **contract**: the address as the catalog names
+it ("Athens", "12b"). The comparison rule is the same as in `evaluate.py` --
+an answer is right when it names the same individual: "Athina", "ATHENS" or
+"12 b" for the same city and house number all count.
+
 Run it::
 
-    pytest -q tests/test_manual_cases.py                 # against the static configuration
-    BOT_CONFIG=llm pytest -q tests/test_manual_cases.py  # against the LLM configuration
-    pytest -q tests/test_manual_cases.py -rs             # ... and show what is still skipped
+    pytest -q -m gate tests/test_manual_cases.py         # did you write five per method?
+    pytest -q tests/test_manual_cases.py                 # the static configuration
+    BOT_CONFIG=llm pytest -q tests/test_manual_cases.py  # the LLM configuration
+    # PowerShell: $env:BOT_CONFIG="llm"; pytest -q tests/test_manual_cases.py
 
-Two kinds of test over the same cases, and the difference between them is the
-lesson: **refusing is exact** (a guarantee that holds four times out of five is
-not a guarantee), **recognising is a rate** (`THRESHOLD`). That is the same split
-Iteration 2 made between a rule test and a threshold test -- now with your cases
-behind it.
+Two kinds of statement over the same cases, and the difference between them is
+the lesson: **refusing is exact** -- a guarantee, asserted case by case -- and
+**recognising is a rate**, which over five cases cannot decide anything (even 5
+of 5 has a lower bound of 0.57). So the rate is *reported*, not asserted: the
+summary at the end of the pytest output prints every case, what the component
+wrote, and the interval.
 
 You are done with this task when: `pytest -q -m gate tests/test_manual_cases.py`
-is green for all three methods, `pytest -q tests/test_manual_cases.py` is green,
-and you can say which of your cases the static configuration fails and which the
-LLM configuration fails. They will not be the same cases -- that difference is
-the first finding of the session.
+is green, `pytest -q tests/test_manual_cases.py` is green in both configurations,
+and you can name one case the static configuration fails and one the LLM
+configuration fails -- the summary prints both.
 
 Note the division of labour with `evaluate.py`: these cases are *yours*, few, and
 chosen; the generated ones are many and drawn from the graph. Both are scored by
-exactly the same `score()` function, so the two numbers can be put in one table.
+exactly the same `score()` function and the same wordings of the catalog, so the
+two numbers can be put in one table.
 """
 
 import pytest
 
-from evaluate import METHODS, fold, score, wilson
-
-#: The rate a method must reach over YOUR cases. Write the number down before
-#: you run the tests for the first time -- that is what makes it a threshold and
-#: not a description of the result you happened to get.
-THRESHOLD = 0.80
+from evaluate import METHODS, accepted_for, fold, score, wilson
 
 #: At least this many cases per method, at least one of them a refusal.
 MINIMUM = 5
@@ -83,9 +85,10 @@ MANUAL_PIZZA = [
 MANUAL_ORDER = [
     ("I would like one Diavola to 12b Vasilissis Sofias, Athens",
      (8, {"street": "Vasilissis Sofias", "house_number": "12b", "city": "Athens"})),
-    # TODO: four more. At least one where ONE of the two is recognisable and the
-    # other is not -- a component that drags its neighbour down with it is a
-    # contract violation you want to find here and not in the closing round.
+    # TODO: four more in MANUAL_ORDER. At least one where ONE of the two is
+    # recognisable and the other is not -- e.g. ("a Funghi to Barcelona", (5, None))
+    # -- and one where NEITHER is: ("is the kitchen open tonight?", (None, None)).
+    # Only the second kind counts as the refusal of this method.
 ]
 
 
@@ -95,6 +98,8 @@ CASES = {
     "pizza_and_address": [(text, {"pizza_id": pizza, "address": address})
                           for text, (pizza, address) in MANUAL_ORDER],
 }
+LIST_NAME = {"address_recognition": "MANUAL_ADDRESS", "pizza_recognition": "MANUAL_PIZZA",
+             "pizza_and_address": "MANUAL_ORDER"}
 
 
 def run(implementations, method_name: str, utterance: str) -> dict:
@@ -114,22 +119,22 @@ def test_enough_cases(method_name):
     cases = CASES[method_name]
     assert len(cases) >= MINIMUM, (
         f"{method_name}: {len(cases)} case(s) written, {MINIMUM} needed -- "
-        f"fill MANUAL_{method_name.split('_')[0].upper()} in this file")
+        f"fill {LIST_NAME[method_name]} in this file")
     refusals = [case for case in cases if all(value is None for value in case[1].values())]
     assert refusals, (
-        f"{method_name}: no case expects 'nothing recognised'. A contract has a "
-        f"failure clause; a test set without one does not test it.")
+        f"{method_name}: no case in {LIST_NAME[method_name]} expects 'nothing recognised' "
+        f"in every field{' -- e.g. (None, None)' if method_name == 'pizza_and_address' else ''}. "
+        f"A contract has a failure clause; a test set without one does not test it.")
 
 
 @pytest.mark.parametrize("method_name", list(CASES))
 def test_a_refusal_is_never_answered_with_a_value(implementations, method_name):
     """The exact half of the contract: what the component promises NOT to do.
 
-    Recognising a value is approximate -- it gets a threshold, below. Refusing is
-    not: "nothing recognised -> write nothing" is a guarantee, and a guarantee
-    that holds 80 % of the time is not a guarantee. Every case of yours whose
-    expected value is None is checked here, one assertion each, both
-    configurations.
+    Recognising a value is approximate -- it is a rate, reported below. Refusing
+    is not: "nothing recognised -> write nothing" is a guarantee, and a guarantee
+    that holds 80 % of the time is not a guarantee. Every case of yours with a
+    `None` is checked here, one assertion each, both configurations.
     """
     cases = [case for case in CASES[method_name]
              if any(value is None for value in case[1].values())]
@@ -145,27 +150,34 @@ def test_a_refusal_is_never_answered_with_a_value(implementations, method_name):
 
 
 @pytest.mark.parametrize("method_name", list(CASES))
-def test_pass_rate_over_the_hand_written_cases(implementations, method_name):
-    """The same cases as a rate, with the interval printed.
+def test_the_rate_over_the_hand_written_cases_is_reported(implementations, catalog, configuration,
+                                                          manual_report, method_name):
+    """The same cases as a rate -- reported, not asserted.
 
-    This is the test that survives into the generated world: with five cases the
-    interval is embarrassingly wide, and seeing *how* wide is the point. Compare
-    it with the interval `evaluate.py` prints for 50 generated ones.
+    Five cases cannot decide anything: 5 of 5 has a lower bound of 0.57, far below
+    any useful threshold. Asserting the rate would push you to edit honest cases
+    until they pass -- the one thing a gold standard must never be. So this test
+    records every case and the interval; pytest prints them in its summary.
     """
     cases = CASES[method_name]
-    if len(cases) < MINIMUM:
-        pytest.skip(f"{method_name}: only {len(cases)} case(s) written so far")
-    hits = sum(all(score(run(implementations, method_name, utterance).get(field), want, None)
-                   for field, want in expected.items())
-               for utterance, expected in cases)
-    rate = hits / len(cases)
+    if not cases:
+        pytest.skip(f"{method_name}: no case written yet")
+    hits, lines = 0, []
+    for utterance, expected in cases:
+        slots = run(implementations, method_name, utterance)
+        ok = all(score(slots.get(field), want, accepted_for(catalog, want))
+                 for field, want in expected.items())
+        hits += ok
+        got = {field: slots.get(field) for field in expected}
+        lines.append(f"  {'ok  ' if ok else 'MISS'} {utterance!r}\n         got {got}"
+                     + ("" if ok else f"\n         expected {dict(expected)}"))
     low, high = wilson(hits, len(cases))
-    assert rate >= THRESHOLD, (
-        f"{method_name}: {hits}/{len(cases)} = {rate:.2f} < {THRESHOLD}, "
-        f"95% CI [{low:.2f}, {high:.2f}]")
+    manual_report.append(f"{method_name} [{configuration}]: {hits}/{len(cases)} = {hits / len(cases):.2f}, "
+                         f"95% CI [{low:.2f}, {high:.2f}] -- reported, not asserted")
+    manual_report.extend(lines)
 
 
-def test_the_scorer_treats_a_copied_wording_as_the_same_answer():
+def test_the_scorer_treats_a_copied_wording_as_the_same_answer(catalog):
     """Read this one: it is the whole leniency of this harness, and its limit."""
     accepted = {"city": ["Athens", "Athina", "athens"]}
     assert score({"city": "Athina"}, {"city": "Athens"}, accepted)
@@ -173,3 +185,7 @@ def test_the_scorer_treats_a_copied_wording_as_the_same_answer():
     assert fold("Agía Paraskeví") == fold("agia paraskevi")
     assert score(None, None, None)                       # a refusal, answered correctly
     assert not score({"city": "Piraeus"}, None, None)    # answered something where nothing was right
+    # A hand-written record is looked up in the catalog: the same individual, any wording
+    expected = {"street": "Vasilissis Sofias", "house_number": "12b", "city": "Athens"}
+    copied = {"street": "Vas. Sofias", "house_number": "12 b", "city": "Αθήνα"}
+    assert score(copied, expected, accepted_for(catalog, expected))

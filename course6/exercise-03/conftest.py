@@ -10,6 +10,10 @@ measures both configurations without being edited::
 
     pytest -q                      # static -- the Iteration 1 rules, no LLM endpoint needed
     BOT_CONFIG=llm pytest -q       # the LLM-backed implementations
+
+`implementation` (singular) is Iteration 2's fixture, parametrized over both
+configurations; it is here so that the Iteration 2 tests of a team that copies
+this file into its repository keep running.
 """
 
 import os
@@ -47,7 +51,48 @@ def configuration() -> str:
 
 @pytest.fixture(scope="session")
 def implementations(configuration) -> dict:
-    """Component name -> the function that implements it, for this configuration."""
-    from pizzabot import config
+    """Component name -> the function that implements it, for this configuration.
 
+    `BOT_CONFIG=llm` without an endpoint skips instead of running: the LLM-backed
+    components would fall back to the rules on every case, and the tests would
+    measure the rule under the LLM's name.
+    """
+    from pizzabot import config, llm_service
+
+    if configuration == config.LLM and not llm_service.configured():
+        pytest.skip(f"BOT_CONFIG=llm needs {', '.join(llm_service.missing())} in .env (provided on-site) "
+                    f"-- without them every answer would come from the rule")
     return config.implementations(configuration)
+
+
+#: What tests/test_manual_cases.py reports: the rate over the hand-written cases.
+MANUAL_REPORT: list[str] = []
+
+
+@pytest.fixture(scope="session")
+def manual_report() -> list[str]:
+    return MANUAL_REPORT
+
+
+def pytest_terminal_summary(terminalreporter, exitstatus, config):  # noqa: ARG001
+    """Print the hand-written cases, case by case, after the dots -- no `-s` needed."""
+    if MANUAL_REPORT:
+        terminalreporter.section("your hand-written cases (Task 2): the rate, reported")
+        for line in MANUAL_REPORT:
+            terminalreporter.write_line(line)
+
+
+@pytest.fixture(scope="session", params=["static", "llm"])
+def implementation(request) -> dict:
+    """Iteration 2's fixture, kept on purpose: the same tests, once per configuration.
+
+    Your Iteration 2 repository has `tests/test_both_configurations.py`, which asks
+    for it. Copying this file over the Iteration 2 `conftest.py` must not turn
+    those tests red -- so the fixture moved here, unchanged: the LLM half is
+    skipped, not failed, while the endpoint is not configured.
+    """
+    from pizzabot import config, llm_service
+
+    if request.param == config.LLM and not llm_service.configured():
+        pytest.skip(f"the LLM configuration needs {', '.join(llm_service.missing())} in .env (provided on-site)")
+    return config.implementations(request.param)

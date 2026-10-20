@@ -148,19 +148,30 @@ def test_every_city_says_whether_we_deliver_there(catalog):
                      "Since the area is all of France and Greece, an outsider has to be from elsewhere.")
 
 
-@pytest.mark.parametrize("what", ["cities", "menu"])
+@pytest.mark.parametrize("what", ["cities", "menu", "wordings"])
 def test_the_snapshot_still_matches_the_service(catalog, what):
     """The graph and the service, compared -- when the service is reachable.
 
     Skipped offline, on purpose: the suite has to run on a train. But the moment
-    a machine can reach the API, every `:deliverable` flag and every `:pizzaId`
-    in the graph is checked against it, so a benchmark can never quietly measure
-    a world the service does not live in.
+    a machine can reach the API, every `:deliverable` flag, every `:pizzaId` and
+    every wording of a deliverable city in the graph is checked against it, so a
+    benchmark can never quietly measure a world the service does not live in.
     """
     from pizzabot import pizza_api
 
     if not service_available():
         pytest.skip(f"Pizza API at {pizza_api.BASE} not reachable -- run pizza_api_stub.py")
+    try:
+        _compare_with_the_service(catalog, what)
+    except pizza_api.PizzaApiError as error:
+        # A shared service under load times out now and then; that says nothing
+        # about the graph. Skip with the reason instead of turning the suite red.
+        pytest.skip(f"the Pizza API did not answer in time -- run pytest again, or start "
+                    f"pizza_api_stub.py ({str(error).splitlines()[0][:120]})")
+
+
+def _compare_with_the_service(catalog, what: str) -> None:
+    from pizzabot import pizza_api
 
     if what == "menu":
         live = {item["id"]: item["name"] for item in pizza_api.menu(refresh=True)}
@@ -169,10 +180,39 @@ def test_the_snapshot_still_matches_the_service(catalog, what):
             "pizzas in your graph, in the same commit.")
         return
 
-    for city in catalog.instances("CITY"):
+    if what == "wordings":
+        # A wording the service refuses is not a hard case, it is a wrong gold
+        # standard: the contract says "write nothing" for it (the API must accept
+        # the address), while the case expects the city's address.
+        # One request per spelling (the service ignores case), several at a time:
+        # this test runs on every `pytest -q`, and a shared service is slow.
+        from concurrent.futures import ThreadPoolExecutor
+
+        wordings = {}
+        for city in catalog.instances("CITY"):
+            if catalog.servable(city):
+                for label in catalog.labels(city):
+                    wordings.setdefault(label.strip().casefold(), (label.strip(), catalog.name(city)))
+        with ThreadPoolExecutor(max_workers=6) as pool:
+            accepted = dict(zip(wordings, pool.map(
+                lambda item: pizza_api.validate_address("Ermou", "5", item[0]), wordings.values())))
+        refused = [f"{label!r} ({name})" for key, (label, name) in wordings.items() if not accepted[key]]
+        assert not refused, (
+            f"the service refuses these wordings of deliverable cities: {', '.join(refused)}. "
+            f"A case drawn with one would expect an address the contract forbids to write -- "
+            f"remove the wording. (`benchmark.fetch cities --search` finding a spelling does not mean "
+            f"the delivery check accepts it.)")
+        return
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    cities = catalog.instances("CITY")
+    with ThreadPoolExecutor(max_workers=6) as pool:                 # a shared service is slow
+        answers = list(pool.map(lambda city: pizza_api.delivers_to(catalog.name(city)), cities))
+    for city, answer in zip(cities, answers):
         name = catalog.name(city)
         expected = bool(catalog.g.value(city, PZ.deliverable).toPython())
-        assert pizza_api.delivers_to(name) == expected, (
+        assert answer == expected, (
             f"{name}: the graph says deliverable={expected}, GET /city says the opposite")
 
 
